@@ -9,17 +9,16 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='sito, fuori'; 
+campione='sito, lato';
 accelerometro=0;
 punta='m'; %m=metallica; p=plastica; g=gomma.
-piastra='piccola';
+piastra='grande';
 martellamento='auto';
 
 % % x = sito_piastrina_colpi_male (:,1); % Force [N] 
 % % y = sito_piastrina_colpi_male (:,accelerometro+2); % Accelerazione [m/s^2] 
-x = sito_piastra_piccola_fuori_metallo_mart; % Force [N] 
-y = sito_piastra_piccola_fuori_metallo_acc; % Accelerazione [m/s^2] 
-
+x = sito_piastra_grande_lato_metallo_mart; % Force [N] 
+y = sito_piastra_grande_lato_metallo_acc; % Accelerazione [m/s^2] 
 
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri di controllo
@@ -31,31 +30,30 @@ y = sito_piastra_piccola_fuori_metallo_acc; % Accelerazione [m/s^2]
 g=9.81;                 % Accelerazione di gravità [m/s^2]
 div_F=2000;             % Divisione applicata alla Forza prima della scrittura sul file WAVE
 div_A=500;              % Divisione applicata alla Accelerazione prima della scrittura sul file WAVE
-
 % Parametri di ricerca
 fs=52100;               % Freq. di campionamento (Hz);
 soglia=10;               % Soglia dei picchi;
 delay=round(0.1*fs);    % Sample da saltare una volta superata la soglia
 inizio=1*fs;          % Punto di inizio della ricerca dei picchi;
-fine=size(x);           % Punto di fine della ricerca dei picchi
-
+fine=1.9e6;%size(x);           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
-bandwidth=250;            % Larghezza di banda richiesta al singolo colpo
-
+bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
 % Dimensioni dei campioni
 L_pre=round(1/2000*fs); % Lunghezza della parte prima del picco
 L_coda=round(1*fs);   % Lunghezza della coda dei segnali
-
 % Filtraggio doppi colpi
 filt_doppi=1;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
-
 % Normalizzazione colpi
 norm=0;                 % Se norm=1 i colpi vengono normalizzati
 % Finestratura
 window_F=5;         % Tipo di finestratura da applicare
 window_A=5;
-% 0 = nessuna finestratura % 1 = finestratura quadrata % 2 = hamming (da verificare) % 3 = blackmanharris ritardata % 4 = blackmanharris anticipata % 5 = Hann Window
-
+% 0 = nessuna finestratura
+% 1 = finestratura quadrata
+% 2 = hamming (da verificare)
+% 3 = blackmanharris ritardata
+% 4 = blackmanharris anticipata
+% 5 = Hann Window
 % Plotting
 ascissamin=10;         % Frequenza minima da plottare nei grafici 
 ascissamax=4000;        % Frequenza massima da plottare nei grafici
@@ -84,7 +82,7 @@ n_picchi
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Definizione delle matrici (selezione dei segnali)
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-[F, pos] = creamatriceforza (x, picchi,n_picchi, L_pre, L_coda, filt_doppi, fs);
+[F, pos] = creamatriceforza_noavg (x, picchi,n_picchi, L_pre, L_coda, filt_doppi, fs);
 [A] = creamatriceaccelerazione (y, pos, L_pre, L_coda, fs);
 picchi_sel1=length(pos)
 
@@ -101,9 +99,13 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Finestratura e Normalizzazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%Faccio un calcolo di F_filt per ottenere L_win 
 [F_filt, L_win] = finestra_forza (F, window_F, fs);
-[A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
 
+%Finestro sia Accelerazione che Fora utilizzando finestra_accelerazione 5
+%sulla base di L_win
+[A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
+[F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
     
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle FRFs
@@ -112,9 +114,9 @@ L = length(F_filt(:,1));
 [PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
 [PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
 
-%<<<<<<<<<<<<<<<<<<<<
+%<<<<<<<<<<<<<<<<<<
 % Filtraggio Banda
-%<<<<<<<<<<<<<<<<<<<<
+%<<<<<<<<<<<<<<<<<<
 [r,c]=size(PSD_F);
 tagli=[];
 scarti=0;
@@ -189,6 +191,7 @@ F_filtall = reshape(F_filt2, [],1);
 A_filtall = reshape(A_filt2, [],1);
 [r,c]=size(F_filt2);
 [Cxy1,f] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],L,fs);
+save (['Coherence, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Cxy1');
 
 clear F_filt2
 clear A_filt2
@@ -258,6 +261,9 @@ grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
 Dstiff1_av = PSD_Fav./PSD_D1av; %Modulo della Dynamic Stiffness
 save (['Dstiffness_av, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av');
 Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
+save (['Dstiffness_av_ph, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
+
+
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dynamic Stiffness
 %<<<<<<<<<<<<<<<<<<<<<<<<
@@ -462,10 +468,10 @@ hold off
 
 figure
 hold on 
-sgtitle('Confronto tra ripetizioni - piastra grande vs piccola- di lato, plastica')
-semilogx (f, 20*log10(Dstiff1_av_1G),':','LineWidth', 1),
-semilogx (f, 20*log10(Dstiff1_av_2G),':','LineWidth',1),
-semilogx (f, 20*log10(Dstiff1_av_3G),':','LineWidth', 1),
+sgtitle('Confronto tra ripetizioni - piastra grande vs piccola - fuori - metallo')
+semilogx (f, 20*log10(Dstiff1_av_1G),'LineWidth', 3),
+semilogx (f, 20*log10(Dstiff1_av_2G),'LineWidth',3),
+semilogx (f, 20*log10(Dstiff1_av_3G),'LineWidth', 3),
 semilogx (f, 20*log10(Dstiff1_av_1P),'--','LineWidth', 1),
 semilogx (f, 20*log10(Dstiff1_av_2P),'--','LineWidth', 1),
 semilogx (f, 20*log10(Dstiff1_av_3P),'--','LineWidth', 1),
@@ -477,6 +483,6 @@ xlabel('log(Frequency) [Hz]')
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
 %title(['Dynamic Stiffness (Force/Displacement) Amplitude']), 
 grid on,
-xlim([10 2000]), ylim([150 180])
+xlim([50 1000]), ylim([184 192])
 legend('Grande Rip. 1','Grande Rip. 2','Grande Rip. 3','Piccola Rip. 1','Piccola Rip. 2','Piccola Rip. 3')
-saveas (gcf, ['Confronto tra ripetizioni - piastra grande - di lato, plastica.fig'])
+% saveas (gcf, ['Confronto tra ripetizioni - piastra grande - dil lato, metallo.fig'])
