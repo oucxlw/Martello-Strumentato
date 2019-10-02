@@ -9,16 +9,17 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='sito, lato';
-accelerometro=0;
+campione='Slab, resina 1gg';
+accelerometro=1;
 punta='m'; %m=metallica; p=plastica; g=gomma.
 piastra='grande';
 martellamento='auto';
 
-% % x = sito_piastrina_colpi_male (:,1); % Force [N] 
-% % y = sito_piastrina_colpi_male (:,accelerometro+2); % Accelerazione [m/s^2] 
-x = sito_piastra_grande_lato_metallo_mart; % Force [N] 
-y = sito_piastra_grande_lato_metallo_acc; % Accelerazione [m/s^2] 
+ x = slab_piccola_m_res_1gg (:,1); % Force [N] 
+ y = slab_piccola_m_res_1gg (:,accelerometro+2); % Accelerazione [m/s^2] 
+%x = sito_piastra_piccola_lato_metallo_mart; % Force [N] 
+%y = sito_piastra_piccola_lato_metallo_acc; % Accelerazione [m/s^2] 
+
 
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri di controllo
@@ -34,15 +35,15 @@ div_A=500;              % Divisione applicata alla Accelerazione prima della scr
 fs=52100;               % Freq. di campionamento (Hz);
 soglia=10;               % Soglia dei picchi;
 delay=round(0.1*fs);    % Sample da saltare una volta superata la soglia
-inizio=1*fs;          % Punto di inizio della ricerca dei picchi;
-fine=1.9e6;%size(x);           % Punto di fine della ricerca dei picchi
+inizio=10*fs;          % Punto di inizio della ricerca dei picchi;
+fine=round(1*size(x));           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
-bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
+bandwidth=400;            % Larghezza di banda richiesta al singolo colpo
 % Dimensioni dei campioni
 L_pre=round(1/2000*fs); % Lunghezza della parte prima del picco
 L_coda=round(1*fs);   % Lunghezza della coda dei segnali
 % Filtraggio doppi colpi
-filt_doppi=1;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
+filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 % Normalizzazione colpi
 norm=0;                 % Se norm=1 i colpi vengono normalizzati
 % Finestratura
@@ -55,8 +56,8 @@ window_A=5;
 % 4 = blackmanharris anticipata
 % 5 = Hann Window
 % Plotting
-ascissamin=10;         % Frequenza minima da plottare nei grafici 
-ascissamax=4000;        % Frequenza massima da plottare nei grafici
+ascissamin=50;         % Frequenza minima da plottare nei grafici 
+ascissamax=2000;        % Frequenza massima da plottare nei grafici
 misura=['Campione ',num2str(campione),', ',martellamento,', punta ',punta,', piastra ',piastra,',Hann, PSDvsFFT, ',num2str(bandwidth),' Hz'];
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -121,14 +122,14 @@ L = length(F_filt(:,1));
 tagli=[];
 scarti=0;
 for jj=1:(c-scarti)
-f0=find(f>ascissamin,1);
-fmax=find(PSD_F(f0:end, jj-scarti)<((PSD_F(f0, jj-scarti)/10)),1); 
-fmax=f(fmax+f0);
-     if  fmax<bandwidth
-        PSD_F(:,jj-scarti)=[];
-        tagli=[tagli; jj];
-        scarti=scarti+1;
-     end
+    f0=find(f>ascissamin,1);
+    fmax=find(PSD_F(f0:end, jj-scarti)<((PSD_F(f0, jj-scarti)/10)),1); 
+    fmax=f(fmax+f0);
+         if  fmax<bandwidth
+            PSD_F(:,jj-scarti)=[];
+            tagli=[tagli; jj];
+            scarti=scarti+1;
+         end
 end
 picchi_sel2= picchi_sel1 - scarti
 PSD_A(:,tagli)=[];
@@ -199,36 +200,35 @@ clear A_filt2
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo DYNAMIC MASS Mechanical Impedance Dynamic Stiffness
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-%_____________________________________________________
+
 % Dynamic Mass
 DMASS1_av = PSD_Fav./PSD_Aav; %Modulo della Dynamic Mass;
 % save (['DMASS1_av, misura-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.mat'], 'DMASS1_av');
 DMASS1_av_ph = angle(FFT_Fav./FFT_Aav); %trovo la fase media usando le FFT;
-%<<<<<<<<<<<<<<<<<<<
-% Plot Dynamic Mass
-%<<<<<<<<<<<<<<<<<<<
-figure(104), 
-sgtitle(misura)
-subplot(3,1,1), plot(f,Cxy1), set(gca, 'XScale', 'log'), 
-title('Magnitude-Squared Coherence')
-xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
-grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
-figure (104), subplot(3,1,2), hold on, semilogx (f, 20*log10(DMASS1_av), 'LineWidth', 3),
-% k=12.5e6;
-% semilogx (f, 20*log10(k./((2*pi*f').*(2*pi*f'))), 'LineWidth', 3),
-set(gca, 'XScale', 'log'), 
-xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Mass| (dB ref 1 kg)'), title(['Dynamic Mass (Force/Acceleration) Amplitude']), 
-xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']), grid on, xlim([ascissamin ascissamax])
-figure (104), subplot(3,1,3), 
-hold on,
-plot (f, 180.*DMASS1_av_ph(1:L/2+1)./pi, 'LineWidth', 3),
-set(gca, 'XScale', 'log')
-xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Dynamic Mass (Force/Acceleration) Phase']),
-xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
-grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
-% saveas (gcf, ['Coerenza e dmass-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
+% %<<<<<<<<<<<<<<<<<<<
+% % Plot Dynamic Mass
+% %<<<<<<<<<<<<<<<<<<<
+% figure(104), 
+% sgtitle(misura)
+% subplot(3,1,1), plot(f,Cxy1), set(gca, 'XScale', 'log'), 
+% title('Magnitude-Squared Coherence')
+% xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
+% grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
+% figure (104), subplot(3,1,2), hold on, semilogx (f, 20*log10(DMASS1_av), 'LineWidth', 3),
+% % k=12.5e6;
+% % semilogx (f, 20*log10(k./((2*pi*f').*(2*pi*f'))), 'LineWidth', 3),
+% set(gca, 'XScale', 'log'), 
+% xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Mass| (dB ref 1 kg)'), title(['Dynamic Mass (Force/Acceleration) Amplitude']), 
+% xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']), grid on, xlim([ascissamin ascissamax])
+% figure (104), subplot(3,1,3), 
+% hold on,
+% plot (f, 180.*DMASS1_av_ph(1:L/2+1)./pi, 'LineWidth', 3),
+% set(gca, 'XScale', 'log')
+% xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Dynamic Mass (Force/Acceleration) Phase']),
+% xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
+% grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
+% % saveas (gcf, ['Coerenza e dmass-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
 
-%_____________________________________________________
 % Mechanical Impedance
 MI1_av = PSD_Fav./PSD_V1av; %Modulo dell'Impadenza meccanica
 % save (['MI_av, misura-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.mat'], 'MI1_av');
@@ -236,33 +236,32 @@ MI1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_V1av); %trovo la fase media usando le FF
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Mechanical Impedence
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<
-figure(105), 
-sgtitle(misura)
-subplot(3,1,1), plot(f,Cxy1), set(gca, 'XScale', 'log'), 
-title('Magnitude-Squared Coherence')
-xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
-grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
-figure (105), subplot(3,1,2), hold on, plot (f, 20.*log10(MI1_av), 'LineWidth', 3), 
-%semilogx (f, 20*log10(MI_av), 'LineWidth', 3),
-set(gca, 'XScale', 'log'), set(gca, 'YScale', 'log'), ylim([0 130])
-xlabel('log(Frequency) [Hz]'), ylabel('20 log |Mech. Impedance| (dB ref 1 N s/m]'), title(['Mechanical Impedance (Force/Velocity) Amplitude']), 
-xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); grid on, xlim([ascissamin ascissamax])
-figure (105), subplot(3,1,3), 
-hold on, plot (f, 180.*MI1_av_ph./pi, 'LineWidth', 3),
-set(gca, 'XScale', 'log')
-xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Mechanical Impedance (Force/Velocity) Phase']),
-xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
-grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
-% saveas (gcf, ['Coerenza e MI-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
+% figure(105), 
+% sgtitle(misura)
+% subplot(3,1,1), plot(f,Cxy1), set(gca, 'XScale', 'log'), 
+% title('Magnitude-Squared Coherence')
+% xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
+% grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
+% figure (105), subplot(3,1,2), hold on, plot (f, 20.*log10(MI1_av), 'LineWidth', 3), 
+% %semilogx (f, 20*log10(MI_av), 'LineWidth', 3),
+% set(gca, 'XScale', 'log'), set(gca, 'YScale', 'log'), ylim([0 130])
+% xlabel('log(Frequency) [Hz]'), ylabel('20 log |Mech. Impedance| (dB ref 1 N s/m]'), title(['Mechanical Impedance (Force/Velocity) Amplitude']), 
+% xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); grid on, xlim([ascissamin ascissamax])
+% figure (105), subplot(3,1,3), 
+% hold on, plot (f, 180.*MI1_av_ph./pi, 'LineWidth', 3),
+% set(gca, 'XScale', 'log')
+% xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Mechanical Impedance (Force/Velocity) Phase']),
+% xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
+% grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
+% % saveas (gcf, ['Coerenza e MI-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
 
 
 %_____________________________________________________
 % Dynamic Stiffness
 Dstiff1_av = PSD_Fav./PSD_D1av; %Modulo della Dynamic Stiffness
-save (['Dstiffness_av, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av');
+save (['Dstiffness_av, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av');
 Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
-save (['Dstiffness_av_ph, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
-
+save (['Dstiffness_av_ph, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
 
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dynamic Stiffness
@@ -286,6 +285,19 @@ xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Dynamic Stiffness (F
 xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
 grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
 saveas (gcf, ['Coerenza e Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,', ',num2str(bandwidth),'Hz','.fig'])                    
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Plot singolo D-Stiffness
+%<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+figure (107),
+semilogx (f, 20*log10(Dstiff1_av), 'LineWidth', 3),
+%semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), title(['Dynamic Stiffness (Force/Displacement) Amplitude']), 
+xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
+grid on, xlim([20 ascissamax]),ylim([120 190])
+
 
 %%
 %Derivo il m,odulo elsstico dinamico della pavimentazione ricavando il massimo della Dstiff 
@@ -465,16 +477,98 @@ hold off
 
 %%
 % Confronti tra ripetizioni
+%clear variables
 
 figure
 hold on 
-sgtitle('Confronto tra ripetizioni - piastra grande vs piccola - fuori - metallo')
-semilogx (f, 20*log10(Dstiff1_av_1G),'LineWidth', 3),
-semilogx (f, 20*log10(Dstiff1_av_2G),'LineWidth',3),
-semilogx (f, 20*log10(Dstiff1_av_3G),'LineWidth', 3),
-semilogx (f, 20*log10(Dstiff1_av_1P),'--','LineWidth', 1),
-semilogx (f, 20*log10(Dstiff1_av_2P),'--','LineWidth', 1),
-semilogx (f, 20*log10(Dstiff1_av_3P),'--','LineWidth', 1),
+titolo= 'Confronto biadesivo resina nel tempo, lato';
+sgtitle(titolo)
+% colori: #0072BD #D95319 #EDB120 #7E2F8E #77AC30
+
+% %confront pavimentazioni
+% %Via cocchi
+% semilogx (f, 20*log10(Dstiff1_av_G_1_diretta),'-','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_2_diretta),'-','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_3_diretta),'-','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_4_diretta),'-','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_5_diretta),'-','Color','#0072BD','LineWidth', 2),
+% 
+% semilogx (f, 20*log10(Dstiff1_av_G_1_trasmessa),'--','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_2_trasmessa),'--','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_3_trasmessa),'--','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_4_trasmessa),'--','Color','#0072BD','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_5_trasmessa),'--','Color','#0072BD','LineWidth', 2),
+% %via battelli3 1
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_1_diretta),'-','Color','#D95319','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_2_diretta),'-','Color','#D95319','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_3_diretta),'-','Color','#D95319','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_4_diretta),'-','Color','#D95319','LineWidth', 2),
+% 
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_1_trasmessa),'--','Color','#D95319','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_2_trasmessa),'--','Color','#D95319','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_3_trasmessa),'--','Color','#D95319','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli1_4_trasmessa),'--','Color','#D95319','LineWidth', 2),
+% 
+% %via battelli3 2
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_1_diretta),'-','Color','#EDB120','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_2_diretta),'-','Color','#EDB120','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_3_diretta),'-','Color','#EDB120','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_4_diretta),'-','Color','#EDB120','LineWidth', 2),
+% 
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_1_trasmessa),'--','Color','#EDB120','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_2_trasmessa),'--','Color','#EDB120','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_3_trasmessa),'--','Color','#EDB120','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelli2_4_trasmessa),'--','Color','#EDB120','LineWidth', 2),
+% 
+% %via battelli3 parck
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_1_diretta),'-','Color','#7E2F8E','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_2_diretta),'-','Color','#7E2F8E','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_3_diretta),'-','Color','#7E2F8E','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_4_diretta),'-','Color','#7E2F8E','LineWidth', 2),
+% 
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_1_trasmessa),'--','Color','#7E2F8E','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_2_trasmessa),'--','Color','#7E2F8E','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_3_trasmessa),'--','Color','#7E2F8E','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_battelliparck_4_trasmessa),'--','Color','#7E2F8E','LineWidth', 2),
+% legend('Via Cocchi "diretta"','','','','','Via Cocchi "trasmessa"','','','','','Via battelli 3,1 "diretta"','','','','Via battelli 3,1 "trasmessa"','','','','Via battelli 3,2 "diretta"','','','','Via battelli 3,2 "trasmessa"','','','','Via battelli parcking "diretta"','','','','Via battelli parcking "trasmessa"')
+
+
+% confronto Resina
+semilogx (f, 20*log10(Dstiff1_av_P_bi),'--','LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_5 ), 'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_10), 'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_20), 'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_40), 'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_80), 'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_160),'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_300),'LineWidth', 2),
+semilogx (f, 20*log10(Dstiff1_av_P_res_1gg),'LineWidth', 2),
+
+legend('Piccola biad','Piccola Resina 5 min','Piccola Resina 10 min','Piccola Resina 20 min','Piccola Resina 40 min','Piccola Resina 80 min','Piccola Resina 160 min','Piccola Resina 300min','Piccola Resina 1 gg')
+
+
+% % confronto Pattex Millechiodi
+% semilogx (f, 20*log10(Dstiff1_av_P_bi),'LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_P_at),'LineWidth',2),
+% semilogx (f, 20*log10(Dstiff1_av_P_patt),'LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_bi),'--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_at),'--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_patt),'--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_G_patt2),':','LineWidth', 2),
+ 
+% semilogx (f, 20*log10(Dstiff1_av_1G),'b','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_2G),'b','LineWidth',2),
+% semilogx (f, 20*log10(Dstiff1_av_3G),'b','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_1P),'b--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_2P),'b--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_3P),'b--','LineWidth', 2),
+
+% semilogx (f, 20*log10(Dstiff1_av_1Gn),'k','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_2Gn),'k','LineWidth',2),
+% semilogx (f, 20*log10(Dstiff1_av_3Gn),'k','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_1Pn),'k--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_2Pn),'k--','LineWidth', 2),
+% semilogx (f, 20*log10(Dstiff1_av_3Pn),'k--','LineWidth', 2),
 
 %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
 set(gca, 'XScale', 'log'), set(gca, 'YScale', 'log'),
@@ -483,6 +577,13 @@ xlabel('log(Frequency) [Hz]')
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
 %title(['Dynamic Stiffness (Force/Displacement) Amplitude']), 
 grid on,
-xlim([50 1000]), ylim([184 192])
-legend('Grande Rip. 1','Grande Rip. 2','Grande Rip. 3','Piccola Rip. 1','Piccola Rip. 2','Piccola Rip. 3')
-% saveas (gcf, ['Confronto tra ripetizioni - piastra grande - dil lato, metallo.fig'])
+xlim([20 2000]), %ylim([130 170])
+
+%legend('Piccola biad','Piccola Attak','Piccola pattex','Grande biadesivo','Grande attak','Grande pattex','Grande pattex 2gg')
+
+%legend('Grande Rip. 1','Grande Rip. 2','Grande Rip. 3','Piccola Rip. 1','Piccola Rip. 2','Piccola Rip. 3','Grande Rip. 1 no av','Grande Rip. 2 no av','Grande Rip. 3 no av','Piccola Rip. 1 no av','Piccola Rip. 2 no av','Piccola Rip. 3 no av')
+saveas (gcf, [titolo,'.fig'])
+
+
+
+
