@@ -149,3 +149,80 @@ for jj=1:(c-scarti)
 end
 picchi_sel2 = picchi_sel1 - scarti
 PSD_A(:,tagli)=[];
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Filtraggio in intensità PSD
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
+%operando la radice)
+bin=round(sqrt(picchi_sel2))+1;
+Max_pic=sqrt(max(max(PSD_F)));
+Min_pic=sqrt(min(max(PSD_F)));
+delta=(Max_pic-Min_pic)/bin;
+PSD_F2=PSD_F;
+PSD_A2=PSD_A;
+
+PSD_Fsort=[];
+PSD_Asort=[];
+for i=1:picchi_sel2
+    pos=find(sqrt(max(PSD_F2))==sqrt(max(max(PSD_F2))));
+    PSD_Fsort=[PSD_Fsort,PSD_F2(:,pos)];
+    PSD_Asort=[PSD_Asort,PSD_A2(:,pos)];
+    PSD_F2(:,pos)=[];
+    PSD_A2(:,pos)=[];
+end
+
+%F2=F;A2=A;
+figure, hold on
+plot(max(PSD_Fsort))
+plot(max(PSD_F))
+hold off
+
+[Y,E] = discretize(sqrt(max(PSD_F)),bin);
+values=1:bin;
+
+figure,histfit(sqrt(max(PSD_F)),bin);
+
+
+kkk=0;indice=0;
+[r,c]=size(PSD_F);
+
+for indice = 1:bin
+    kkk=kkk+1;
+    PSD_Fbin=[];
+    PSD_Abin=[];
+    for jj=1:c
+        if Y(jj)==indice
+            PSD_Fbin=[PSD_Fbin,PSD_F(:,jj)];
+            PSD_Abin=[PSD_Abin,PSD_A(:,jj)];
+        end
+    end
+  
+    [RR,CC]=size(PSD_Fbin);
+    
+%     % Stampo dei picchi selezionati
+%     x_sel = reshape(F,[],1);
+%     y_sel = reshape(A,[],1);
+%     l = length(x_sel);
+%     dt=1/fs; time=1000*(0:dt:l/fs-dt);
+%     figure(2) 
+%     subplot(2,1,1), hold on, plot(time, x_sel)
+%     subplot(2,1,2), hold on, plot(time, y_sel), 
+%     hold off
+
+    if CC>=1 & E(indice)>0.01
+%         % Matrici F e An filtrate con il bandwidth
+%         F_filt2 = F_filt ;
+%         A_filt2 = A_filt;
+%         F_filt2(:,tagli)=[];
+%         A_filt2(:,tagli)=[];
+
+        %Calcolo e memorizzo Spettri in fft di F, A, V e D
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % calcolo la media degli spettri
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        %PSD
+        PSD_Fav = mean(sqrt(PSD_Fbin), 2);
+        PSD_Aav = mean(sqrt(PSD_Abin), 2);
+        PSD_V1av = PSD_Aav./(2*pi*f); %velocità
+        PSD_D1av = PSD_V1av./(2*pi*f); % displacement
