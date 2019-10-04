@@ -35,10 +35,10 @@ for kk=1:picchi_sel
     switch window_A 
         case 1% finestra: Esponenziale:           
             Lw2=length(A(:,1));
-            tw2=0:1:L_win;
+            tw2=0:1:L_win(kk);
             beta=20; %<<<<<<<<<<<<<<<<<
             win=(4*exp(-tw2./beta))';
-            zeri=zeros(Lw2-L_win-1,1);
+            zeri=zeros(Lw2-L_win(kk)-1,1);
             win=[win; zeri];
             y_sel_filt = A(:, kk).*win;
             A_filt= [A_filt, y_sel_filt];
@@ -88,7 +88,7 @@ for kk=1:picchi_sel
         case 4 % finestra: hann basata su hann della forza lunga 2/3 L_win
             t0=1; 
             [~,pos] = max(A(:,kk));
-            tf=round(L_win*2/3);
+            tf=round(L_win(kk)*2/3);
             Lp = tf - t0;
             Delta_f = round(Lp/5);
             Sgn=A(1:tf-1,kk);
@@ -106,7 +106,7 @@ for kk=1:picchi_sel
         case 5 % finestra: hann lunga 2 volte L_win
             t0=1; 
             [~,pos] = max(A(:,kk));
-            tf=round(3*L_win);
+            tf=round(3*L_win(kk));
             Lp = tf - t0;
             Delta_f = round(Lp/5);
             Sgn=A(1:tf-1,kk);
