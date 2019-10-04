@@ -290,18 +290,6 @@ for indice = 1:bin
         figure (101), subplot (2,2,3),hold on
         xl=xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
-        
-%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-%         % COERENZA usando Forza / Accelerazione
-%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-%         F_filtall = reshape(F_filt2, [],1);
-%         A_filtall = reshape(A_filt2, [],1);
-%         [r,c]=size(F_filt2);
-%         [Cxy1,f] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],L,fs);
-%         save ([num2str(round(indice)),'Coherence, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Cxy1');
-% 
-%         clear F_filt2
-%         clear A_filt2
 
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo DYNAMIC MASS Mechanical Impedance Dynamic Stiffness
