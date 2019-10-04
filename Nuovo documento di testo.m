@@ -278,3 +278,74 @@ for indice = 1:bin
         figure (101), subplot (2,2,3),hold on
         xl=xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
+        
+%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         % COERENZA usando Forza / Accelerazione
+%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         F_filtall = reshape(F_filt2, [],1);
+%         A_filtall = reshape(A_filt2, [],1);
+%         [r,c]=size(F_filt2);
+%         [Cxy1,f] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],L,fs);
+%         save ([num2str(round(indice)),'Coherence, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Cxy1');
+% 
+%         clear F_filt2
+%         clear A_filt2
+
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % Calcolo DYNAMIC MASS Mechanical Impedance Dynamic Stiffness
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    %     % Dynamic Mass
+    %     DMASS1_av = PSD_Fav./PSD_Aav; %Modulo della Dynamic Mass;
+    %     % save (['DMASS1_av, misura-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.mat'], 'DMASS1_av');
+    %     DMASS1_av_ph = angle(FFT_Fav./FFT_Aav); %trovo la fase media usando le FFT;
+        % %<<<<<<<<<<<<<<<<<<<
+        % % Plot Dynamic Mass
+        % %<<<<<<<<<<<<<<<<<<<
+        % figure(104), 
+        % sgtitle(misura)
+        % subplot(3,1,1), plot(f,Cxy1), set(gca, 'XScale', 'log'), 
+        % title('Magnitude-Squared Coherence')
+        % xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
+        % grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
+        % figure (104), subplot(3,1,2), hold on, semilogx (f, 20*log10(DMASS1_av), 'LineWidth', 3),
+        % % k=12.5e6;
+        % % semilogx (f, 20*log10(k./((2*pi*f').*(2*pi*f'))), 'LineWidth', 3),
+        % set(gca, 'XScale', 'log'), 
+        % xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Mass| (dB ref 1 kg)'), title(['Dynamic Mass (Force/Acceleration) Amplitude']), 
+        % xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']), grid on, xlim([ascissamin ascissamax])
+        % figure (104), subplot(3,1,3), 
+        % hold on,
+        % plot (f, 180.*DMASS1_av_ph(1:L/2+1)./pi, 'LineWidth', 3),
+        % set(gca, 'XScale', 'log')
+        % xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Dynamic Mass (Force/Acceleration) Phase']),
+        % xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
+        % grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
+        % % saveas (gcf, ['Coerenza e dmass-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
+
+    %     % Mechanical Impedance
+    %     MI1_av = PSD_Fav./PSD_V1av; %Modulo dell'Impadenza meccanica
+    %     % save (['MI_av, misura-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.mat'], 'MI1_av');
+    %     MI1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_V1av); %trovo la fase media usando le FFT;
+
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % Plot Mechanical Impedence
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % figure(105), 
+        % sgtitle(misura)
+        % subplot(3,1,1), plot(f,Cxy1), set(gca, 'XScale', 'log'), 
+        % title('Magnitude-Squared Coherence')
+        % xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
+        % grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
+        % figure (105), subplot(3,1,2), hold on, plot (f, 20.*log10(MI1_av), 'LineWidth', 3), 
+        % %semilogx (f, 20*log10(MI_av), 'LineWidth', 3),
+        % set(gca, 'XScale', 'log'), set(gca, 'YScale', 'log'), ylim([0 130])
+        % xlabel('log(Frequency) [Hz]'), ylabel('20 log |Mech. Impedance| (dB ref 1 N s/m]'), title(['Mechanical Impedance (Force/Velocity) Amplitude']), 
+        % xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); grid on, xlim([ascissamin ascissamax])
+        % figure (105), subplot(3,1,3), 
+        % hold on, plot (f, 180.*MI1_av_ph./pi, 'LineWidth', 3),
+        % set(gca, 'XScale', 'log')
+        % xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Mechanical Impedance (Force/Velocity) Phase']),
+        % xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
+        % grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
+        % % saveas (gcf, ['Coerenza e MI-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
