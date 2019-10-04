@@ -130,3 +130,22 @@ picchi_sel1=length(pos)
 L = length(F_filt(:,1));
 [PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
 [PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
+
+%<<<<<<<<<<<<<<<<<<
+% Filtraggio Banda
+%<<<<<<<<<<<<<<<<<<
+[r,c]=size(PSD_F);
+tagli=[];
+scarti=0;
+for jj=1:(c-scarti)
+    f0=find(f>ascissamin,1);
+    fmax=find(PSD_F(f0:end, jj-scarti)<((PSD_F(f0, jj-scarti)/10)),1); 
+    fmax=f(fmax+f0);
+         if  fmax<bandwidth
+            PSD_F(:,jj-scarti)=[];
+            tagli=[tagli; jj];
+            scarti=scarti+1;
+         end
+end
+picchi_sel2 = picchi_sel1 - scarti
+PSD_A(:,tagli)=[];
