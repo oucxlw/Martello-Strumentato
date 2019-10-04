@@ -226,3 +226,55 @@ for indice = 1:bin
         PSD_Aav = mean(sqrt(PSD_Abin), 2);
         PSD_V1av = PSD_Aav./(2*pi*f); %velocità
         PSD_D1av = PSD_V1av./(2*pi*f); % displacement
+        
+%         %FFT
+%         FFT_Fav = mean( fft (F_filt2,  [], 1), 2); %FFT forza
+%         FFT_Aav = mean( fft (A_filt2, [], 1), 2); %FFT accelerazione
+%         FFT_V1av = FFT_Aav(1:L/2+1)./(1i*2*pi*f); %velocità
+%         FFT_D1av=FFT_V1av(1:L/2+1)./(1i*2*pi*f); % displacement
+
+        %Ciclo for per plottare segnali e spettri (PSD):
+        dt=1/fs; time1=1000*(0:dt:L/fs-dt);
+
+        figure(101), grid on,
+        sgtitle(misura)
+        for j=1:c
+            if Y(j)==indice
+                subplot(2,2,1), hold on,
+                plot(time1, F_filt(:, j),'color',string(colore(kkk,:))), xlabel('Time [ms]'), ylabel('Amplitude [N]'), title('Force'),
+                grid on, xlim([0 10])
+                
+                subplot(2,2,3), hold on,
+                semilogx (f, 10*log10(PSD_F(:, j))), xlabel('log(Frequency) [Hz]'), ylabel('20 log |PSD| (dB ref 1 N/Hz)'), title('PSD Force'), 
+                grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
+                
+                subplot(2,2,2), hold on,
+                plot(time1, A_filt(:, j),'color',string(colore(kkk,:))), xlabel('Time [ms]'), ylabel('Amplitude [g]'), title('Acceleration'),
+                grid on, xlim([0 10])
+                
+                subplot(2,2,4), hold on,
+                semilogx (f, 10*log10(PSD_A(:, j))), xlabel('log(Frequency) [Hz]'), ylabel('20 log |PSD| (dB ref 1 m/s^2 Hz)'), title('PSD Acceleration'), 
+                grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
+            end
+        end
+        hold off
+
+        %Plot degli spettri medi in PSD
+        figure (101), subplot(2,2,3), hold on,
+        plot (f, 20*log10(PSD_Fav), '-.','color',string(colore(kkk,:)), 'LineWidth', 3),grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
+        
+        figure (101), subplot(2,2,4), hold on,
+        plot (f, 20*log10(PSD_Aav), 'b' ,'color',string(colore(kkk,:)), 'LineWidth', 3),grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
+        
+        saveas (gcf, ['Segnali e spettri-C_',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.fig'])
+
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % Calcolo della frequenza massima
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        PSD_Fav_dB = 20.*log10(PSD_Fav);
+        fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
+        fmax=f(fmax(1)+f0);
+        %plot sulla PSD della forza
+        figure (101), subplot (2,2,3),hold on
+        xl=xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        hold off
