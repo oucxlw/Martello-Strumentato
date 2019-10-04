@@ -1,4 +1,5 @@
 % Martello strumentato filtro intensita
+%ciao pippo
 set (0,'DefaultFigureWindowStyle','docked')
 clc
 close all
@@ -123,6 +124,16 @@ picchi_sel1=length(pos)
 %sulla base di L_win
 [A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
 [F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<
+% Abbattimento della coda
+%<<<<<<<<<<<<<<<<<<<<<<<<<
+divid=20;
+for ii=1:CC
+    L=L_win(ii);
+    F_filt(:,ii)=[F_filt(1:(L-round(L/divid)-1),ii); movavg(F_filt((L-round(L/divid)):end,ii),'linear',round(L/7))];
+end
+
 
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle FRFs
