@@ -22,7 +22,7 @@ F=Forze;
 % Finestratura
 %<<<<<<<<<<<<<<
 F_filt=[];       % Matrice Forza dei picchi selezionati
-
+L_win=[];
 L = length(F(:,1));
 dt=1/fs; time=1000*(0:dt:L/fs-dt);
 [r,picchi_sel]=size(F);
@@ -148,7 +148,7 @@ for kk=1:picchi_sel
             winf= hann (Delta_f*2);
             winf=winf(Delta_f:end);
             win=[ win0;uno; winf];
-            L_win=length(win);
+            L_win=[L_win,length(win)];
             Sgn=Sgn.*win;
             zeri=zeros(length(F(:,kk))-length(Sgn),1);
             temp=[Sgn;zeri];
