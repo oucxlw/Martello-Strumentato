@@ -349,3 +349,67 @@ for indice = 1:bin
         % xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
         % grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
         % % saveas (gcf, ['Coerenza e MI-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
+
+
+        %_____________________________________________________
+        % Dynamic Stiffness
+        Dstiff1_av = PSD_Fav./PSD_D1av; %Modulo della Dynamic Stiffness
+        save (['Dstiffness_av, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av');
+%         Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
+%         save (['Dstiffness_av_ph, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
+
+        %<<<<<<<<<<<<<<<<<<<<<<<<
+        % Plot Dynamic Stiffness
+        %<<<<<<<<<<<<<<<<<<<<<<<<
+%         figure(106), 
+%         sgtitle(misura)
+%         subplot(3,1,1),
+%         plot(f,Cxy1),
+%         set(gca, 'XScale', 'log'), title('Magnitude-Squared Coherence')
+%         xlabel('log(Frequency) [Hz]'), ylabel('[-]'), 
+%         grid on, ylim([0 1.1]), xlim([ascissamin ascissamax]) 
+% 
+%         figure (106), %subplot(3,1,2),
+%         hold on,
+%         semilogx (f, 20*log10(Dstiff1_av),'color',string(colore(kkk,:)), 'LineWidth', 3),
+%         %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
+%         set(gca, 'XScale', 'log'), set(gca, 'YScale', 'log'), ylim([100 200])
+%         xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), title(['Dynamic Stiffness (Force/Displacement) Amplitude']), 
+%         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); grid on, xlim([ascissamin ascissamax])
+
+%         figure (106), subplot(3,1,3), 
+%         hold on,
+%         plot (f, 180.*Dstiff1_av_ph./pi,'color',string(colore(kkk,:)), 'LineWidth', 3),
+%         set(gca, 'XScale', 'log')
+%         xlabel('log(Frequency) [Hz]'), ylabel('Phase [°]'), title(['Dynamic Stiffness (Force/Displacement) Phase']),
+%         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']);
+%         grid on, xlim([ascissamin ascissamax]), ylim([-180 180]), hold off
+%         saveas (gcf, ['Coerenza e Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,', ',num2str(bandwidth),'Hz','.fig'])                    
+
+        %plot singole ripetizioni nel range selezionato
+        
+        figure (round(indice+200)),hold on
+        for iii=1:CC
+        semilogx (f, 10*log10( PSD_Fbin(:,iii).*((2*pi*f).^4)./PSD_A (:,iii) ),'color',string(colore(kkk,:)), 'LineWidth', 1),
+        %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
+        end
+        set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+        xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
+        titolo=['Dynamic Stiffness (Force/Displacement) Amplitude (fron ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)'];
+        title([titolo]),
+        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        grid on, xlim([20 ascissamax]),ylim([120 190])
+        saveas (gcf, ['fron ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
+        
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % Plot singolo D-Stiffness
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        figure (107),hold on,
+        semilogx (f, 20*log10(Dstiff1_av),'color',string(colore(kkk,:)), 'LineWidth', 3),
+        %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
+        set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+        xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), 
+        title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']), 
+        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        
