@@ -413,3 +413,12 @@ for indice = 1:bin
         title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']), 
         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         
+
+    end
+    
+    figure (107)     
+    grid on, xlim([20 ascissamax]),ylim([120 190])
+    saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
+    saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
+
+end
