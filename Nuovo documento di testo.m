@@ -84,3 +84,49 @@ colore=[
     '.446, .644, .148';  
     '.301, .705, .903'; 
     '.615, .018, .114'];
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calibrazione di forza e accelerazione
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+x=  div_F*x;     % Force [N] 
+y=g*div_A*(-y);
+
+L = length(x);
+dt=1/fs; time=1000.*[0:dt:L/fs-dt];
+figure(1)
+subplot(2,1,1), hold on, plot (time, x)
+subplot(2,1,2), hold on, plot (time, y), 
+hold off
+
+%<<<<<<<<<<<<<<<<<<<<
+% Ricerca dei PICCHI
+%<<<<<<<<<<<<<<<<<<<<
+
+[picchi,n_picchi] = trovacolpi(x, soglia, delay, inizio, fine);
+n_picchi
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Definizione delle matrici (selezione dei segnali)
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+[F, pos] = creamatriceforza_noavg (x, picchi,n_picchi, L_pre, L_coda, filt_doppi, fs);
+[A] = creamatriceaccelerazione (y, pos, L_pre, L_coda, fs);
+picchi_sel1=length(pos)
+
+[RR,CC]=size(F);
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Finestratura e Normalizzazione
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%Faccio un calcolo di F_filt per ottenere L_win 
+[F_filt, L_win] = finestra_forza (F, window_F, fs);
+
+%Finestro sia Accelerazione che Forza utilizzando finestra_accelerazione 5
+%sulla base di L_win
+[A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
+[F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
+
+%<<<<<<<<<<<<<<<<<<<<
+% Calcolo delle FRFs
+%<<<<<<<<<<<<<<<<<<<<
+L = length(F_filt(:,1));
+[PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
+[PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
