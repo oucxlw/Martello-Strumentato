@@ -150,6 +150,18 @@ end
 picchi_sel2 = picchi_sel1 - scarti
 PSD_A(:,tagli)=[];
 
+% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% % COERENZA usando Forza / Accelerazione
+% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% F_filtall = reshape(F_filt2, [],1);
+% A_filtall = reshape(A_filt2, [],1);
+% [r,c]=size(F_filt2);
+% [Cxy1,f] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],L,fs);
+% save ([num2str(round(indice)),'Coherence, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Cxy1');
+% 
+% clear F_filt2
+% clear A_filt2
+
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Filtraggio in intensità PSD
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
