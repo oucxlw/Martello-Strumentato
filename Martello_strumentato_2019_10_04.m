@@ -1,26 +1,29 @@
 % Martello strumentato filtro intensita
-%ciao pippo
+%
 set (0,'DefaultFigureWindowStyle','docked')
 clc
 close all
 clear variables
-load dati.mat
-
+%%
+% load dati.mat
+clc
+close all
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='teflon senza biadesivo, rip 1';
-accelerometro=0;
-punta='m'; %m=metallica; p=plastica; g=gomma.
-piastra='pesante';
+campione='Slab AC attak dilato';
+accelerometro=2;
+punta='M'; %m=metallica; p=plastica; g=gomma.
+piastra='piccola';
 martellamento='auto';
 
-x = pp_m_teflon_1 (:,1); % Force [N] 
-y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
+x = slab_piccola_m_attak (:,1); % Force [N] 
+y =slab_piccola_m_attak (:,2); % Accelerazione [m/s^2] 
 
+% x = pp_m_teflon_1 (:,1); % Force [N] 
+% y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
 %x = polipropilene_piccola_m_biad_3 (:,1); % Force [N] 
 %y = polipropilene_piccola_m_biad_3 (:,accelerometro+2); % Accelerazione [m/s^2] 
-
 %  x = slab_piccola_m_res_4 (:,1); % Force [N] 
 %  y = slab_piccola_m_res_4 (:,accelerometro+2); % Accelerazione [m/s^2] 
 %x = sito_piastra_piccola_lato_metallo_mart; % Force [N] 
@@ -215,7 +218,7 @@ for indice = 1:bin
     PSD_Fbin=[];
     PSD_Abin=[];
     for jj=1:c
-        if Y(jj)==indice
+        if Y(jj)==indice  & sqrt(max(PSD_F(:,jj)))>0.04 & sqrt(max(PSD_F(:,jj)))<0.16
             PSD_Fbin=[PSD_Fbin,PSD_F(:,jj)];
             PSD_Abin=[PSD_Abin,PSD_A(:,jj)];
         end
@@ -233,7 +236,7 @@ for indice = 1:bin
 %     subplot(2,1,2), hold on, plot(time, y_sel), 
 %     hold off
 
-    if CC>=1 & E(indice)>0.01
+    if CC>=1 
 %         % Matrici F e An filtrate con il bandwidth
 %         F_filt2 = F_filt ;
 %         A_filt2 = A_filt;
@@ -365,7 +368,7 @@ for indice = 1:bin
         %_____________________________________________________
         % Dynamic Stiffness
         Dstiff1_av = PSD_Fav./PSD_D1av; %Modulo della Dynamic Stiffness
-        save (['Dstiffness_av, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av');
+        save (['Dstiffness_av, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz - ',num2str(indice),'','.mat'], 'Dstiff1_av');
 %         Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
 %         save (['Dstiffness_av_ph, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
 
@@ -410,7 +413,7 @@ for indice = 1:bin
         title([titolo]),
         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         grid on, xlim([20 ascissamax]),ylim([120 190])
-        saveas (gcf, ['fron ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
+        saveas (gcf, ['from ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot singolo D-Stiffness
@@ -433,3 +436,96 @@ for indice = 1:bin
     saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
 
 end
+
+
+%%
+%Plot confronti:
+close all
+clc
+
+f=f(1:18000);
+
+figure (1),
+subplot(3,1,1), 
+hold on
+semilogx (f, 20*log10(Dstiff1_av_samp1_01_m_1(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp1_01_m_2(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp1_01_m_3(1:18000)),'r', 'LineWidth', 1),
+
+semilogx (f, 20*log10(Dstiff1_av_samp1_02_pl_1(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp1_02_pl_2(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp1_02_pl_3(1:18000)),'b', 'LineWidth', 1),
+txt = {'Legenda:', 'Punta: metallo, campione 1, piastra grande, rosso',...
+    'Punta: plastica, campione 1, piastra grande, blu'};
+ text(120,170,txt,'FontSize',14)
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+xlabel('log(Frequency) [Hz]','FontSize',10), 
+ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize', 9), 
+title('Punta: plastica, campione 1, piastra grande, biadesivo'), 
+grid on
+xlim([100 3000]), ylim([100 190])
+hold off
+
+subplot(3,1,2), hold on
+semilogx (f, 20*log10(Dstiff1_av_samp2_01_m_1(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_01_m_2(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_01_m_3(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_1(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_2(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_3(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_4(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_5(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_6(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_7(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_8(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_02_m_9(1:18000)),'r', 'LineWidth', 1),
+
+semilogx (f, 20*log10(Dstiff1_av_samp2_03_pl_1(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_03_pl_2(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_03_pl_3(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_04_pl_1(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_04_pl_2(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_04_pl_3(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_04_pl_4(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_04_pl_5(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp2_04_pl_6(1:18000)),'b', 'LineWidth', 1),
+txt = {'Legenda:', 'Punta: metallo, campione 2, piastra grande, rosso',...
+    'Punta: plastica, campione 2, piastra grande, blu'};
+ text(120,170,txt,'FontSize',14)
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+xlabel('log(Frequency) [Hz]','FontSize',10), 
+ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize',9), 
+title('Punta: plastica, campione 2, piastra grande, biadesivo'), 
+grid on
+xlim([100 3000]), ylim([100 190])
+hold off
+
+subplot(3,1,3), hold on
+semilogx (f, 20*log10(Dstiff1_av_samp3_01_m_1(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_01_m_2(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_01_m_3(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_01_m_4(1:18000)),'r', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_01_m_5(1:18000)),'r', 'LineWidth', 1),
+
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_1(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_2(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_3(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_4(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_5(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_6(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_7(1:18000)),'b', 'LineWidth', 1),
+semilogx (f, 20*log10(Dstiff1_av_samp3_02_pl_8(1:18000)),'b', 'LineWidth', 1),
+txt = {'Legenda:', 'Punta: metallo, campione 3, piastra grande, rosso',...
+    'Punta: plastica, campione 3, piastra grande, blu'};
+ text(120,170,txt,'FontSize',14)
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+xlabel('log(Frequency) [Hz]','FontSize',10), 
+ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize',9), 
+title('Punta: plastica, campione 3, piastra grande, biadesivo'), 
+grid on
+xlim([100 3000]), ylim([100 190])
+hold off
+
+saveas (gcf, 'Confronto 2 punte, 3 campioni, piastra grande, biadesivo.fig')
+
+        
