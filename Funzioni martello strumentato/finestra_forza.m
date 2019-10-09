@@ -134,11 +134,8 @@ for kk=1:picchi_sel
         case 5 % finestra: hann
             t0=1;%L_pre-3; % inizio della finestra di salita
             [~,pos] = max(F(:,kk));
-            jj=pos+1;
-                while F(jj,kk)>0
-                jj=jj+1;
-                end
-            tf = jj;
+            jj=find(F(pos:end, kk)<0);
+            tf = jj(1);
             Lp = tf - t0;
             Delta_f = round(Lp/5);
             Sgn=F(1:tf-1,kk);
