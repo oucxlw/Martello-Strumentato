@@ -66,8 +66,8 @@ window_A=5;
 % 4 = blackmanharris anticipata
 % 5 = Hann Window
 % Plotting
-ascissamin=10;         % Frequenza minima da plottare nei grafici 
-ascissamax=4000;        % Frequenza massima da plottare nei grafici
+ascissamin=100;         % Frequenza minima da plottare nei grafici 
+ascissamax=16000;        % Frequenza massima da plottare nei grafici
 misura=['Campione ',num2str(campione),', ',martellamento,', punta ',punta,', piastra ',piastra,',Hann, PSDvsFFT, ',num2str(bandwidth),' Hz'];
 
 %colore=['#0072BD'; '#D95319'; '#EDB120'; '#7E2F8E'; '#77AC30'; '#4DBEEE'; '#A2142F';'#6495ed'; '#b8860b'; '#a9a9a9'; '#cd5c5c'; '#20b2aa'; '#4DBEEE'; '#A2142F'];
@@ -138,7 +138,6 @@ for ii=1:CC
     F_filt(:,ii)=[F_filt(1:(L-round(L/divid)-1),ii); movavg(F_filt((L-round(L/divid)):end,ii),'linear',round(L/7))];
 end
 
-
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle FRFs
 %<<<<<<<<<<<<<<<<<<<<
@@ -146,6 +145,7 @@ L = length(F_filt(:,1));
 [PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
 [PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
 save ('f.mat', 'f');
+
 %<<<<<<<<<<<<<<<<<<
 % Filtraggio Banda
 %<<<<<<<<<<<<<<<<<<
@@ -163,6 +163,34 @@ for jj=1:(c-scarti)
          end
 end
 picchi_sel2 = picchi_sel1 - scarti
+PSD_A(:,tagli)=[];
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Analisi statistica pre filtraggio
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+bin=round(sqrt(picchi_sel2))+1;
+
+[Y,E] = discretize(sqrt(max(PSD_F)),bin);
+values=1:bin;
+
+figure (3), hold on
+histfit(sqrt(max(PSD_F)),bin);
+
+%<<<<<<<<<<<<<<<<<<<<<<<
+% Filtraggio Intensita'
+%<<<<<<<<<<<<<<<<<<<<<<<
+[r,c]=size(PSD_F);
+tagli=[];
+scarti=0;
+
+for jj=1:(c-scarti)
+    if sqrt(max(PSD_F(:,jj-scarti)))<0.04 || sqrt(max(PSD_F(:,jj-scarti)))>0.16
+        PSD_F(:,jj-scarti)=[];
+        tagli=[tagli; jj];
+        scarti=scarti+1;
+    end
+end
+picchi_sel2 = picchi_sel2 - scarti
 PSD_A(:,tagli)=[];
 
 % %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -205,15 +233,16 @@ plot(max(PSD_Fsort))
 plot(max(PSD_F))
 hold off
 
-%<<<<<<<<<<<<<<<<<<<<
-% Analisi statistica
-%<<<<<<<<<<<<<<<<<<<<
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Analisi statistica post filtraggio
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 [Y,E] = discretize(sqrt(max(PSD_F)),bin);
 values=1:bin;
 
-figure,histfit(sqrt(max(PSD_F)),bin);
-
+figure (3), hold on
+histfit(sqrt(max(PSD_F)),bin);
+hold off
 %<<<<<<<<<<<<<<<<<<<<<
 % Analisi bin per bin
 %<<<<<<<<<<<<<<<<<<<<<
@@ -226,7 +255,7 @@ for indice = 1:bin
     PSD_Fbin=[];
     PSD_Abin=[];
     for jj=1:c
-        if Y(jj)==indice  & sqrt(max(PSD_F(:,jj)))>0.04 & sqrt(max(PSD_F(:,jj)))<0.16
+        if Y(jj)==indice
             PSD_Fbin=[PSD_Fbin,PSD_F(:,jj)];
             PSD_Abin=[PSD_Abin,PSD_A(:,jj)];
         end
@@ -310,7 +339,7 @@ for indice = 1:bin
         fmax=f(fmax(1)+f0);
         %plot sulla PSD della forza
         figure (101), subplot (2,2,3),hold on
-        xl=xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
 
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -420,7 +449,7 @@ for indice = 1:bin
         titolo=['Dynamic Stiffness (Force/Displacement) Amplitude (fron ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)'];
         title([titolo]),
         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
-        grid on, xlim([20 ascissamax]),ylim([120 190])
+        grid on, xlim([20 ascissamax]),ylim([120 220])
         saveas (gcf, ['from ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -439,7 +468,7 @@ for indice = 1:bin
     end
     
     figure (107)     
-    grid on, xlim([20 ascissamax]),ylim([120 190])
+    grid on, xlim([20 ascissamax]),ylim([120 220])
     saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
     saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
 
@@ -471,7 +500,7 @@ xlabel('log(Frequency) [Hz]','FontSize',10),
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize', 9), 
 title('Punta: plastica, campione 1, piastra grande, biadesivo'), 
 grid on
-xlim([100 3000]), ylim([100 190])
+xlim([100 3000]), ylim([120 220])
 hold off
 
 subplot(3,1,2), hold on
@@ -505,7 +534,7 @@ xlabel('log(Frequency) [Hz]','FontSize',10),
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize',9), 
 title('Punta: plastica, campione 2, piastra grande, biadesivo'), 
 grid on
-xlim([100 3000]), ylim([100 190])
+xlim([100 3000]), ylim([120 220])
 hold off
 
 subplot(3,1,3), hold on
@@ -531,7 +560,7 @@ xlabel('log(Frequency) [Hz]','FontSize',10),
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize',9), 
 title('Punta: plastica, campione 3, piastra grande, biadesivo'), 
 grid on
-xlim([100 3000]), ylim([100 190])
+xlim([100 3000]), ylim([120 220])
 hold off
 
 saveas (gcf, 'Confronto 2 punte, 3 campioni, piastra grande, biadesivo.fig')
@@ -549,5 +578,5 @@ xlabel('log(Frequency) [Hz]','FontSize',10),
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize',9), 
 title('Punta: plastica, campione 3, piastra grande, biadesivo'), 
 grid on
-xlim([100 8000]), ylim([100 190])
+xlim([100 8000]), ylim([120 220])
 hold off
