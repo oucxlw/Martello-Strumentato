@@ -193,6 +193,17 @@ end
 picchi_sel2 = picchi_sel2 - scarti
 PSD_A(:,tagli)=[];
 
+%<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo Dstiff totale
+%<<<<<<<<<<<<<<<<<<<<<<<
+
+PSD_Fav = mean(sqrt(PSD_F), 2);
+PSD_Aav = mean(sqrt(PSD_A), 2);
+PSD_V1av = PSD_Aav./(2*pi*f); %velocità
+PSD_D1av = PSD_V1av./(2*pi*f); % displacement
+
+Dstiff=PSD_Fav./PSD_D1av;
+
 % %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % % COERENZA usando Forza / Accelerazione
 % %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -206,7 +217,7 @@ PSD_A(:,tagli)=[];
 % clear A_filt2
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Filtraggio in intensità PSD
+% Analisi in intensità PSD
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 %calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
 %operando la radice)
@@ -457,22 +468,28 @@ for indice = 1:bin
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         figure (107),hold on,
-        semilogx (f, 20*log10(Dstiff1_av),'color',string(colore(kkk,:)), 'LineWidth', 3),
+        semilogx (f, 20*log10(Dstiff1_av),'color',string(colore(kkk,:)), 'LineWidth', 1),
         %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
-        set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
-        xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), 
-        title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']), 
         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         
-
     end
     
-    figure (107)     
-    grid on, xlim([20 ascissamax]),ylim([120 220])
-    saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
-    saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
-
+   
 end
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Plot Dstiff totale e settaggio parametri grafico
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    
+    
+figure (107),  hold on
+semilogx (f, 20*log10(Dstiff), 'LineWidth', 3),
+grid on, xlim([20 ascissamax]),ylim([120 220])
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), 
+title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']), 
+
+saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
+saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
 
 
 %%
