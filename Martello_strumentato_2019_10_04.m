@@ -9,10 +9,12 @@ clear variables
 % load dati.mat
 clc
 close all
+load dati.mat
+
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Polipropilene, plastilina, di lato, rip1';
+campione='Polipropilene, plastilina, di lato, rip2';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
 piastra='cilindrica pesante';
@@ -488,6 +490,7 @@ set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), 
 title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']), 
 
+save ('Dstiff.mat','Dstiff');
 saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
 saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
 
