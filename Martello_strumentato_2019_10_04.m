@@ -4,6 +4,7 @@ set (0,'DefaultFigureWindowStyle','docked')
 clc
 close all
 clear variables
+
 %%
 % load dati.mat
 clc
@@ -11,14 +12,14 @@ close all
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Slab AC attak dilato';
-accelerometro=2;
+campione='Polipropilene, plastilina, di lato, rip1';
+accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
-piastra='piccola';
+piastra='cilindrica pesante';
 martellamento='auto';
 
-x = slab_piccola_m_attak (:,1); % Force [N] 
-y =slab_piccola_m_attak (:,2); % Accelerazione [m/s^2] 
+x = polipropilene_a0_pesante_met_plastilina (:,1); % Force [N] 
+y = polipropilene_a0_pesante_met_plastilina  (:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -144,7 +145,7 @@ end
 L = length(F_filt(:,1));
 [PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
 [PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
-
+save ('f.mat', 'f');
 %<<<<<<<<<<<<<<<<<<
 % Filtraggio Banda
 %<<<<<<<<<<<<<<<<<<
@@ -528,4 +529,18 @@ hold off
 
 saveas (gcf, 'Confronto 2 punte, 3 campioni, piastra grande, biadesivo.fig')
 
-        
+ %%
+
+Dstiff1_av=[Dstiff1_av_01, Dstiff1_av_02, Dstiff1_av_03, Dstiff1_av_04, Dstiff1_av_05];
+%%
+Dstiff =mean(Dstiff1_av, 2);
+%%
+figure
+semilogx (f, 20*log10(Dstiff_media),'b', 'LineWidth', 3),
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+xlabel('log(Frequency) [Hz]','FontSize',10), 
+ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize',9), 
+title('Punta: plastica, campione 3, piastra grande, biadesivo'), 
+grid on
+xlim([100 8000]), ylim([100 190])
+hold off
