@@ -205,11 +205,18 @@ plot(max(PSD_Fsort))
 plot(max(PSD_F))
 hold off
 
+%<<<<<<<<<<<<<<<<<<<<
+% Analisi statistica
+%<<<<<<<<<<<<<<<<<<<<
+
 [Y,E] = discretize(sqrt(max(PSD_F)),bin);
 values=1:bin;
 
 figure,histfit(sqrt(max(PSD_F)),bin);
 
+%<<<<<<<<<<<<<<<<<<<<<
+% Analisi bin per bin
+%<<<<<<<<<<<<<<<<<<<<<
 
 kkk=0;indice=0;
 [r,c]=size(PSD_F);
