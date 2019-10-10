@@ -491,7 +491,17 @@ title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']
 saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
 saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.png'])
 
-
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo frequenza di risonanza e K
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+m=1.42;
+h=0.005;
+s=pi*0.05^2;
+fr = f(find(Dstiff== max(Dstiff)))
+K=(2*pi*fr)^2*m
+E=K*h/s
+res=[fr K E];
+save ('Risultati.mat','res')
 %%
 %Plot confronti:
 close all
