@@ -14,14 +14,14 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Polipropilene, plastilina, di lato, rip2';
+campione='Campione2, non attaccato, di lato, rip3';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
-piastra='cilindrica pesante';
+piastra='cilindrica pesante 2';
 martellamento='auto';
 
-x = polipropilene_a0_pesante_met_plastilina (:,1); % Force [N] 
-y = polipropilene_a0_pesante_met_plastilina  (:,2); % Accelerazione [m/s^2] 
+x = c2_a0_pesante2_met_nonattaccato (:,1); % Force [N] 
+y = c2_a0_pesante2_met_nonattaccato  (:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -46,7 +46,7 @@ div_A=500;              % Divisione applicata alla Accelerazione prima della scr
 % Parametri di ricerca
 fs=52100;               % Freq. di campionamento (Hz);
 soglia=10;               % Soglia dei picchi;
-delay=round(0.1*fs);    % Sample da saltare una volta superata la soglia
+delay=round(0.5*fs);    % Sample da saltare una volta superata la soglia
 inizio=1*fs;          % Punto di inizio della ricerca dei picchi;
 fine=round(0.95*size(x));           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
@@ -422,6 +422,16 @@ for indice = 1:bin
 %         Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
 %         save (['Dstiffness_av_ph, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
 
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<                           
+        % Trova picco antirisonanza (frequenza e valore)
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         y_antiris = max(Dstiff1_av): 
+%         pos_y = find (Dstiff1_av == y_antiris);
+%         x_antiris = find  
+        
+
+
+
         %<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot Dynamic Stiffness
         %<<<<<<<<<<<<<<<<<<<<<<<<
@@ -468,7 +478,6 @@ for indice = 1:bin
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot singolo D-Stiffness
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
-
         figure (107),hold on,
         semilogx (f, 20*log10(Dstiff1_av),'color',string(colore(kkk,:)), 'LineWidth', 1),
         %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
@@ -481,8 +490,7 @@ end
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dstiff totale e settaggio parametri grafico
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    
-    
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<      
 figure (107),  hold on
 semilogx (f, 20*log10(Dstiff), 'LineWidth', 3),
 grid on, xlim([20 ascissamax]),ylim([120 220])
@@ -497,14 +505,18 @@ saveas (gcf, ['Collezione Dstiff-C',num2str(campione),'-Acc_',num2str(accelerome
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo frequenza di risonanza e K
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-m=1.42;
-h=0.005;
+m=2.8871;
+h=0.027;
 s=pi*0.05^2;
-fr = f(find(Dstiff== max(Dstiff)))
-K=(2*pi*fr)^2*m
+lim=find ( f >1.5e4);
+fr = f(find(Dstiff (1:lim) == max(Dstiff(1:lim))))
+K=(2*pi*268)^2*m
 E=K*h/s
 res=[fr K E];
 save ('Risultati.mat','res')
+
+
+
 %%
 %Plot confronti:
 close all
