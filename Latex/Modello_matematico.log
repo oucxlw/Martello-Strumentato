@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.11.8)  8 NOV 2019 13:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.11.8)  8 NOV 2019 17:53
 entering extended mode
 **./Modello_matematico.tex
 (Modello_matematico.tex
@@ -324,45 +324,40 @@ G,.JBIG2,.JB2,.eps]
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package epstopdf Info: Source file: <Phisical-system.eps>
-(epstopdf)                    date: 2019-11-08 13:45:57
-(epstopdf)                    size: 9809 bytes
-(epstopdf)             Output file: <Phisical-system-eps-converted-to.pdf>
-(epstopdf)                    date: 2019-11-08 13:46:10
-(epstopdf)                    size: 6761 bytes
-(epstopdf)             Command: <epstopdf --outfile=Phisical-system-eps-convert
-ed-to.pdf Phisical-system.eps>
-(epstopdf)             \includegraphics on input line 23.
-Package epstopdf Info: Output file is already uptodate.
-
-
-pdfTeX warning: pdflatex.exe (file ./Phisical-system-eps-converted-to.pdf): PDF
- inclusion: found PDF version <1.7>, but at most version <1.5> allowed
-<Phisical-system-eps-converted-to.pdf, id=1, 722.7pt x 542.025pt>
-File: Phisical-system-eps-converted-to.pdf Graphic file (type pdf)
-<use Phisical-system-eps-converted-to.pdf>
-Package pdftex.def Info: Phisical-system-eps-converted-to.pdf  used on input li
-ne 23.
-(pdftex.def)             Requested size: 369.88582pt x 277.41328pt.
+<Phisical-system.jpg, id=1, 722.7pt x 542.025pt>
+File: Phisical-system.jpg Graphic file (type jpg)
+<use Phisical-system.jpg>
+Package pdftex.def Info: Phisical-system.jpg  used on input line 24.
+(pdftex.def)             Requested size: 170.71652pt x 128.03754pt.
+<model.jpg, id=2, 722.7pt x 542.025pt>
+File: model.jpg Graphic file (type jpg)
+<use model.jpg>
+Package pdftex.def Info: model.jpg  used on input line 34.
+(pdftex.def)             Requested size: 284.52756pt x 213.39865pt.
 [1
 
-{C:/Users/bolog/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2 <./Phisi
-cal-system-eps-converted-to.pdf>] (Modello_matematico.aux) ) 
+{C:/Users/bolog/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./Phisical-
+system.jpg>] [2 <./model.jpg>] [3] (Modello_matematico.aux) ) 
 Here is how much of TeX's memory you used:
- 3823 strings out of 492946
- 51823 string characters out of 3135628
- 137851 words of memory out of 3000000
- 7640 multiletter control sequences out of 15000+200000
- 9319 words of font info for 34 fonts, out of 3000000 for 9000
+ 3826 strings out of 492946
+ 51869 string characters out of 3135628
+ 140883 words of memory out of 3000000
+ 7653 multiletter control sequences out of 15000+200000
+ 9626 words of font info for 35 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,6n,25p,815b,230s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/M
-iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.
-9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/amsfonts/cm/cmr17.pfb>
-Output written on Modello_matematico.pdf (2 pages, 45044 bytes).
+ 41i,8n,25p,815b,236s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/
+MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2
+.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts
+/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
+ublic/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
+fonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
+cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb>
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Progra
+m Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on Modello_matematico.pdf (3 pages, 120793 bytes).
 PDF statistics:
- 24 PDF objects out of 1000 (max. 8388607)
+ 50 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

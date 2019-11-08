@@ -11,29 +11,79 @@
  \geometry{a4paper,top=3cm,bottom=3cm,left=2cm,right=2cm,heightrounded,bindingoffset=1cm}
  
  \begin{document}
- 	\title{Matematical model of a three mass and three damped spring system} \author{Matteo Bolognese}
+ 	\title{Modello matematico con tre masse e tre molle smorzate} \author{Matteo Bolognese}
  	\date{23/11/2019}
  	\maketitle
  	
- \section{Introduction}
-	A teoretical model is useful to validate the measurement of the physical system, and to estimate the physical quantities. The phisical configuration is represented in \figurename~\ref{fig:Phisical-configuration} and include a metallic plate, the tample and the base.
+ \section{Introduzione}
+	La misura sperimentale della costante elastica dinamica di un materiale per mezzo di un martello strumentato \'e stata effettuata con fiverse configurazioni di misura. Una delle pi\'u semplici, rappresentata in \figurename~\ref{fig:Phisical-configuration}, prevede il posizionamento di una piastra di carico sul campione a sua volta poggiato al suolo. La piastra di carico vuiene colpita con il martello strumentato e uno o pi\'u accelerometri misurano l'accelerazione della piastra e/o del suolo a seconda degli intenti della misura.
+	Al duplice scopo di validare le misure sperimentali e di estrapolare correttamente i valori di costate elastica dinamica del campione dai grafici sperimentali \'e utile sviluppare un modello matematico che riproduca il comportamento del sistema.
 	
 	\begin{figure}
 		\centering
-		\includegraphics[width=13cm]{Phisical-system}
-		\caption{Phisical configuration.}
+		\includegraphics[width=6cm]{Phisical-system}
+		\caption{Configurazione sperimentale.}
 		\label{fig:Phisical-configuration}
 	\end{figure}
  	
- \section{Three mass - three damped spring sistem}
- 	The easiest way to represent the system in \figurename~\ref{fig:Phisical-configuration} is represented in \figurename~\ref{fig:model} where index $1$ refers to the plate, index $2$ refers to the sample, and index $3$ refers to the floor.
- 	
+ \section{Tre masse e tre molle smorzate}
+ 	La pi\'u semplice rappresentazione matematica che conservi un sufficiente livello di dettaglio per rappresentare correttamente quanto misurato sperimentalmente \'e riportata in \figurename~\ref{fig:Phisical-configuration} e consiste in un sistema di tre masse e tre oscillatori smorzati. Gli indici 1, 2 e 3 sono riferiti rispettivamente alla piastra, al campione e al solaio. Facciamo notare come la coordinata x \'e orientata dal basso verso l'alto quindi concorde con la direzione di misura degli accelerometri, ma discorde al verso del martello strumentato, che misura positiva una forza diretta dall'alto verso il basso. In fase di elaborazione delle misure sarà quindi necessario introdurre un cambio di segno nella forza o nelle accelerazioni.
+ 	Le coordinate generalizzate x\ped{i} rappresentano le distanze delle tre masse dalle posizioni di equilibrio x\ped{i,0}.
  	\begin{figure}
  		\centering
- 		%\includegraphics[width=13cm]{Phisical-system}
- 		\caption{Theoretical model.}
+ 		\includegraphics[width=10cm]{model}
+ 		\caption{Modello teorico.}
  		\label{fig:model}
  	\end{figure}
+ 	
+ 	
+ 	\subsection[Lagrangiana]{Trattazione lagrangiana}
+ 		Un metodo efficacie di ricavare le equazioni del moto di un sistema dinamico \'e quello lagrangiano che si basa sulla scrittura di due quantit\'a fondamentali, l'energia meccanica totale $T$ e dell'energia potenziale del sistema $V$. Nel nostro caso l'energia meccanica non \'e altro che la somma delle energie cinetiche delle tre masse:
+ 		\begin{equation}
+ 			T= \frac{1}{2} m \dot x_1^2 +\frac{1}{2} m \dot x_2^2+ \frac{1}{2}m \dot x_3^2 
+ 			\label{eq:mechanical-energy}
+ 		\end{equation}
+ 		L'energia potenziale \'e invece la somma delle energie potenziali delle molle:
+ 		\begin{equation}
+ 			V= \frac{1}{2} k_1(x_1-x_2)^2+\frac{1}{2} k_2(x_3-x_2)^2 + \frac{1}{2} k_3 x_3^2
+ 			\label{eq:potential-energy}
+ 		\end{equation}
+ 		L'effetto degli smorzatori verr\'a invece introdotto successivamente con la veste di forze esterne in quanto estranee alla molla.
+ 		A questo punto le equazioni differenziali si ottengono attraverso la seguente eguaglianza: 		
+ 		\begin{equation}
+ 			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i} - \frac{\partial T}{\partial x_i} + \frac{\partial V}{\partial x_i}=F_i
+ 			\label{eq:lagrangian}
+ 		\end{equation}
+ 		dove F\ped{i} sono le forze esterne agenti sull'$i$-esima massa. Siccome l'energia meccaneca del sistema non dimende dalle x\ped{i} il secondo termine dell'equazione (\ref{eq:lagrangian}) \'e automaticamente nullo. Deriviamo dumque l'energia meccanica rispetto alle coordinate \.x\ped{i} e quindi rispetto al tempo:
+ 		\begin{equation}
+ 			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i}= m_i \ddot{x}_i
+ 			\label{eq:lagrangian-1}
+ 		\end{equation}
+ 		La derivata parziale di V rispetto alle coordinate generalizzate produce invece:
+ 		\[
+ 		\begin{cases}
+ 		\frac{\partial V}{\partial x_1}& = k_1(x_1 - x_2)
+ 		\\
+ 		\frac{\partial V}{\partial x_2}& = - k_1(x_1 - x_2) - k_2(x_3 - x_2)
+ 		\\
+ 		\frac{\partial V}{\partial x_3}& = k_3 x_3
+ 		\end{cases}
+ 		\]
+ 		Otteniamo le tre equazioni:
+ 		\[
+ 		\begin{cases}
+ 			m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2 = F_1
+ 			\\
+ 			m_2 \ddot{x}_2 - k_1 x_1 - (k_1 +k_2 )x_2 - k_2 x_3  = F_2
+ 			\\
+ 			m_3 \ddot{x}_3 + k_3 x_3 = F_3
+ 		\end{cases}
+ 		\]
+ 		Resta da identificare le forze dissipative agenti sulle tre masse, definite come segue:
+ 		\begin{equation}
+ 			F_{ d,i} =  \sum_{\substack{k}} c_{ik} \dot{x}_k
+ 		\end{equation}
+ 		dove c\ped{ik} \'e la forza agente sulla $i$-esima massa quando la massa $k$-esima si muove con velocit\'a unitaria. 
  
  
  
