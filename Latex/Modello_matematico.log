@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2019.11.8)  11 NOV 2019 11:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2019.11.8)  11 NOV 2019 20:07
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -303,14 +303,14 @@ e
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * bindingoffset: 28.45274pt
 * modes: heightrounded 
-* h-part:(L,W,R)=(56.9055pt, 455.24413pt, 56.9055pt)
+* h-part:(L,W,R)=(42.67912pt, 483.69688pt, 42.67912pt)
 * v-part:(T,H,B)=(85.35826pt, 674.33032pt, 85.35826pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=455.24413pt
+* \textwidth=483.69688pt
 * \textheight=679.0pt
-* \oddsidemargin=13.08826pt
-* \evensidemargin=-15.36449pt
+* \oddsidemargin=-1.13812pt
+* \evensidemargin=-29.59087pt
 * \topmargin=-23.91173pt
 * \headheight=12.0pt
 * \headsep=25.0pt
@@ -347,33 +347,34 @@ Package pdftex.def Info: model.pdf  used on input line 38.
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./Phisi
 cal-system.jpg>] [2 <./model.pdf>]
-Overfull \hbox (7.18298pt too wide) detected at line 151
+Overfull \hbox (33.99352pt too wide) detected at line 165
 []
  []
 
-[3] (./Modello_matematico.aux) ) 
+[3] [4] (./Modello_matematico.aux) ) 
 Here is how much of TeX's memory you used:
- 3786 strings out of 492649
- 51750 string characters out of 6129622
- 142843 words of memory out of 5000000
- 7601 multiletter control sequences out of 15000+600000
+ 3789 strings out of 492649
+ 51781 string characters out of 6129622
+ 146862 words of memory out of 5000000
+ 7604 multiletter control sequences out of 15000+600000
  9626 words of font info for 35 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,15n,25p,813b,234s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2018/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmr12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmr17.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmr6.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmr8.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmsy10.pfb>
-Output written on Modello_matematico.pdf (3 pages, 126950 bytes).
+ 41i,16n,25p,851b,234s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2018/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2018/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2018/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmr12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr17.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmr6.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr8.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy10.pfb>
+Output written on Modello_matematico.pdf (4 pages, 136718 bytes).
 PDF statistics:
- 77 PDF objects out of 1000 (max. 8388607)
- 54 compressed objects within 1 object stream
+ 84 PDF objects out of 1000 (max. 8388607)
+ 59 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

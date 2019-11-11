@@ -8,9 +8,11 @@
  \usepackage{geometry}
  \usepackage{color}
  \usepackage{subfigure}
- \newenvironment{sistema}%  {\left\lbrace\begin{array}{@{}l@{}}}%  {\end{array}\right.}
+ \newenvironment{sistema}%
+  {\left\lbrace\begin{array}{@{}l@{}}}%
+  {\end{array}\right.}
  
- \geometry{a4paper,top=3cm,bottom=3cm,left=2cm,right=2cm,heightrounded,bindingoffset=1cm}
+ \geometry{a4paper,top=3cm,bottom=3cm,left=1.5cm,right=1.5cm,heightrounded,bindingoffset=1cm}
  
  \begin{document}
  	\title{Modello matematico con tre masse e tre molle smorzate} \author{Matteo Bolognese}
@@ -90,9 +92,8 @@
  			F_{ d,i} = - \sum_{\substack{k}} c_{ik} \dot{x}_k
  		\end{equation}
  		dove c\ped{ik} \'e la forza agente sulla $i$-esima massa quando la massa $k$-esima si muove con velocit\'a unitaria, per cui otteniamo:
-		\[
+		\begin{gather}
  		\begin{cases}
- 		
 		c_{11} = c_{1}
 		\\
 		c_{22} = c_{1} + c_{2}
@@ -104,36 +105,36 @@
 		c_{23} = c_{32} = - c_{2}
 		\\
 		c_{13} = c_{31} = 0
-		
 		\end{cases}
- 		\]
+		\end{gather}
 		A questo punto esplicitiamo le forze:
-		\[
+		\begin{gather}
 		\begin {sistema}
-		
 		F_{d1} = - c_{11}\dot x_1 - c_{12}\dot x_2 = -c_1 \dot x_1 + c_1 \dot x_2
 		\\
 		F_{d2} = - c_{21}\dot x_1 - c_{22}\dot x_2 - c_{23}\dot x_3 = c_2  \dot x_1  - (c_1 + c_2) \dot x_2 + c_2\dot x_3
 		\\
-		F_{d3} = - c_{32}\dot x_2 - c_{33}\dot x_3 = c_2 \dot x_2 - (c_2 + c_3) \dot x_3
-		
+		F_{d3} = - c_{32}\dot x_2 - c_{33}\dot x_3 = c_2 \dot x_2 - (c_2 + c_3) \dot x_3		
 		\end{sistema}
-		\]
+		\end{gather}
  		ed otteniamo le equazioni complete aggiungendo la forza esterna F\ped 1:
-		\[
+		\begin{gather}
 		\begin {sistema}
-		
 		m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2  =  -c_1 \dot x_1 + c_1 \dot x_2 +F_1
 		\\
 		m_2 \ddot{x}_2 - k_1 x_1 - (k_1 +k_2 )x_2 - k_2 x_3 = c_2  \dot x_1  - (c_1 + c_2) \dot x_2 + c_2\dot x_3
 		\\
 		m_3 \ddot{x}_3 + k_3 x_3 -k_2 x_2= c_2 \dot x_2 - (c_2 + c_3) \dot x_3
-		
 		\end{sistema}
-		\]
+		\end{gather}
+		
 		Risulta utile riscrivere il sistema nella rappresentazione matriciale che permette una lettura pi\'u comoda e mette in evidenza le propriet\'a di simmetria del sistema.
 		\begin {gather}
-		\begin{vmatrix}		m_1 \ddot{x}_1 + k_1x_1	+ c_1 \dot x_1	&  		- k_1 x_2	- c_1 \dot x_2 		&	0 \\		- k_1 x_1 - c_2  \dot x_1 				&  	m_2 \ddot{x}_2	- (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\		0	&  	-k_2 x_2 - c_2 \dot x_2		&m_3 \ddot{x}_3 + k_3 x_3 +(c_2 + c_3) \dot x_3	 \\		\end{vmatrix}
+		\begin{vmatrix}
+		m_1 \ddot{x}_1 + k_1x_1	+ c_1 \dot x_1	&  		- k_1 x_2	- c_1 \dot x_2 		&	0 \\
+		- k_1 x_1 - c_2  \dot x_1 				&  	m_2 \ddot{x}_2	- (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\
+		0	&  	-k_2 x_2 - c_2 \dot x_2		&m_3 \ddot{x}_3 + k_3 x_3 +(c_2 + c_3) \dot x_3	 \\
+		\end{vmatrix}
 		=
 		\begin{vmatrix}
 		F_1
@@ -141,9 +142,34 @@
 		0
 		\\
 		0
+		\label{eq:matrix}
 		\end{vmatrix}
 		\end{gather}
-		Siccome la misura dell'accelerazione viene effettuata sulla massa m\ped1 ci interessa risolvere il sistema in funzione della coordinata $x\ped{1}$. A tal proposito ipotizziamo che il sistema venga sottoposto a una forza esterna $F(t) $. In generale se la forza $F(t)$ appartiene a  $L^2$ puo essere espressa in funzione di una base dello spazio $L^2(R)$, ad esempio $e^{i\omega t}$ .
+		A ragione del fatto che la misura sperimentale dell'accelerazione viene effettuata sulla massa m\ped1 ci interessa risolvere il sistema in funzione della coordinata $x\ped{1}$. A tal proposito ipotizziamo che il sistema venga sottoposto a una forza esterna $F(t)$. In generale se la forza $F(t)$ appartiene a  $L^2$ pu\'o essere espressa in funzione di una base dello spazio $L^2(R)$, ad esempio $e^{i\omega t}$ (con $\omega$ positivo e reale) e quindi usare la sua trasformata di Fourier $F(\omega)$. Se l'azione di $F(\omega)$ \'e abbastanza duratura nel tempo in modo da superare la fase transiente il sistema, anche le coordinate generalizzate $x\ped{i} $ seguiranno un andamento del tipo $x\ped{i}(\omega, t)=A\ped{i}(\omega)e^{i\omega t}$. Calcoliamo quindi le derivate prima e seconda di una $x\ped{1}$:
+		\begin {gather}
+		\begin{sistema}
+		\frac{\partial x_i}{\partial t }= i \omega A\ped{i}(\omega)e^{i\omega t}=i \omega x_i
+		\\
+		\\
+		\frac{\partial \dot x_i}{\partial t }= - \omega ^2 A\ped{i}(\omega)e^{i\omega t}=-\omega^2 x_i
+		\end{sistema}
+		\end{gather}
+		e sostituiamo nella (\ref{eq:matrix}):
+		\begin {gather}
+		\begin{vmatrix}
+		-m_1 \omega^2 x_1 + k_1 x_1	+ c_1 i\omega x_1				&  	- k_1 x_2	- c_1 i\omega x_2 										&	0\\
+		- k_1 x_1 - c_2  i\omega x_1 					&  	m_2 \omega^2 x_2	- (k_1 +k_2 )x_2 +(c_1 + c_2) i\omega x_2				&	- k_2 x_3 - c_2 i\omega x_3\\
+		0													&  	-k_2 x_2 - c_2 i\omega x_2						&-m_3 \omega^2 x_3 + k_3 x_3 +(c_2 + c_3) i\omega x_3\\
+		\label{eq:matrix2}
+		\end{vmatrix}
+		\end{gather}		
+		
+ 
+ 
+ 
+ 
+ 
+ 
  
  
  \end{document}
