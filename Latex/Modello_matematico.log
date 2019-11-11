@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2019.11.8)  11 NOV 2019 11:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2019.11.8)  11 NOV 2019 11:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -355,7 +355,7 @@ Overfull \hbox (7.18298pt too wide) detected at line 151
 Here is how much of TeX's memory you used:
  3786 strings out of 492649
  51750 string characters out of 6129622
- 141843 words of memory out of 5000000
+ 142843 words of memory out of 5000000
  7601 multiletter control sequences out of 15000+600000
  9626 words of font info for 35 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -370,7 +370,7 @@ ic/amsfonts/cm/cmr12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public
 msfonts/cm/cmr6.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmr8.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfont
 s/cm/cmsy10.pfb>
-Output written on Modello_matematico.pdf (3 pages, 125510 bytes).
+Output written on Modello_matematico.pdf (3 pages, 126950 bytes).
 PDF statistics:
  77 PDF objects out of 1000 (max. 8388607)
  54 compressed objects within 1 object stream
