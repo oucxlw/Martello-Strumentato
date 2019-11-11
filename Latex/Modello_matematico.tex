@@ -8,6 +8,8 @@
  \usepackage{geometry}
  \usepackage{color}
  \usepackage{subfigure}
+ \newenvironment{sistema}%  {\left\lbrace\begin{array}{@{}l@{}}}%  {\end{array}\right.}
+ 
  \geometry{a4paper,top=3cm,bottom=3cm,left=2cm,right=2cm,heightrounded,bindingoffset=1cm}
  
  \begin{document}
@@ -38,7 +40,7 @@
  	
  	
  	\subsection[Lagrangiana]{Trattazione lagrangiana}
- 		Un metodo efficacie di ricavare le equazioni del moto di un sistema dinamico \'e quello lagrangiano che si basa sulla scrittura di due quantit\'a fondamentali, l'energia meccanica totale $T$ e dell'energia potenziale del sistema $V$. Nel nostro caso l'energia meccanica non \'e altro che la somma delle energie cinetiche delle tre masse:
+ 		Un metodo efficace di ricavare le equazioni del moto di un sistema dinamico \'e quello lagrangiano che si basa sulla determinazione di due quantit\'a fondamentali, l'energia meccanica totale $T$ e dell'energia potenziale del sistema $V$. Nel nostro caso l'energia meccanica non \'e altro che la somma delle energie cinetiche delle tre masse:
  		\begin{equation}
  			T= \frac{1}{2} m \dot x_1^2 +\frac{1}{2} m \dot x_2^2+ \frac{1}{2}m \dot x_3^2 
  			\label{eq:mechanical-energy}
@@ -48,7 +50,7 @@
  			V= \frac{1}{2} k_1(x_1-x_2)^2+\frac{1}{2} k_2(x_3-x_2)^2 + \frac{1}{2} k_3 x_3^2
  			\label{eq:potential-energy}
  		\end{equation}
- 		L'effetto degli smorzatori verr\'a invece introdotto successivamente con la veste di forze esterne in quanto estranee alla molla.
+ 		I contributi dovuti all'azione degli smorzatori verranno invece introdotti successivamente con la veste di forze esterne in quanto estranee all'azione dele molle.
  		A questo punto le equazioni differenziali si ottengono attraverso la seguente eguaglianza: 		
  		\begin{equation}
  			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i} - \frac{\partial T}{\partial x_i} + \frac{\partial V}{\partial x_i}=F_i
@@ -62,30 +64,86 @@
  		La derivata parziale di V rispetto alle coordinate generalizzate produce invece:
  		\[
  		\begin{cases}
- 		\frac{\partial V}{\partial x_1}& = k_1(x_1 - x_2)
+ 		\frac{\partial V}{\partial x_1}= k_1(x_1 - x_2)
  		\\
- 		\frac{\partial V}{\partial x_2}& = - k_1(x_1 - x_2) - k_2(x_3 - x_2)
+ 		\frac{\partial V}{\partial x_2} = - k_1(x_1 - x_2) - k_2(x_3 - x_2)
  		\\
- 		\frac{\partial V}{\partial x_3}& = k_3 x_3
+ 		\frac{\partial V}{\partial x_3} = k_3 x_3-k_2 x_2
  		\end{cases}
  		\]
  		Otteniamo le tre equazioni:
  		\[
- 		\begin{cases}
+ 		\begin{sistema}
  			m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2 = F_1
  			\\
  			m_2 \ddot{x}_2 - k_1 x_1 - (k_1 +k_2 )x_2 - k_2 x_3  = F_2
  			\\
- 			m_3 \ddot{x}_3 + k_3 x_3 = F_3
- 		\end{cases}
+ 			m_3 \ddot{x}_3 + k_3 x_3 -k_2 x_2= F_3
+ 			\label{eq:sistema-1}
+
+ 		\end{sistema}
  		\]
+		
  		Resta da identificare le forze dissipative agenti sulle tre masse, definite come segue:
- 		\begin{equation}
- 			F_{ d,i} =  \sum_{\substack{k}} c_{ik} \dot{x}_k
+ 		
+		\begin{equation}
+ 			F_{ d,i} = - \sum_{\substack{k}} c_{ik} \dot{x}_k
  		\end{equation}
- 		dove c\ped{ik} \'e la forza agente sulla $i$-esima massa quando la massa $k$-esima si muove con velocit\'a unitaria. 
- 
- 
+ 		dove c\ped{ik} \'e la forza agente sulla $i$-esima massa quando la massa $k$-esima si muove con velocit\'a unitaria, per cui otteniamo:
+		\[
+ 		\begin{cases}
+ 		
+		c_{11} = c_{1}
+		\\
+		c_{22} = c_{1} + c_{2}
+		\\
+		c_{33} = c_{2} + c_{3}
+		\\
+		c_{12} = c_{21} = - c_{1}
+		\\
+		c_{23} = c_{32} = - c_{2}
+		\\
+		c_{13} = c_{31} = 0
+		
+		\end{cases}
+ 		\]
+		A questo punto esplicitiamo le forze:
+		\[
+		\begin {sistema}
+		
+		F_{d1} = - c_{11}\dot x_1 - c_{12}\dot x_2 = -c_1 \dot x_1 + c_1 \dot x_2
+		\\
+		F_{d2} = - c_{21}\dot x_1 - c_{22}\dot x_2 - c_{23}\dot x_3 = c_2  \dot x_1  - (c_1 + c_2) \dot x_2 + c_2\dot x_3
+		\\
+		F_{d3} = - c_{32}\dot x_2 - c_{33}\dot x_3 = c_2 \dot x_2 - (c_2 + c_3) \dot x_3
+		
+		\end{sistema}
+		\]
+ 		ed otteniamo le equazioni complete aggiungendo la forza esterna F\ped 1:
+		\[
+		\begin {sistema}
+		
+		m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2  =  -c_1 \dot x_1 + c_1 \dot x_2 +F_1
+		\\
+		m_2 \ddot{x}_2 - k_1 x_1 - (k_1 +k_2 )x_2 - k_2 x_3 = c_2  \dot x_1  - (c_1 + c_2) \dot x_2 + c_2\dot x_3
+		\\
+		m_3 \ddot{x}_3 + k_3 x_3 -k_2 x_2= c_2 \dot x_2 - (c_2 + c_3) \dot x_3
+		
+		\end{sistema}
+		\]
+		Risulta utile riscrivere il sistema nella rappresentazione matriciale che permette una lettura pi\'u comoda e mette in evidenza le propriet\'a di simmetria del sistema.
+		\begin {gather}
+		\begin{vmatrix}		m_1 \ddot{x}_1 + k_1x_1	+ c_1 \dot x_1	&  		- k_1 x_2	- c_1 \dot x_2 		&	0 \\		- k_1 x_1 - c_2  \dot x_1 				&  	m_2 \ddot{x}_2	- (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\		0	&  	-k_2 x_2 - c_2 \dot x_2		&m_3 \ddot{x}_3 + k_3 x_3 +(c_2 + c_3) \dot x_3	 \\		\end{vmatrix}
+		=
+		\begin{vmatrix}
+		F_1
+		\\
+		0
+		\\
+		0
+		\end{vmatrix}
+		\end{gather}		
+		
  
  
  \end{document}
