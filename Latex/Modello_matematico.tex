@@ -25,13 +25,13 @@
 	
 	\begin{figure}
 		\centering
-		\includegraphics[width=6cm]{Phisical-system}
+		\includegraphics[width=8cm]{Phisical-system}
 		\caption{Configurazione sperimentale.}
 		\label{fig:Phisical-configuration}
 	\end{figure}
  	
  \section{Tre masse e tre molle smorzate}
- 	La pi\'u semplice rappresentazione matematica che conservi un sufficiente livello di dettaglio per rappresentare correttamente quanto misurato sperimentalmente \'e riportata in \figurename~\ref{fig:Phisical-configuration} e consiste in un sistema di tre masse e tre oscillatori smorzati. Gli indici 1, 2 e 3 sono riferiti rispettivamente alla piastra, al campione e al solaio. Facciamo notare come la coordinata x \'e orientata dal basso verso l'alto quindi concorde con la direzione di misura degli accelerometri, ma discorde al verso del martello strumentato, che misura positiva una forza diretta dall'alto verso il basso. In fase di elaborazione delle misure sar√† quindi necessario introdurre un cambio di segno nella forza o nelle accelerazioni.
+ 	La pi\'u semplice rappresentazione matematica che conservi un sufficiente livello di dettaglio per rappresentare correttamente quanto misurato sperimentalmente \'e riportata in \figurename~\ref{fig:Phisical-configuration} e consiste in un sistema di tre masse e tre oscillatori smorzati. Gli indici 1, 2 e 3 sono riferiti rispettivamente alla piastra, al campione e al solaio. Facciamo notare come la coordinata x \'e orientata dal basso verso l'alto quindi concorde con la direzione di misura degli accelerometri, ma discorde al verso del martello strumentato, che misura positiva una forza diretta dall'alto verso il basso. In fase di elaborazione delle misure sar\'a† quindi necessario introdurre un cambio di segno nella forza o nelle accelerazioni.
  	Le coordinate generalizzate x\ped{i} rappresentano le distanze delle tre masse dalle posizioni di equilibrio x\ped{i,0}.
  	\begin{figure}
  		\centering
@@ -58,7 +58,7 @@
  			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i} - \frac{\partial T}{\partial x_i} + \frac{\partial V}{\partial x_i}=F_i
  			\label{eq:lagrangian}
  		\end{equation}
- 		dove F\ped{i} sono le forze esterne agenti sull'$i$-esima massa. Siccome l'energia meccaneca del sistema non dimende dalle x\ped{i} il secondo termine dell'equazione (\ref{eq:lagrangian}) \'e automaticamente nullo. Deriviamo dumque l'energia meccanica rispetto alle coordinate \.x\ped{i} e quindi rispetto al tempo:
+ 		dove F\ped{i} sono le forze esterne agenti sull'$i$-esima massa. Siccome l'energia meccaneca del sistema non dipende dalle $x\ped{i}$ il secondo termine dell'equazione (\ref{eq:lagrangian}) \'e automaticamente nullo. Deriviamo dumque l'energia meccanica rispetto alle coordinate $\dot x\ped{i}$ e quindi rispetto al tempo:
  		\begin{equation}
  			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i}= m_i \ddot{x}_i
  			\label{eq:lagrangian-1}
@@ -85,7 +85,6 @@
 
  		\end{sistema}
  		\]
-		
  		Resta da identificare le forze dissipative agenti sulle tre masse, definite come segue:
  		
 		\begin{equation}
@@ -145,6 +144,7 @@
 		\label{eq:matrix}
 		\end{vmatrix}
 		\end{gather}
+	
 		A ragione del fatto che la misura sperimentale dell'accelerazione viene effettuata sulla massa m\ped1 ci interessa risolvere il sistema in funzione della coordinata $x\ped{1}$. A tal proposito ipotizziamo che il sistema venga sottoposto a una forza esterna $F(t)$. In generale se la forza $F(t)$ appartiene a  $L^2$ pu\'o essere espressa in funzione di una base dello spazio $L^2(R)$, ad esempio $e^{i\omega t}$ (con $\omega$ positivo e reale) e quindi usare la sua trasformata di Fourier $F(\omega)$. Se l'azione di $F(\omega)$ \'e abbastanza duratura nel tempo in modo da superare la fase transiente il sistema, anche le coordinate generalizzate $x\ped{i} $ seguiranno un andamento del tipo $x\ped{i}(\omega, t)=A\ped{i}(\omega)e^{i\omega t}$. Calcoliamo quindi le derivate prima e seconda di una $x\ped{1}$:
 		\begin {gather}
 		\begin{sistema}
@@ -154,22 +154,46 @@
 		\frac{\partial \dot x_i}{\partial t }= - \omega ^2 A\ped{i}(\omega)e^{i\omega t}=-\omega^2 x_i
 		\end{sistema}
 		\end{gather}
-		e sostituiamo nella (\ref{eq:matrix}):
+		e sostituiamo nella (\ref{eq:matrix}) tenendo implicite le coordinate:
 		\begin {gather}
 		\begin{vmatrix}
-		-m_1 \omega^2 x_1 + k_1 x_1	+ c_1 i\omega x_1				&  	- k_1 x_2	- c_1 i\omega x_2 										&	0\\
-		- k_1 x_1 - c_2  i\omega x_1 					&  	m_2 \omega^2 x_2	- (k_1 +k_2 )x_2 +(c_1 + c_2) i\omega x_2				&	- k_2 x_3 - c_2 i\omega x_3\\
-		0													&  	-k_2 x_2 - c_2 i\omega x_2						&-m_3 \omega^2 x_3 + k_3 x_3 +(c_2 + c_3) i\omega x_3\\
-		\label{eq:matrix2}
+			-m_1 \omega^2  + k_1 	+ c_1 i\omega 	&  	- k_1 	- c_1 i\omega  						&	0\\
+			- k_1  - c_2  i\omega  	&  	m_2 \omega^2 	- (k_1 +k_2 ) +(c_1 + c_2) i\omega 	&	- k_2  - c_2 i\omega \\
+			0													&  	-k_2  - c_2 i\omega 	&-m_3 \omega^2 + k_3 +(c_2 + c_3) i\omega
+		\end{vmatrix}
+		=
+		\begin{vmatrix}
+			F_1
+			\\
+			0
+			\\
+			0
+			\label{eq:matrix2}
 		\end{vmatrix}
 		\end{gather}		
+		Dalla terza riga della (\ref{eq:matrix2}) ricaviamo $x_3$ in funzione di $x_2$:
+		\begin{equation}
+		x_3=x_2 \frac{	+k_2  + c_2 i\omega}{-m_3 \omega^2 + k_3 +(c_2 + c_3) i\omega}  = x_2 A
+		\end{equation}
+		e riscriviamo la seconda riga:
+		\begin{equation*}
+		(- k_1  - c_2  i\omega )x_1 	+  \left [ m_2 \omega^2x_1 - (k_1 + k_2) + (c_1 + c_2) i\omega + (- k_2  - c_2 i\omega)A \right] x_2 =0
+		\end{equation*}
+		\begin{equation}
+		x_2=x_1 \frac{+ k_1  + c_2  i\omega}{ m_2 \omega^2x_1 - (k_1 + k_2) + (c_1 + c_2) i\omega + (- k_2  - c_2 i\omega)A} =x_1 B
+		\end{equation}
+ 		e quindi dalla prima riga:
+ 		\begin{equation*}
+		\left[ -m_1 \omega^2  + k_1 	+ c_1 i\omega -( k_1+ c_1 i\omega)B \right]x_1=F_1
+ 		\end{equation*}
+ 		\begin{equation*}
+ 		\frac{F_1}{x_1}=-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B
+		\end{equation*}
 		
- 
- 
- 
- 
- 
- 
- 
+		Ricordando che derivare $x$ nel tempo equivale a moltiplicare per $i \omega$ otteniamo la tra $F_1$ e $\ddot x_1$ otteniamo l'espressione algebrica dell'impedenza meccanica $I$ del sistema la quale andr‡ confrontata con quella misurata sperimentalmente:
+ 		\begin{equation}
+ 		I=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
+ 		\end{equation}
+ 		
  
  \end{document}
