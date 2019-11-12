@@ -131,7 +131,7 @@
 		\begin {gather}
 		\begin{vmatrix}
 		m_1 \ddot{x}_1 + k_1x_1	+ c_1 \dot x_1	&  		- k_1 x_2	- c_1 \dot x_2 		&	0 \\
-		- k_1 x_1 - c_2  \dot x_1 				&  	m_2 \ddot{x}_2	+ (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\
+		- k_1 x_1 - c_1  \dot x_1 				&  	m_2 \ddot{x}_2	+ (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\
 		0	&  	-k_2 x_2 - c_2 \dot x_2		&m_3 \ddot{x}_3 + (k_3 +k_2 )x_3 +(c_2 + c_3) \dot x_3	 \\
 		\end{vmatrix}
 		=
@@ -158,8 +158,8 @@
 		\begin {gather}
 		\begin{vmatrix}
 			-m_1 \omega^2  + k_1 	+ c_1 i\omega 	&  	- k_1 	- c_1 i\omega  						&	0\\
-			- k_1  - c_2  i\omega  	&  	m_2 \omega^2 	+ (k_1 +k_2 ) +(c_1 + c_2) i\omega 	&	- k_2  - c_2 i\omega \\
-			0													&  	-k_2  - c_2 i\omega 	&-m_3 \omega^2 + k_3 +k_2 +(c_2 + c_3) i\omega
+			- k_1  - c_1  i\omega  	&  -m_2 \omega^2 	+ (k_1 +k_2 ) +(c_1 + c_2) i\omega 	&	- k_2  - c_2 i\omega \\
+			0													&  	-k_2  - c_2 i\omega 	&-m_3 \omega^2 + (k_3 +k_2) +(c_2 + c_3) i\omega
 		\end{vmatrix}
 		=
 		\begin{vmatrix}
@@ -177,10 +177,10 @@
 		\end{equation}
 		e riscriviamo la seconda riga:
 		\begin{equation*}
-		(- k_1  - c_2  i\omega )x_1 	+  \left [ m_2 \omega^2x_1 + (k_1 + k_2) + (c_1 + c_2) i\omega + (- k_2  - c_2 i\omega)A \right] x_2 =0
+		(- k_1  - c_1  i\omega )x_1 	+  \left [- m_2 \omega^2 + (k_1 + k_2) + (c_1 + c_2) i\omega - ( k_2  + c_2 i\omega)A \right] x_2 =0
 		\end{equation*}
 		\begin{equation}
-		x_2=x_1 \frac{+ k_1  + c_2  i\omega}{ m_2 \omega^2x_1 + (k_1 + k_2) + (c_1 + c_2) i\omega + (- k_2  - c_2 i\omega)A} =x_1 B
+		x_2=x_1 \frac{+ k_1  + c_1  i\omega}{- m_2 \omega^2 + (k_1 + k_2) + (c_1 + c_2) i\omega + (- k_2  - c_2 i\omega)A} =x_1 B
 		\end{equation}
  		e quindi dalla prima riga:
  		\begin{equation*}
@@ -190,9 +190,9 @@
  		\frac{F_1}{x_1}=-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B
 		\end{equation*}
 		
-		Ricordando che derivare $x$ nel tempo equivale a moltiplicare per $i \omega$ otteniamo la tra $F_1$ e $\ddot x_1$ otteniamo l'espressione algebrica dell'impedenza meccanica $I$ del sistema la quale andrà confrontata con quella misurata sperimentalmente:
+		Ricordando che derivare $x$ nel tempo equivale a moltiplicare per $i \omega$ otteniamo la tra $F_1$ e $\ddot x_1$ otteniamo l'espressione algebrica della Massa Dinamica $M$ del sistema la quale andrà confrontata con quella misurata sperimentalmente:
  		\begin{equation}
- 		I=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
+ 		M=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
  		\end{equation}
  		
  
