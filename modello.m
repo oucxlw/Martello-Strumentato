@@ -63,18 +63,27 @@ m1= 1.4293; %massa della piastra di carico pesante 1 [kg];
 m2=0.0383; %massa polipropilene
 m3=40; %massa base cemento [kg];
 %Costanti elastiche [N/m]: 
-k1=2e9;%cost.elast. piastra carico grande [N/m]
-k2=2.5e7;%cost.elast.AC ref=4e6N/m
+kp=2e9;%cost.elast. piastra carico grande [N/m]
+%kc2=2.5e7;%cost.elast.AC ref=4e6N/m
 E=1.5*10^9;
 s=0.098*0.096;
-k2=E*s/0.005
-k3=4e8;%cost.elast. base cemento [N/m];
+kc=E*s/0.005
+ks=4e8;%cost.elast. base cemento [N/m];
 %c=coefficiente di smorzamento=damping ratio*radice quadrata di k su m [Ns/m]: 
 %smorzato:c=1,non smorzato:c=0,%fortem smorzato:c>1.
 %ref:damping ratio AC=2%-9%;
 c1= 0%.00001*2*sqrt(k1*m1); 
 c2= 0%.01*2*sqrt(k2*m2);
 c3= 0%.03*2*sqrt(k3*m3);    
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Modifica masse e definizioni masse efficaci
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+m3= m3 /3+2*m2 /3;
+m2= m2 /3+2*m1 /3;
+m1= m1/3;
+
 
 w=2*pi*f;
 A = (k2+c2*1i.*w)./(-m3 *w.^2 + (k3 + k2) + (c2 + c3)*1i.*w);
