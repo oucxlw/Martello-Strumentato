@@ -61,43 +61,94 @@ m1= 1.4293; %massa della piastra di carico pesante 1 [kg];
 %m2= 0.3926; %massa campione 1 [kg]; 
 %m2=0.1461; %massa campione 2 [kg];
 m2=0.0383; %massa polipropilene
-m3=40; %massa base cemento [kg];
+%m3=40; %massa base cemento [kg];
 %Costanti elastiche [N/m]: 
-kp=2e9;%cost.elast. piastra carico grande [N/m]
+kp=59.25e+9;%cost.elast. piastra carico grande [N/m]
 %kc2=2.5e7;%cost.elast.AC ref=4e6N/m
-E=1.5*10^9;
+E=2*10^9;
 s=0.098*0.096;
 kc=E*s/0.005
-ks=4e8;%cost.elast. base cemento [N/m];
+ks=21e+9;%cost.elast. base cemento [N/m];
 %c=coefficiente di smorzamento=damping ratio*radice quadrata di k su m [Ns/m]: 
 %smorzato:c=1,non smorzato:c=0,%fortem smorzato:c>1.
 %ref:damping ratio AC=2%-9%;
 c1= 0%.00001*2*sqrt(k1*m1); 
 c2= 0%.01*2*sqrt(k2*m2);
 c3= 0%.03*2*sqrt(k3*m3);    
+% m1=1.44;
+% m2=30;
+m3=15;
+k1=kp;
+k2=kc;
+k3=ks;
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Modifica masse e definizioni masse efficaci
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+w=2*pi*f;
+%<<<<<<<<<<<<<<<<<<<<<<<<
+% Stampa con masse originali
+%<<<<<<<<<<<<<<<<<<<<<<<<
+A = (k2+c2*1i.*w)./(-m3 *w.^2 + (k3 + k2) + (c2 + c3)*1i.*w);
+B = (k1+c1*1i.*w)./(-m2 *w.^2 + (k1 + k2) + (c1 + c2) *1i.*w - (k2  + c2 *1i.*w).*A);
 
+DMass=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(-w.^2);
+DSstiff=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B;
+I=((-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(1i.*w));
+figure (1)
+,hold on
+p1=plot(f,20*log10(abs(I)), 'r-','LineWidth', 3);
+
+
+M1=(m1+m2+m3).*w.^2;
+figure(1), hold on, 
+plot (f, 20*log10(abs(M1)), 'r-', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
+
+M2=(m1+m2).*w.^2;
+figure(1), hold on, 
+plot (f, 20*log10(abs(M2)), 'r-', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
+
+M3=m1.*w.^2;
+figure(1), hold on, 
+plot (f, 20*log10(abs(M3)), 'r-', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
+set(gca, 'YScale', 'lin'),
+
+
+
+% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% % Modifica masse e definizioni masse efficaci
+% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% 
 m3= m3 /3+2*m2 /3;
 m2= m2 /3+2*m1 /3;
 m1= m1/3;
 
-
-w=2*pi*f;
 A = (k2+c2*1i.*w)./(-m3 *w.^2 + (k3 + k2) + (c2 + c3)*1i.*w);
 B = (k1+c1*1i.*w)./(-m2 *w.^2 + (k1 + k2) + (c1 + c2) *1i.*w - (k2  + c2 *1i.*w).*A);
 
-M=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(-w.^2);
-S=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B;
+DMass=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(-w.^2);
+DSstiff=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B;
+I=((-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(1i.*w));
 figure (1)
 ,hold on
-plot(f,20*log10(abs(S)));
-set(gca, 'XScale', 'log')
-xlim([20, 1e4])
+p1=plot(f,20*log10(abs(I)), 'b-.','LineWidth', 3);
+%xlim([20, 1e4])
 
 
+
+M1=(m1+m2+m3).*w.^2;
+figure(1), hold on, 
+plot (f, 20*log10(abs(M1)), 'b-.', 'LineWidth', 1),
+
+M2=(m1+m2).*w.^2;
+figure(1), hold on, 
+plot (f, 20*log10(abs(M2)), 'b-.', 'LineWidth', 1),
+
+M3=m1.*w.^2;
+figure(1), hold on, 
+plot (f, 20*log10(abs(M3)), 'b-.', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
+set(gca, 'YScale', 'lin'),
 
 
 
