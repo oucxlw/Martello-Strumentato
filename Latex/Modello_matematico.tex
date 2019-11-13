@@ -8,6 +8,7 @@
  \usepackage{geometry}
  \usepackage{color}
  \usepackage{subfigure}
+ \usepackage{multirow}
  \newenvironment{sistema}%
   {\left\lbrace\begin{array}{@{}l@{}}}%
   {\end{array}\right.}
@@ -194,6 +195,45 @@
  		\begin{equation}
  		M=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
  		\end{equation}
- 		
+\section{Dati disponibili}
+	Riportiamo ora i dati disponibili sui materiali utilizzati e le $k$ attese.
+	
+	Polipropilene
+	
+	
+
+
+\begin{table}[]
+	\centering
+	\caption{Proprietà meccaniche dei materiali utilizzati}
+	\label{material}
+	\begin{tabular}{cccccc}
+		\hline\hline
+		\multirow{2}{*}{Materiale} & Spessore&Superficie&Modulo E & K&Peso\\
+		&[m]& [$m^2$]& [GPa]&[GN/m]& [Kg]\\
+		\hline
+		Piastra pesante 1&$0.024$	& $\pi* 0.05^2=0.0079$	& 180	& 59.3	& 1.4293	\\
+		Piastra pesante 2&$0.0475$	& $\pi* 0.05^2=0.0079$	& 180	& 30.0	& 2.8871	\\
+		Blocco cemento	&$0.13 $	& $0.25^2=0.0625$		& 45 	& 21.6	& $\sim$ 15	\\
+		Polipropilene	&$0.005$	& $0.096*0.098=0.0094$	& 1.5	&  2.8	& 0.0383	\\
+		\hline\hline
+	\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  
  \end{document}
