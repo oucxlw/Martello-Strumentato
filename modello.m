@@ -68,7 +68,7 @@ kp=59.25e+9;%cost.elast. piastra carico grande [N/m]
 E=2*10^9;
 s=0.098*0.096;
 kc=E*s/0.005
-ks=21e+9;%cost.elast. base cemento [N/m];
+ks=21.6e+9;%cost.elast. base cemento [N/m];
 %c=coefficiente di smorzamento=damping ratio*radice quadrata di k su m [Ns/m]: 
 %smorzato:c=1,non smorzato:c=0,%fortem smorzato:c>1.
 %ref:damping ratio AC=2%-9%;
@@ -113,6 +113,9 @@ plot (f, 20*log10(abs(M3)), 'r-', 'LineWidth', 1),
 set(gca, 'XScale', 'log'),
 set(gca, 'YScale', 'lin'),
 
+k0=115,54;
+fa = f(find(20*log10(abs(M1)) > k0,1))
+k=4*pi^2*fa^2*m3
 
 
 % %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -147,11 +150,17 @@ plot (f, 20*log10(abs(M2)), 'b-.', 'LineWidth', 1),
 M3=m1.*w.^2;
 figure(1), hold on, 
 plot (f, 20*log10(abs(M3)), 'b-.', 'LineWidth', 1),
+
+
+Mx= 20*log10(M1)+10*log10(M2./M1);
+plot (f, (Mx), 'g-.', 'LineWidth', 1),
+k0=115,54;
+
+fa = f(find(20*log10(abs(M1)) > k0,1))
+k=4*pi^2*fa^2*m3
+
 set(gca, 'XScale', 'log'),
 set(gca, 'YScale', 'lin'),
-
-
-
 
 %%
 puppa
