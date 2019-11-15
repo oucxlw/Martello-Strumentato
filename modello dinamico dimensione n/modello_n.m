@@ -1,4 +1,4 @@
-%%
+
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Modello matematico per i campioni di piccole dimensioni
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -7,22 +7,35 @@ clear all
 %close all
 load f %vettore f
 w=2*pi*f; %vettore omega
-n=4; %ordine del sistema
+n=3; %ordine del sistema
 m=ones(n,1);
 k=10^9*ones(n,1);
 z=ones(n,1);
-c=z.*k;
- 
 
-[K,I,M]= calculum(m,k,c,w,n,f);
+% data=[1,  50*10^4,   0.03,  20e+3,  3,  16*pi];
+% m=[data(1),data(3),data(5)];
+% k=[data(2),data(4),data(6)];
 
-fig3=figure();
+% c=z/100;
+for ii=0.1:0.1:0.9
+
+m1=0.6*2.8;
+m=[m1*(1-0.5), m1*0.5+0.038, 8];
+k=[0.1*2.8*10^7, 0.1*2.8*10^6, 10^1]; %k=[5*10^10 2.8*10^8 10^2];
+c=k.*[0.00000001, 0.0015, 1];
+[K,I,M,B]= calculum(m,k,c,w);
+
+
+fig1=figure(1);
+hold on
 plot(f,20*log10(abs(K)))
-grid on
-fig3.Children.XScale='log';
+grid on,ylim([40 220]),
+fig1.Children.XScale='log';
 
+clearvars K I M B
+end
 return
-
+%%
 %introduco le stesse costanti del modello di rosario
 m1= 1.4293; %massa della piastra di carico pesante 1 [kg];
 %m1= 2.8871; %massa della piastra di carico pesante 2 [kg];
@@ -61,7 +74,7 @@ DMass=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(-w.^2);
 DSstiff=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B;
 I=((-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(1i.*w));
 figure (1)
-,hold on
+hold on
 p1=plot(f,20*log10(abs(I)), 'r-','LineWidth', 3);
 
 
@@ -129,6 +142,3 @@ k=4*pi^2*fa^2*m3
 
 set(gca, 'XScale', 'log'),
 set(gca, 'YScale', 'lin'),
-
-%%
-puppa
