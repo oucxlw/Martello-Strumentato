@@ -14,14 +14,14 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Campione2, non attaccato, di lato, rip3';
+campione='Teflon, non attaccato, di lato, rip3';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
 piastra='cilindrica pesante 2';
 martellamento='auto';
 
-x = c2_a0_pesante2_met_nonattaccato (:,1); % Force [N] 
-y = c2_a0_pesante2_met_nonattaccato  (:,2); % Accelerazione [m/s^2] 
+x = teflon_a0_pesante2_met_nonattaccata (:,1); % Force [N] 
+y = teflon_a0_pesante2_met_nonattaccata(:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -224,8 +224,8 @@ Dstiff=PSD_Fav./PSD_D1av;
 %calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
 %operando la radice)
 bin=round(sqrt(picchi_sel2))+1;
-Max_pic=sqrt(max(max(PSD_F)));
-Min_pic=sqrt(min(max(PSD_F)));
+Max_pic=sqrt(max(max(PSD_F))); %calcolo del massimo dei massimi
+Min_pic=sqrt(min(max(PSD_F))); %calcolo del minimo dei minimi
 delta=(Max_pic-Min_pic)/bin;
 PSD_F2=PSD_F;
 PSD_A2=PSD_A;
