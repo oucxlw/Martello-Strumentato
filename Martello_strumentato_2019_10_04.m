@@ -14,14 +14,14 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Teflon, non attaccato, di lato, rip3';
+campione='Polipropilene, non attaccato, di lato';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
-piastra='cilindrica pesante 2';
+piastra='cilindrica pesante 1';
 martellamento='auto';
 
-x = teflon_a0_pesante2_met_nonattaccata (:,1); % Force [N] 
-y = teflon_a0_pesante2_met_nonattaccata(:,2); % Accelerazione [m/s^2] 
+x = pp_m_PP_1 (:,1); % Force [N] 
+y = pp_m_PP_1(:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -136,7 +136,7 @@ picchi_sel1=length(pos)
 %<<<<<<<<<<<<<<<<<<<<<<<<<
 divid=20;
 for ii=1:CC
-    L=L_win(ii);
+    L=L_win(ii); %PER CIASCUNA COLONNA DI f PRENDO LA LUNGHEZZA APPROPRIATA NEL VETTORE LUNGHEZZE L_win
     F_filt(:,ii)=[F_filt(1:(L-round(L/divid)-1),ii); movavg(F_filt((L-round(L/divid)):end,ii),'linear',round(L/7))];
 end
 
@@ -144,13 +144,14 @@ end
 % Calcolo delle FRFs
 %<<<<<<<<<<<<<<<<<<<<
 L = length(F_filt(:,1));
-[PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
-[PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
+PSD_win=ones(size(F(:,1)));
+[PSD_F, f]= periodogram(F_filt, PSD_win, L, fs); %PSD Forza [N^2]
+[PSD_A, f]= periodogram(A_filt, PSD_win, L, fs); %PSD Accelerazione [g^2]
 save ('f.mat', 'f');
 
-%<<<<<<<<<<<<<<<<<<
-% Filtraggio Banda
-%<<<<<<<<<<<<<<<<<<
+%<<<<<<<<<<<<<<<<<<<<<<
+% Filtraggio per Banda 
+%<<<<<<<<<<<<<<<<<<<<<<
 [r,c]=size(PSD_F);
 tagli=[];
 scarti=0;
@@ -201,8 +202,8 @@ PSD_A(:,tagli)=[];
 
 PSD_Fav = mean(sqrt(PSD_F), 2);
 PSD_Aav = mean(sqrt(PSD_A), 2);
-PSD_V1av = PSD_Aav./(2*pi*f); %velocità
-PSD_D1av = PSD_V1av./(2*pi*f); % displacement
+PSD_V1av = PSD_Aav./(1i*2*pi*f); %velocità
+PSD_D1av = PSD_V1av./(1i*2*pi*f); % displacement
 
 Dstiff=PSD_Fav./PSD_D1av;
 
@@ -300,8 +301,8 @@ for indice = 1:bin
         %PSD
         PSD_Fav = mean(sqrt(PSD_Fbin), 2);
         PSD_Aav = mean(sqrt(PSD_Abin), 2);
-        PSD_V1av = PSD_Aav./(2*pi*f); %velocità
-        PSD_D1av = PSD_V1av./(2*pi*f); % displacement
+        PSD_V1av = PSD_Aav./(1i*2*pi*f); %velocità
+        PSD_D1av = PSD_V1av./(1i*2*pi*f); % displacement
         
 %         %FFT
 %         FFT_Fav = mean( fft (F_filt2,  [], 1), 2); %FFT forza
@@ -464,8 +465,8 @@ for indice = 1:bin
         
         figure (round(indice+200)),hold on
         for iii=1:CC
-        semilogx (f, 10*log10( PSD_Fbin(:,iii).*((2*pi*f).^4)./PSD_A (:,iii) ),'color',string(colore(kkk,:)), 'LineWidth', 1),
-        %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
+        semilogx (f, 10*log10( PSD_Fbin(:,iii).*((1i*2*pi*f).^4)./PSD_A (:,iii) ),'color',string(colore(kkk,:)), 'LineWidth', 1),
+        semilogx (f, 20*log10(Dstiff1_av),'k--', 'LineWidth', 1), 
         end
         set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
         xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
