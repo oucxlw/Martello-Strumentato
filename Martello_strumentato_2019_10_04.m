@@ -14,14 +14,14 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Polipropilene, non attaccato, di lato';
+campione='Teflon, non attaccato, di lato';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
 piastra='cilindrica pesante 1';
 martellamento='auto';
 
-x = pp_m_PP_1 (:,1); % Force [N] 
-y = pp_m_PP_1(:,2); % Accelerazione [m/s^2] 
+x = pp_m_teflon_1 (:,1); % Force [N] 
+y = pp_m_teflon_1(:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -299,6 +299,8 @@ for indice = 1:bin
         % calcolo la media degli spettri
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         %PSD
+        PSD_Fav =[];
+        PSD_Aav =[];
         PSD_Fav = mean(sqrt(PSD_Fbin), 2);
         PSD_Aav = mean(sqrt(PSD_Abin), 2);
         PSD_V1av = PSD_Aav./(1i*2*pi*f); %velocità
@@ -465,7 +467,7 @@ for indice = 1:bin
         
         figure (round(indice+200)),hold on
         for iii=1:CC
-        semilogx (f, 10*log10( PSD_Fbin(:,iii).*((1i*2*pi*f).^4)./PSD_A (:,iii) ),'color',string(colore(kkk,:)), 'LineWidth', 1),
+        semilogx (f, 20*log10( sqrt(PSD_Fbin(:,iii)).*((1i*2*pi*f).^2)./sqrt(PSD_Abin (:,iii) )),'color',string(colore(kkk,:)), 'LineWidth', 1),
         semilogx (f, 20*log10(Dstiff1_av),'k--', 'LineWidth', 1), 
         end
         set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
