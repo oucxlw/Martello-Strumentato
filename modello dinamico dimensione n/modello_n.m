@@ -36,7 +36,7 @@ fig1.Children.XScale='log';
 %clearvars K I M B
 end
 
-load Forza %In forza c'ï¿½ F che ï¿½ la forza nel tempo espressa in N
+load Forza %In forza c'è F che è la forza nel tempo espressa in N
 t=1:length(F);
 t=t./52100;
 i=30;
@@ -53,27 +53,24 @@ plot( t,A(:,i) )
 %per salvare programmaticamente
 %save('pippo.mat','data','F',...)
 
+load Forza_filtrata %In forza c'è F che è la forza nel tempo espressa in N
+t=1:length(F_filt);
+t=t./52100;
+i=30;
+figure
+hold on
+plot(t,F_filt(:,i));
 
-% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% % Modifica masse e definizioni masse efficaci
-% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% 
-m3= m3 /2+ m2/2;
-m2= m2 /2+ m1 /2;
-m1= m1/2;
+F_f=fft(F_filt);
+% plot(abs(F_f));
 
-A = (k2+c2*1i.*w)./(-m3 *w.^2 + (k3 + k2) + (c2 + c3)*1i.*w);
-B = (k1+c1*1i.*w)./(-m2 *w.^2 + (k1 + k2) + (c1 + c2) *1i.*w - (k2  + c2 *1i.*w).*A);
+A=ifft(-F_f(1:round(length(F_f)/2),:)./M,length(F));
+plot( t,A(:,i) )
 
-DMass=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(-w.^2);
-DSstiff=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B;
-I=((-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(1i.*w));
-figure (1)
-,hold on
-p1=plot(f,20*log10(abs(I)), 'b-.','LineWidth', 3);
-%xlim([20, 1e4])
+A=A./500;
 
 
+%%
 
 M1=(m1+m2+m3).*w.^2;
 figure(1), hold on, 
