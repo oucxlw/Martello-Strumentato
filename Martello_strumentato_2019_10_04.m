@@ -519,9 +519,9 @@ h=0.027;
 s=pi*0.05^2;
 lim=find ( f >1.5e4);
 fr = f(find(Dstiff (1:lim) == max(Dstiff(1:lim))))
-K=(2*pi*268)^2*m
-E=K*h/s
-res=[fr K E];
+K0=(2*pi*268)^2*m
+E=K0*h/s
+res=[fr K0 E];
 save ('Risultati.mat','res')
 figure(107),hold on, plot(f,20*log10(abs(K*500)))
 
