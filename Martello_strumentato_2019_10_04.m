@@ -125,7 +125,7 @@ picchi_sel1=length(pos)
 
 F=[]; A=[];
 load Dati_simulazione
-A=500*real(A);
+A=real(A);
 
 %Faccio un calcolo di F_filt per ottenere L_win 
 [~, L_win] = finestra_forza (F, window_F, fs);
@@ -523,7 +523,7 @@ K0=(2*pi*268)^2*m
 E=K0*h/s
 res=[fr K0 E];
 save ('Risultati.mat','res')
-figure(107),hold on, plot(f,20*log10(abs(K*500)))
+figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
 
 
 
