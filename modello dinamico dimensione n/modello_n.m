@@ -17,86 +17,41 @@ z=ones(n,1);
 % k=[data(2),data(4),data(6)];
 
 % c=z/100;
-for ii=0.1:0.1:0.9
+for ii=0.1%:0.1:0.9
 
-m1=0.6*2.8;
-m=[m1*(1-0.5), m1*0.5+0.038, 8];
-k=[0.1*2.8*10^7, 0.1*2.8*10^6, 10^1]; %k=[5*10^10 2.8*10^8 10^2];
-c=k.*[0.00000001, 0.0015, 1];
+m1=1.4;
+ripartizione=0.3;
+m=[m1*(1-ripartizione), m1*ripartizione,0.038+ 7];
+k=[0.35*2.8*10^7, 0.15*2.8*10^6, 10^1]; %k=[5*10^10 2.8*10^8 10^2];
+c=k.*[0.00000000001, 0.006, 1];
 [K,I,M,B]= calculum(m,k,c,w);
 
 
-fig1=figure(1);
+fig1=figure(107);
 hold on
 plot(f,20*log10(abs(K)))
 grid on,ylim([40 220]),
 fig1.Children.XScale='log';
 
-clearvars K I M B
+%clearvars K I M B
 end
-return
-%%
-%introduco le stesse costanti del modello di rosario
-m1= 1.4293; %massa della piastra di carico pesante 1 [kg];
-%m1= 2.8871; %massa della piastra di carico pesante 2 [kg];
-%m2= 0.3926; %massa campione 1 [kg]; 
-%m2=0.1461; %massa campione 2 [kg];
-m2=0.0383; %massa polipropilene
-%m3=40; %massa base cemento [kg];
-%Costanti elastiche [N/m]: 
-kp=59.25e+9;%cost.elast. piastra carico grande [N/m]
-%kc2=2.5e7;%cost.elast.AC ref=4e6N/m
-E=2*10^9;
-s=0.098*0.096;
-kc=E*s/0.005
-ks=21.6e+9;%cost.elast. base cemento [N/m];
-%c=coefficiente di smorzamento=damping ratio*radice quadrata di k su m [Ns/m]: 
-%smorzato:c=1,non smorzato:c=0,%fortem smorzato:c>1.
-%ref:damping ratio AC=2%-9%;
-c1= 0%.00001*2*sqrt(k1*m1); 
-c2= 0%.01*2*sqrt(k2*m2);
-c3= 0%.03*2*sqrt(k3*m3);    
-% m1=1.44;
-% m2=30;
-m3=15;
-k1=kp;
-k2=kc;
-k3=ks;
 
-w=2*pi*f;
-%<<<<<<<<<<<<<<<<<<<<<<<<
-% Stampa con masse originali
-%<<<<<<<<<<<<<<<<<<<<<<<<
-A = (k2+c2*1i.*w)./(-m3 *w.^2 + (k3 + k2) + (c2 + c3)*1i.*w);
-B = (k1+c1*1i.*w)./(-m2 *w.^2 + (k1 + k2) + (c1 + c2) *1i.*w - (k2  + c2 *1i.*w).*A);
-
-DMass=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(-w.^2);
-DSstiff=(-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B;
-I=((-m1.*w.^2+k2+c1.*1i.*w-(k1+c1.*1i.*w)).*B./(1i.*w));
-figure (1)
+load Forza %In forza c'� F che � la forza nel tempo espressa in N
+t=1:length(F);
+t=t./52100;
+i=30;
+figure
 hold on
-p1=plot(f,20*log10(abs(I)), 'r-','LineWidth', 3);
+plot(t,F(:,i));
 
+F_f=fft(F);
+% plot(abs(F_f));
 
-M1=(m1+m2+m3).*w.^2;
-figure(1), hold on, 
-plot (f, 20*log10(abs(M1)), 'r-', 'LineWidth', 1),
-set(gca, 'XScale', 'log'),
+A=ifft(-F_f(1:round(length(F_f)/2),:)./M,length(F));
+plot( t,A(:,i) )
 
-M2=(m1+m2).*w.^2;
-figure(1), hold on, 
-plot (f, 20*log10(abs(M2)), 'r-', 'LineWidth', 1),
-set(gca, 'XScale', 'log'),
-
-M3=m1.*w.^2;
-figure(1), hold on, 
-plot (f, 20*log10(abs(M3)), 'r-', 'LineWidth', 1),
-set(gca, 'XScale', 'log'),
-set(gca, 'YScale', 'lin'),
-
-k0=115,54;
-fa = f(find(20*log10(abs(M1)) > k0,1))
-k=4*pi^2*fa^2*m3
+%per salvare programmaticamente
+%save('pippo.mat','data','F',...)
 
 
 % %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -122,23 +77,19 @@ p1=plot(f,20*log10(abs(I)), 'b-.','LineWidth', 3);
 
 M1=(m1+m2+m3).*w.^2;
 figure(1), hold on, 
-plot (f, 20*log10(abs(M1)), 'b-.', 'LineWidth', 1),
+plot (f, 20*log10(abs(M1)), 'r-', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
 
 M2=(m1+m2).*w.^2;
 figure(1), hold on, 
-plot (f, 20*log10(abs(M2)), 'b-.', 'LineWidth', 1),
+plot (f, 20*log10(abs(M2)), 'r-', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
 
 M3=m1.*w.^2;
 figure(1), hold on, 
-plot (f, 20*log10(abs(M3)), 'b-.', 'LineWidth', 1),
-
-
-Mx= 20*log10(M1)+10*log10(M2./M1);
-plot (f, (Mx), 'g-.', 'LineWidth', 1),
-k0=115,54;
-
-fa = f(find(20*log10(abs(M1)) > k0,1))
-k=4*pi^2*fa^2*m3
+plot (f, 20*log10(abs(M3)), 'r-', 'LineWidth', 1),
+set(gca, 'XScale', 'log'),
+set(gca, 'YScale', 'lin'),
 
 set(gca, 'XScale', 'log'),
 set(gca, 'YScale', 'lin'),
