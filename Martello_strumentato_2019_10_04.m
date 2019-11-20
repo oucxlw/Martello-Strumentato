@@ -14,14 +14,14 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Teflon, non attaccato, di lato';
+campione='Campione 1, a terra non attaccato, di lato';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
 piastra='cilindrica pesante 1';
 martellamento='auto';
 
-x = pp_m_teflon_1 (:,1); % Force [N] 
-y = pp_m_teflon_1(:,2); % Accelerazione [m/s^2] 
+x = c1_a0_pesante1_met_terra_nonattaccata (:,1); % Force [N] 
+y = c1_a0_pesante1_met_terra_nonattaccata(:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -123,8 +123,12 @@ picchi_sel1=length(pos)
 % Finestratura e Normalizzazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+F=[]; A=[];
+load Dati_simulazione
+A=500*real(A);
+
 %Faccio un calcolo di F_filt per ottenere L_win 
-[F_filt, L_win] = finestra_forza (F, window_F, fs);
+[~, L_win] = finestra_forza (F, window_F, fs);
 
 %Finestro sia Accelerazione che Forza utilizzando finestra_accelerazione 5
 %sulla base di L_win
@@ -145,8 +149,10 @@ end
 %<<<<<<<<<<<<<<<<<<<<
 L = length(F_filt(:,1));
 PSD_win=ones(size(F(:,1)));
-[PSD_F, f]= periodogram(F_filt, PSD_win, L, fs); %PSD Forza [N^2]
-[PSD_A, f]= periodogram(A_filt, PSD_win, L, fs); %PSD Accelerazione [g^2]
+pippo=F_filt;
+[PSD_F, f]= periodogram(pippo, PSD_win, L, fs); %PSD Forza [N^2]
+pippo=A_filt;
+[PSD_A, f]= periodogram(pippo, PSD_win, L, fs); %PSD Accelerazione [g^2]
 save ('f.mat', 'f');
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -517,6 +523,7 @@ K=(2*pi*268)^2*m
 E=K*h/s
 res=[fr K E];
 save ('Risultati.mat','res')
+figure(107),hold on, plot(f,20*log10(abs(K*500)))
 
 
 
