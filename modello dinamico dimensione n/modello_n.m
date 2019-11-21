@@ -1,4 +1,3 @@
-
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Modello matematico per i campioni di piccole dimensioni
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -6,7 +5,9 @@
 clear all
 %close all
 load f %vettore f
-w=2*pi*f; %vettore omega
+
+f=[f;f(1:end)+f(end)+f(2)] % Allungo f fino a fs
+w=2*pi*f; % Creo vettore omega
 n=3; %ordine del sistema
 m=ones(n,1);
 k=10^9*ones(n,1);
@@ -23,7 +24,7 @@ m1=1.4;
 ripartizione=0.3;
 m=[m1*(1-ripartizione), m1*ripartizione,0.038+ 7];
 k=[0.35*2.8*10^7, 0.15*2.8*10^6, 10^1]; %k=[5*10^10 2.8*10^8 10^2];
-c=k.*[0.00000000001, 0.006, 1];
+c=k.*[0.00000000001, 0.0006, 1];
 [K,I,M,B]= calculum(m,k,c,w);
 
 
@@ -36,10 +37,10 @@ fig1.Children.XScale='log';
 %clearvars K I M B
 end
 
-load Forza %In forza c'è F che è la forza nel tempo espressa in N
+load Forza %In 'Forza' c'è F che è la forza nel tempo espressa in N
 t=1:length(F);
 t=t./52100;
-i=30;
+i=30; % indice del segnale da plottare
 figure
 hold on
 plot(t,F(:,i));
@@ -47,10 +48,10 @@ plot(t,F(:,i));
 F_f=fft(F);
 % plot(abs(F_f));
 
-A=ifft(-F_f(1:round(length(F_f)/2),:)./M,length(F));
+A=ifft(-F_f./M(1:end-1),length(F),'symmetric');
 plot( t,A(:,i) )
 
-%per salvare programmaticamente
+save('Dati_simulazione.mat','F','A','K','I','M')
 %save('pippo.mat','data','F',...)
 
 load Forza_filtrata %In forza c'è F che è la forza nel tempo espressa in N
@@ -64,11 +65,10 @@ plot(t,F_filt(:,i));
 F_f=fft(F_filt);
 % plot(abs(F_f));
 
-A=ifft(-F_f(1:round(length(F_f)/2),:)./M,length(F));
+A=ifft(-F_f./M(1:end-1),length(F),'symmetric');
 plot( t,A(:,i) )
 
-A=A./500;
-
+% save('Dati_simulazione.mat','F','A','K','I','M')
 
 %%
 
