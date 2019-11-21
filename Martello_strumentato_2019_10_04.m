@@ -45,21 +45,21 @@ div_F=2000;             % Divisione applicata alla Forza prima della scrittura s
 div_A=500;              % Divisione applicata alla Accelerazione prima della scrittura sul file WAVE
 % Parametri di ricerca
 fs=52100;               % Freq. di campionamento (Hz);
-soglia=10;               % Soglia dei picchi;
+soglia=10;              % Soglia dei picchi;
 delay=round(0.5*fs);    % Sample da saltare una volta superata la soglia
-inizio=1*fs;          % Punto di inizio della ricerca dei picchi;
+inizio=1*fs;            % Punto di inizio della ricerca dei picchi;
 fine=round(0.95*size(x));           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
 bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
 % Dimensioni dei campioni
 L_pre=round(1/2000*fs); % Lunghezza della parte prima del picco
-L_coda=round(1*fs);   % Lunghezza della coda dei segnali
+L_coda=round(1*fs);     % Lunghezza della coda dei segnali
 % Filtraggio doppi colpi
 filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 % Normalizzazione colpi
 norm=0;                 % Se norm=1 i colpi vengono normalizzati
 % Finestratura
-window_F=5;         % Tipo di finestratura da applicare
+window_F=5;             % Tipo di finestratura da applicare
 window_A=5;
 % 0 = nessuna finestratura
 % 1 = finestratura quadrata
@@ -68,8 +68,8 @@ window_A=5;
 % 4 = blackmanharris anticipata
 % 5 = Hann Window
 % Plotting
-ascissamin=100;         % Frequenza minima da plottare nei grafici 
-ascissamax=16000;        % Frequenza massima da plottare nei grafici
+ascissamin=1;         % Frequenza minima da plottare nei grafici 
+ascissamax=20000;       % Frequenza massima da plottare nei grafici
 misura=['Campione ',num2str(campione),', ',martellamento,', punta ',punta,', piastra ',piastra,',Hann, PSDvsFFT, ',num2str(bandwidth),' Hz'];
 
 %colore=['#0072BD'; '#D95319'; '#EDB120'; '#7E2F8E'; '#77AC30'; '#4DBEEE'; '#A2142F';'#6495ed'; '#b8860b'; '#a9a9a9'; '#cd5c5c'; '#20b2aa'; '#4DBEEE'; '#A2142F'];
@@ -123,9 +123,9 @@ picchi_sel1=length(pos)
 % Finestratura e Normalizzazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-F=[]; A=[];
-load Dati_simulazione
-A=real(A);
+% F=[]; A=[];
+% load Dati_simulazione
+% A=real(A);
 
 %Faccio un calcolo di F_filt per ottenere L_win 
 [~, L_win] = finestra_forza (F, window_F, fs);
@@ -213,17 +213,67 @@ PSD_D1av = PSD_V1av./(1i*2*pi*f); % displacement
 
 Dstiff=PSD_Fav./PSD_D1av;
 
-% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% % COERENZA usando Forza / Accelerazione
-% %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% F_filtall = reshape(F_filt2, [],1);
-% A_filtall = reshape(A_filt2, [],1);
-% [r,c]=size(F_filt2);
-% [Cxy1,f] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],L,fs);
-% save ([num2str(round(indice)),'Coherence, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Cxy1');
-% 
-% clear F_filt2
-% clear A_filt2
+PSD_F_fft = 2*abs(fft(F)).^2./length (F(:,1))/fs;
+figure(110), hold on
+subplot (2,1,1),plot(f,20*log10(PSD_F_fft(1:length(f),1)))
+hold on,subplot (2,1,1),plot(f,20*log10(PSD_F(1:length(f),1)),'LineWidth',2)
+,grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+
+PSD_A_fft = 2*abs(fft(A)).^2./length (A(:,1))/fs;
+subplot (2,1,2),plot(f,20*log10(PSD_A_fft(1:length(f),1)))
+hold on, subplot (2,1,2),plot(f,20*log10(PSD_A(1:length(f),1)),'LineWidth',2)
+,grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+return
+%<<<<<<<<<<<<<<<<<<<<<
+% Calcolo tramite FFT
+%<<<<<<<<<<<<<<<<<<<<<
+f2=[f;f(2:end)+f(end)]; % Allungo f fino a fs
+FFT_Fav = mean( fft(F),2);
+FFT_Aav = mean( fft(A),2);
+FFT_Vav = FFT_Aav./(1i*2*pi*f2); 
+FFT_Dav = FFT_Aav./(1i*2*pi*f2).^2; 
+
+FFT_Kav = FFT_Fav./FFT_Dav;
+figure(109),hold on, 
+subplot(3,1,2)
+plot (f2,20*log10(abs(FFT_Kav)),'-','LineWidth',1)
+
+
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% COERENZA usando Forza / Accelerazione
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+F_filtall = reshape(F_filt, [],1);
+A_filtall = reshape(A_filt, [],1);
+[r,c]=size(F_filt);
+[Cxy1,f] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],L,fs);
+save ([num2str(round(indice)),'Coherence, misura-C',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Cxy1');
+figure (109),hold on,
+subplot(3,1,1)
+semilogx(f,Cxy1)
+grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+
+FFT_Kav_gate=FFT_Kav;
+for i=1:length(f)
+    if Cxy1(i)<0.5
+        FFT_Kav_gate(i)=1;
+        
+    end
+end
+figure(109),hold on, 
+subplot(3,1,2)
+% semilogx (f2,20*log10(abs(FFT_Kav)),'LineWidth',1)
+semilogx (f2,20*log10(abs(FFT_Kav_gate)),'r.','LineWidth',2)
+grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]), ylim([100 200])
+hold off
+subplot(3,1,3)
+semilogx (f2,180/pi*angle(FFT_Kav))
+grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]);ylim([-180 180])
+
+
+
+
+
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Analisi in intensità PSD
@@ -234,6 +284,14 @@ bin=round(sqrt(picchi_sel2))+1;
 Max_pic=sqrt(max(max(PSD_F))); %calcolo del massimo dei massimi
 Min_pic=sqrt(min(max(PSD_F))); %calcolo del minimo dei minimi
 delta=(Max_pic-Min_pic)/bin;
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Sostituzione della PSD con la FFT
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+PSD_F=fft(F);
+PSD_A=fft(A);
+f=f2
+
 PSD_F2=PSD_F;
 PSD_A2=PSD_A;
 
@@ -307,8 +365,8 @@ for indice = 1:bin
         %PSD
         PSD_Fav =[];
         PSD_Aav =[];
-        PSD_Fav = mean(sqrt(PSD_Fbin), 2);
-        PSD_Aav = mean(sqrt(PSD_Abin), 2);
+        PSD_Fav = mean(PSD_Fbin, 2);
+        PSD_Aav = mean(PSD_Abin, 2);
         PSD_V1av = PSD_Aav./(1i*2*pi*f); %velocità
         PSD_D1av = PSD_V1av./(1i*2*pi*f); % displacement
         
@@ -424,8 +482,9 @@ for indice = 1:bin
         % % saveas (gcf, ['Coerenza e MI-C',num2str(campione),'-',martellamento,'-',punta,'-',piastra,'-blackmanharris 2-PSDvsFFT-',num2str(bandwidth),'Hz','.fig'])
 
 
-        %_____________________________________________________
+        %<<<<<<<<<<<<<<<<<<<
         % Dynamic Stiffness
+        %<<<<<<<<<<<<<<<<<<<
         Dstiff1_av = PSD_Fav./PSD_D1av; %Modulo della Dynamic Stiffness
         save (['Dstiffness_av, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz - ',num2str(indice),'','.mat'], 'Dstiff1_av');
 %         Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
@@ -473,7 +532,7 @@ for indice = 1:bin
         
         figure (round(indice+200)),hold on
         for iii=1:CC
-        semilogx (f, 20*log10( sqrt(PSD_Fbin(:,iii)).*((1i*2*pi*f).^2)./sqrt(PSD_Abin (:,iii) )),'color',string(colore(kkk,:)), 'LineWidth', 1),
+        semilogx (f, 20*log10( PSD_Fbin(:,iii).*((1i*2*pi*f).^2)./PSD_Abin (:,iii) ),'color',string(colore(kkk,:)), 'LineWidth', 1),
         semilogx (f, 20*log10(Dstiff1_av),'k--', 'LineWidth', 1), 
         end
         set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
@@ -481,7 +540,7 @@ for indice = 1:bin
         titolo=['Dynamic Stiffness (Force/Displacement) Amplitude (fron ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)'];
         title([titolo]),
         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
-        grid on, xlim([20 ascissamax]),ylim([120 220])
+        grid on, xlim([ascissamin ascissamax]),ylim([120 220])
         saveas (gcf, ['from ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff-C',num2str(campione),'-Acc_',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'.fig'])
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -501,8 +560,8 @@ end
 % Plot Dstiff totale e settaggio parametri grafico
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<      
 figure (107),  hold on
-semilogx (f, 20*log10(Dstiff), 'LineWidth', 3),
-grid on, xlim([20 ascissamax]),ylim([120 220])
+% semilogx (f, 20*log10(Dstiff), 'LineWidth', 3),
+grid on, xlim([ascissamin ascissamax]),ylim([120 220])
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'), 
 title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',campione,'']), 
@@ -523,7 +582,7 @@ K0=(2*pi*268)^2*m
 E=K0*h/s
 res=[fr K0 E];
 save ('Risultati.mat','res')
-figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
+ figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
 
 
 
@@ -552,7 +611,7 @@ xlabel('log(Frequency) [Hz]','FontSize',10),
 ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]','FontSize', 9), 
 title('Punta: plastica, campione 1, piastra grande, biadesivo'), 
 grid on
-xlim([100 3000]), ylim([120 220])
+xlim([ascissamin ascissam]), ylim([120 220])
 hold off
 
 subplot(3,1,2), hold on
