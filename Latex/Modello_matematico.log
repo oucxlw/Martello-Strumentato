@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.11.8)  27 NOV 2019 16:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.11.8)  27 NOV 2019 17:35
 entering extended mode
 **./Modello_matematico.tex
 (Modello_matematico.tex
@@ -363,34 +363,44 @@ Overfull \hbox (10.92204pt too wide) detected at line 174
 LaTeX Warning: No positions in optional float specifier.
                Default added (so using `tbp') on input line 206.
 
-[4]
-<Effettofiltraggio.png, id=51, 829.59938pt x 284.56313pt>
+<Effettofiltraggio.png, id=47, 829.59938pt x 284.56313pt>
 File: Effettofiltraggio.png Graphic file (type png)
 <use Effettofiltraggio.png>
-Package pdftex.def Info: Effettofiltraggio.png  used on input line 234.
+Package pdftex.def Info: Effettofiltraggio.png  used on input line 233.
 (pdftex.def)             Requested size: 398.33858pt x 136.63216pt.
- [5 <./Effettofiltraggio.png>] (Modello_matematico.aux) ) 
+[4]
+<effettofinestra.pdf, id=53, 597.23125pt x 845.1575pt>
+File: effettofinestra.pdf Graphic file (type pdf)
+<use effettofinestra.pdf>
+Package pdftex.def Info: effettofinestra.pdf  used on input line 241.
+(pdftex.def)             Requested size: 455.24408pt x 644.235pt.
+
+
+LaTeX Warning: Float too large for page by 18.735pt on input line 244.
+
+[5 <./Effettofiltraggio.png>] [6 <./effettofinestra.pdf>] [7]
+(Modello_matematico.aux) ) 
 Here is how much of TeX's memory you used:
- 3892 strings out of 492946
- 52925 string characters out of 3135628
- 149511 words of memory out of 3000000
- 7714 multiletter control sequences out of 15000+200000
+ 3900 strings out of 492946
+ 53104 string characters out of 3135628
+ 149519 words of memory out of 3000000
+ 7721 multiletter control sequences out of 15000+200000
  9626 words of font info for 35 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,16n,25p,853b,236s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
-e1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
-c/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
-s/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr1
-2.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:
-/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Program F
-iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTe
-X 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on Modello_matematico.pdf (5 pages, 177864 bytes).
+ 41i,16n,25p,995b,236s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfo
+nts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
+mex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.pf
+b><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Pro
+gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program File
+s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts
+/type1/public/amsfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pub
+lic/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
+ts/cm/cmsy10.pfb>
+Output written on Modello_matematico.pdf (7 pages, 437493 bytes).
 PDF statistics:
- 88 PDF objects out of 1000 (max. 8388607)
+ 216 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

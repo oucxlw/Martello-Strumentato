@@ -196,9 +196,9 @@
  		M=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
  		\end{equation}
 \section{Dati disponibili}
-	Riportiamo ora i dati disponibili sui materiali utilizzati e le $k$ attese.
+	Riportiamo in Tabella~\ref{tab:material}  i dati disponibili sui materiali utilizzati e le $k$ attese.
 	
-	Polipropilene
+
 	
 	
 
@@ -206,7 +206,7 @@
 \begin{table}[]
 	\centering
 	\caption{Proprietà meccaniche dei materiali utilizzati}
-	\label{material}
+	\label{tab:material}
 	\begin{tabular}{cccccc}
 		\hline\hline
 		\multirow{2}{*}{Materiale} & Spessore&Superficie&Modulo E & K&Peso\\
@@ -225,8 +225,7 @@
  \section{Analisi dei segnali}
  I segnali acquisiti sperimentalmente necessitano di essere opportunamente processati per ottenere la risposta in frequenza del sistema.
  \subsection{Ricerca picchi e costruzione matrici dei dati}
- \subsection{Finestratura}
- La finestratura del segnale ha lo scopo di scongiurare l'incorrere di artefatti nella trasformata del segnale dovuti alla durata finita del segnale nel tempo. A tal fine sono state prese in esame diverse tipologie di finestre tra cui Hamming, Hann, rettangolare e se ne sono studiate le prestazioni in funzione della lunghezza delle stesse.
+ 
  \subsection{Filtraggio}
  L'operazione di filtraggio viene effettuata sulla matrice $F$ allo scopo di abbattere il segnale prodotto dal martello dopo il suo distacco dalla superficie del campione e quindi non correlato con l'accelerazione misura sul campione. In \figurename~\ref{fig:Effettofiltraggio} è possibile osservare come l'effetto del filtraggio (operato tramite media mobile) sulla Power Spectral Density si concentri al di sopra della regione in cui lo spettro della Forza risulta piatto e della frequenza di coerenza. Considerando che la stima delle grandezze oggetto della misura avviene al di sotto della frequenza di coerenza, l'operazione di filtraggio  appare in ultima analisi ininfluente.
  \begin{figure}
@@ -235,7 +234,15 @@
 	\caption{Effetto del filtraggio sulla PSD sel segnale della forza. Differenze evidenti si riscontrano esclusivamente ad alta frequenza.}
 	\label{fig:Effettofiltraggio}
  \end{figure}
- \subsection{Calcolo delle FFT}
+\subsection{Finestratura}
+La finestratura del segnale ha lo scopo di scongiurare l'incorrere di artefatti nella trasformata del segnale dovuti alla durata finita del segnale nel tempo. A tal fine sono state prese in esame diverse tipologie di finestre tra cui Hamming, Hann, rettangolare e se ne sono studiate le prestazioni in funzione della lunghezza delle stesse. In \figurename~\ref{fig:effettofinestra} possiamo osservare l'effetto profotto da finestre Hann progressivamente più larghe (la 1/64 della lunghezza del campione alla lunghezza del compione). Come possiamo osservare, nessun effetto è riscontrabile sulla coerenz, che resta invariata al cambiare della larghezza della finestra ma lo stesso non lo si può dire per fase e modulo della Costante elastica dinamica. Allargando la finestra sopraggiungono una serie di risonanze iniziamlente non riscontrate dunque ci chiediamo se queste siano presenti nel segnale originale o piuttosto figlie della finestratura.
+\begin{figure}
+	\centering
+	\includegraphics[width=16cm]{effettofinestra}
+	\caption{Effetto della finestratura su coerenza dei segnali e modulo e fase della Dynamic Stiffness K. In alto la coerenza tra i segnali, al centro il modulo della costante elastica dinamica K e in basso la sua fase.}
+	\label{fig:effettofinestra}
+\end{figure}
+\subsection{Calcolo delle PSD}
 
 
 
