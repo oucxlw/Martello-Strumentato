@@ -222,7 +222,20 @@
 
 
 
-
+ \section{Analisi dei segnali}
+ I segnali acquisiti sperimentalmente necessitano di essere opportunamente processati per ottenere la risposta in frequenza del sistema.
+ \subsection{Ricerca picchi e costruzione matrici dei dati}
+ \subsection{Finestratura}
+ La finestratura del segnale ha lo scopo di scongiurare l'incorrere di artefatti nella trasformata del segnale dovuti alla durata finita del segnale nel tempo. A tal fine sono state prese in esame diverse tipologie di finestre tra cui Hamming, Hann, rettangolare e se ne sono studiate le prestazioni in funzione della lunghezza delle stesse.
+ \subsection{Filtraggio}
+ L'operazione di filtraggio viene effettuata sulla matrice $F$ allo scopo di abbattere il segnale prodotto dal martello dopo il suo distacco dalla superficie del campione e quindi non correlato con l'accelerazione misura sul campione. In \figurename~\ref{fig:Effettofiltraggio} è possibile osservare come l'effetto del filtraggio (operato tramite media mobile) sulla Power Spectral Density si concentri al di sopra della regione in cui lo spettro della Forza risulta piatto e della frequenza di coerenza. Considerando che la stima delle grandezze oggetto della misura avviene al di sotto della frequenza di coerenza, l'operazione di filtraggio  appare in ultima analisi ininfluente.
+ \begin{figure}
+	\centering
+	\includegraphics[width=14cm]{Effettofiltraggio}
+	\caption{Effetto del filtraggio sulla PSD sel segnale della forza. Differenze evidenti si riscontrano esclusivamente ad alta frequenza.}
+	\label{fig:Effettofiltraggio}
+ \end{figure}
+ \subsection{Calcolo delle FFT}
 
 
 
