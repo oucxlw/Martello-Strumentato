@@ -15,15 +15,22 @@ freq=[0;0.999482034262474;1.99896406852495;2.99844610278742;3.99792813704990;4.9
 omega=2*pi.*freq;
 m1= 1.4293; %massa della piastra di carico pesante 1 [kg];
 %m1= 2.8871; %massa della piastra di carico pesante 2 [kg];
-m2= 0.3926; %massa campione 1 [kg]; 
+m2= 0.0383; %massa campione 1 [kg]; 
 %m2=0.1461; %massa campione 2 [kg];
-m3=10; %massa base cemento [kg];
+m3=15; %massa base cemento [kg];
 
+m3= m3 /3+2*m2 /3;
+m2= m2 /3+2*m1 /3;
+m1= m1/3;;
 
 %Costanti elastiche [N/m]: 
-k1=2e9;%cost.elast. piastra carico grande [N/m]
-k2=2.5e7;%cost.elast.AC ref=4e6N/m
-k3=4e8;%cost.elast. base cemento [N/m];
+% k1=2e9;%cost.elast. piastra carico grande [N/m]
+% k2=2.5e7;%cost.elast.AC ref=4e6N/m
+% k3=4e8;%cost.elast. base cemento [N/m];
+
+k1=40e9;%cost.elast. piastra carico grande [N/m]
+k2=2.8e+9;%cost.elast.AC ref=4e6N/m
+k3=21.6e+9;%cost.elast. base cemento [N/m];
 
 %c=coefficiente di smorzamento=damping ratio*radice quadrata di k su m [Ns/m]: 
 %smorzato:c=1,non smorzato:c=0,%fortem smorzato:c>1.

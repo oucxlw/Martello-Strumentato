@@ -14,14 +14,14 @@ load dati.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-campione='Campione2, non attaccato, di lato, rip3';
+campione='Campione 1, a terra non attaccato, di lato';
 accelerometro=0;
 punta='M'; %m=metallica; p=plastica; g=gomma.
-piastra='cilindrica pesante 2';
+piastra='cilindrica pesante 1';
 martellamento='auto';
 
-x = c2_a0_pesante2_met_nonattaccato (:,1); % Force [N] 
-y = c2_a0_pesante2_met_nonattaccato  (:,2); % Accelerazione [m/s^2] 
+x = c1_a0_pesante1_met_terra_nonattaccata (:,1); % Force [N] 
+y = c1_a0_pesante1_met_terra_nonattaccata(:,2); % Accelerazione [m/s^2] 
 
 % x = pp_m_teflon_1 (:,1); % Force [N] 
 % y = pp_m_teflon_1 (:,accelerometro+2); % Accelerazione [m/s^2] 
@@ -123,8 +123,12 @@ picchi_sel1=length(pos)
 % Finestratura e Normalizzazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+F=[]; A=[];
+load Dati_simulazione
+A=real(A);
+
 %Faccio un calcolo di F_filt per ottenere L_win 
-[F_filt, L_win] = finestra_forza (F, window_F, fs);
+[~, L_win] = finestra_forza (F, window_F, fs);
 
 %Finestro sia Accelerazione che Forza utilizzando finestra_accelerazione 5
 %sulla base di L_win
@@ -136,7 +140,7 @@ picchi_sel1=length(pos)
 %<<<<<<<<<<<<<<<<<<<<<<<<<
 divid=20;
 for ii=1:CC
-    L=L_win(ii);
+    L=L_win(ii); %PER CIASCUNA COLONNA DI f PRENDO LA LUNGHEZZA APPROPRIATA NEL VETTORE LUNGHEZZE L_win
     F_filt(:,ii)=[F_filt(1:(L-round(L/divid)-1),ii); movavg(F_filt((L-round(L/divid)):end,ii),'linear',round(L/7))];
 end
 
@@ -144,13 +148,16 @@ end
 % Calcolo delle FRFs
 %<<<<<<<<<<<<<<<<<<<<
 L = length(F_filt(:,1));
-[PSD_F, f]= periodogram(F_filt, [], L, fs); %PSD Forza [N^2]
-[PSD_A, f]= periodogram(A_filt, [], L, fs); %PSD Accelerazione [g^2]
+PSD_win=ones(size(F(:,1)));
+pippo=F_filt;
+[PSD_F, f]= periodogram(pippo, PSD_win, L, fs); %PSD Forza [N^2]
+pippo=A_filt;
+[PSD_A, f]= periodogram(pippo, PSD_win, L, fs); %PSD Accelerazione [g^2]
 save ('f.mat', 'f');
 
-%<<<<<<<<<<<<<<<<<<
-% Filtraggio Banda
-%<<<<<<<<<<<<<<<<<<
+%<<<<<<<<<<<<<<<<<<<<<<
+% Filtraggio per Banda 
+%<<<<<<<<<<<<<<<<<<<<<<
 [r,c]=size(PSD_F);
 tagli=[];
 scarti=0;
@@ -201,8 +208,8 @@ PSD_A(:,tagli)=[];
 
 PSD_Fav = mean(sqrt(PSD_F), 2);
 PSD_Aav = mean(sqrt(PSD_A), 2);
-PSD_V1av = PSD_Aav./(2*pi*f); %velocità
-PSD_D1av = PSD_V1av./(2*pi*f); % displacement
+PSD_V1av = PSD_Aav./(1i*2*pi*f); %velocità
+PSD_D1av = PSD_V1av./(1i*2*pi*f); % displacement
 
 Dstiff=PSD_Fav./PSD_D1av;
 
@@ -224,8 +231,8 @@ Dstiff=PSD_Fav./PSD_D1av;
 %calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
 %operando la radice)
 bin=round(sqrt(picchi_sel2))+1;
-Max_pic=sqrt(max(max(PSD_F)));
-Min_pic=sqrt(min(max(PSD_F)));
+Max_pic=sqrt(max(max(PSD_F))); %calcolo del massimo dei massimi
+Min_pic=sqrt(min(max(PSD_F))); %calcolo del minimo dei minimi
 delta=(Max_pic-Min_pic)/bin;
 PSD_F2=PSD_F;
 PSD_A2=PSD_A;
@@ -298,10 +305,12 @@ for indice = 1:bin
         % calcolo la media degli spettri
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         %PSD
+        PSD_Fav =[];
+        PSD_Aav =[];
         PSD_Fav = mean(sqrt(PSD_Fbin), 2);
         PSD_Aav = mean(sqrt(PSD_Abin), 2);
-        PSD_V1av = PSD_Aav./(2*pi*f); %velocità
-        PSD_D1av = PSD_V1av./(2*pi*f); % displacement
+        PSD_V1av = PSD_Aav./(1i*2*pi*f); %velocità
+        PSD_D1av = PSD_V1av./(1i*2*pi*f); % displacement
         
 %         %FFT
 %         FFT_Fav = mean( fft (F_filt2,  [], 1), 2); %FFT forza
@@ -464,8 +473,8 @@ for indice = 1:bin
         
         figure (round(indice+200)),hold on
         for iii=1:CC
-        semilogx (f, 10*log10( PSD_Fbin(:,iii).*((2*pi*f).^4)./PSD_A (:,iii) ),'color',string(colore(kkk,:)), 'LineWidth', 1),
-        %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3), 
+        semilogx (f, 20*log10( sqrt(PSD_Fbin(:,iii)).*((1i*2*pi*f).^2)./sqrt(PSD_Abin (:,iii) )),'color',string(colore(kkk,:)), 'LineWidth', 1),
+        semilogx (f, 20*log10(Dstiff1_av),'k--', 'LineWidth', 1), 
         end
         set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
         xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
@@ -510,10 +519,11 @@ h=0.027;
 s=pi*0.05^2;
 lim=find ( f >1.5e4);
 fr = f(find(Dstiff (1:lim) == max(Dstiff(1:lim))))
-K=(2*pi*268)^2*m
-E=K*h/s
-res=[fr K E];
+K0=(2*pi*268)^2*m
+E=K0*h/s
+res=[fr K0 E];
 save ('Risultati.mat','res')
+figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
 
 
 
