@@ -48,7 +48,7 @@
  			T= \frac{1}{2} m_1 \dot x_1^2 +\frac{1}{2} m_2 \dot x_2^2+ \frac{1}{2}m_3 \dot x_3^2 
  			\label{eq:mechanical-energy}
  		\end{equation}
- 		dove $\dot x_i$ è la velocità della massa $i$-esima.
+ 		dove $\dot x_i$ \'e la velocit\'a della massa $i$-esima.
  		L'energia potenziale \'e invece la somma delle energie potenziali delle molle:
  		\begin{equation}
  			V= \frac{1}{2} k_1(x_1-x_2)^2+\frac{1}{2} k_2(x_3-x_2)^2 + \frac{1}{2} k_3 x_3^2
@@ -60,12 +60,14 @@
  			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i} - \frac{\partial T}{\partial x_i} + \frac{\partial V}{\partial x_i}=F_i
  			\label{eq:lagrangian}
  		\end{equation}
- 		dove $F\ped{i}$ \'e la risultante della forze esterne e delle forze dissipative agenti sull'$i$-esima massa. Siccome l'energia meccaneca del sistema non dipende dalle $x\ped{i}$ il secondo termine dell'equazione (\ref{eq:lagrangian}) \'e automaticamente nullo. Deriviamo dunque l'energia meccanica rispetto alle velocità $\dot x\ped{i}$ e quindi rispetto al tempo:
+ 		dove $F\ped{i}$ \'e la risultante della forze esterne e delle forze dissipative agenti sull'$i$-esima massa. Siccome l'energia meccaneca del sistema non dipende dalle $x\ped{i}$ il secondo termine dell'equazione (\ref{eq:lagrangian}) \'e automaticamente nullo. Deriviamo dunque l'energia meccanica rispetto alle velocitÃ  $\dot x\ped{i}$ e quindi rispetto al tempo:
  		\begin{equation}
  			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i}= \frac{d}{dt} m_i \dot{x}_i =m_i \ddot{x}_i
  			\label{eq:energie}
  		\end{equation}
- 		La derivata parziale di V rispetto alle coordinate generalizzate produce invece:
+ 		
+		La derivata parziale di V rispetto alle coordinate generalizzate produce invece:
+		
 		\begin{gather}
  		\begin{cases}
  		\frac{\partial V}{\partial x_1}= k_1(x_1 - x_2)
@@ -76,7 +78,9 @@
  		\label{eq:potenziali}
 		\end{cases}
 		\end{gather}
+		
  		Combinando le equazioni \ref{eq:energie} e \ref{eq:potenziali} otteniamo il sistema:
+		
 		\begin{gather}
  		\begin{sistema}
  			m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2 = F_1
@@ -87,7 +91,8 @@
  			\label{eq:sistema-1}
  		\end{sistema}
 		\end{gather}
- 		Resta da identificare le forze dissipative $F_{ d,i}$ agenti sulle tre masse, definite come segue:
+ 		
+		Resta da identificare le forze dissipative $F_{ d,i}$ agenti sulle tre masse, definite come segue:
  		
 		\begin{equation}
  			F_{ d,i} = - \sum_{\substack{k}} c_{ik} \dot{x}_k
@@ -127,25 +132,26 @@
 		\\
 		m_3 \ddot{x}_3 + (k_3 +k_2 )x_3 -k_2 x_2= c_2 \dot x_2 - (c_2 + c_3) \dot x_3
 		\end{sistema}
+				\label{eq:completa}
 		\end{gather}
 		
-		Risulta utile riscrivere il sistema nella rappresentazione matriciale che permette una lettura pi\'u comoda e mette in evidenza le propriet\'a di simmetria del sistema.
-		\begin {gather}
-		\begin{vmatrix}
-		m_1 \ddot{x}_1 + k_1x_1	+ c_1 \dot x_1	&  		- k_1 x_2	- c_1 \dot x_2 		&	0 \\
-		- k_1 x_1 - c_1  \dot x_1 				&  	m_2 \ddot{x}_2	+ (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\
-		0	&  	-k_2 x_2 - c_2 \dot x_2		&m_3 \ddot{x}_3 + (k_3 +k_2 )x_3 +(c_2 + c_3) \dot x_3	 \\
-		\end{vmatrix}
-		=
-		\begin{vmatrix}
-		F_1
-		\\
-		0
-		\\
-		0
-		\label{eq:matrix}
-		\end{vmatrix}
-		\end{gather}
+%		Risulta utile riscrivere il sistema nella rappresentazione matriciale che permette una lettura pi\'u comoda e mette in evidenza le propriet\'a di simmetria del sistema.
+%		\begin {gather}
+%		\begin{vmatrix}
+%		m_1 \ddot{x}_1 + k_1x_1	+ c_1 \dot x_1	&  		- k_1 x_2	- c_1 \dot x_2 		&	0 \\
+%		- k_1 x_1 - c_1  \dot x_1 				&  	m_2 \ddot{x}_2	+ (k_1 +k_2 )x_2 +(c_1 + c_2) \dot x_2	&	- k_2 x_3 - c_2\dot x_3 \\
+%		0	&  	-k_2 x_2 - c_2 \dot x_2		&m_3 \ddot{x}_3 + (k_3 +k_2 )x_3 +(c_2 + c_3) \dot x_3	 \\
+%		\end{vmatrix}
+%		=
+%		\begin{vmatrix}
+%		F_1
+%		\\
+%		0
+%		\\
+%		0
+%		\label{eq:matrix}
+%		\end{vmatrix}
+%		\end{gather}
 	
 		A ragione del fatto che la misura sperimentale dell'accelerazione viene effettuata sulla massa m\ped1 ci interessa risolvere il sistema in funzione della coordinata $x\ped{1}$. A tal proposito ipotizziamo che il sistema venga sottoposto a una forza esterna $F(t)$. In generale se la forza $F(t)$ appartiene a  $L^2$ pu\'o essere espressa in funzione di una base dello spazio $L^2(R)$, ad esempio $e^{i\omega t}$ (con $\omega$ positivo e reale) e quindi usare la sua trasformata di Fourier $F(\omega)$. Se l'azione di $F(\omega)$ \'e abbastanza duratura nel tempo in modo da superare la fase transiente il sistema, anche le coordinate generalizzate $x\ped{i} $ seguiranno un andamento del tipo $x\ped{i}(\omega, t)=A\ped{i}(\omega)e^{i\omega t}$. Calcoliamo quindi le derivate prima e seconda di una $x\ped{1}$:
 		\begin {gather}
@@ -156,12 +162,27 @@
 		\frac{\partial \dot x_i}{\partial t }= - \omega ^2 A\ped{i}(\omega)e^{i\omega t}=-\omega^2 x_i
 		\end{sistema}
 		\end{gather}
-		e sostituiamo nella (\ref{eq:matrix}) tenendo implicite le coordinate:
+		
+		e sostituiamo nella (\ref{eq:completa}) tenendo implicite le coordinate:
+		
+		\begin {gather}
+		\begin{cases}
+		(-m_1 \omega^2  + k_1 + c_1 i\omega)x_1 - (k_1 + c_1 i\omega)x_2& =  F_1 \\
+		-(k_1  + c_1  i\omega)x_1 +(-m_2 \omega^2 + (k_1 +k_2 ) + (c_1 + c_2) i\omega)x_2 - (k_2  + c_2 i\omega)x_3& = 0\\
+		-(k_2  + c_2 i\omega)x_2+ (-m_3 \omega^2 + (k_3 +k_2) +(c_2 + c_3) i\omega)x_3& = 0\\
+		\end{cases}
+		\end {gather}
+		
+		Passando alla rappresentazione matriciale possiamo scrivere:
+		
 		\begin {gather}
 		\begin{vmatrix}
 			-m_1 \omega^2  + k_1 	+ c_1 i\omega 	&  	- k_1 	- c_1 i\omega  						&	0\\
 			- k_1  - c_1  i\omega  	&  -m_2 \omega^2 	+ (k_1 +k_2 ) +(c_1 + c_2) i\omega 	&	- k_2  - c_2 i\omega \\
 			0													&  	-k_2  - c_2 i\omega 	&-m_3 \omega^2 + (k_3 +k_2) +(c_2 + c_3) i\omega
+		\end{vmatrix}
+		\begin{vmatrix}
+		x_1 \\ x_2 \\ x_3
 		\end{vmatrix}
 		=
 		\begin{vmatrix}
@@ -191,8 +212,8 @@
  		\begin{equation*}
  		K_1 (\omega)=\frac{F_1}{x_1 (\omega)}=-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B
 		\end{equation*}
-		dove $K_1 (\omega)$ è la costante elastica dinamica misurata sulla massa $m_1$.
-		Ricordando che derivare $x$ nel tempo equivale a moltiplicare per $i \omega$ otteniamo la tra $F_1$ e $\ddot x_1$ otteniamo l'espressione algebrica della Massa Dinamica $M(\omega)$ del sistema la quale verrà utilizzata per generare segnali di test per lo script di elaborazione:
+		dove $K_1 (\omega)$ \'e la costante elastica dinamica misurata sulla massa $m_1$.
+		Ricordando che derivare $x$ nel tempo equivale a moltiplicare per $i \omega$ otteniamo la tra $F_1$ e $\ddot x_1$ otteniamo l'espressione algebrica della Massa Dinamica $M(\omega)$ del sistema la quale verrÃ  utilizzata per generare segnali di test per lo script di elaborazione:
  		\begin{equation}
  		M=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
  		\end{equation}
@@ -206,7 +227,7 @@
 
 \begin{table}[]
 	\centering
-	\caption{Proprietà meccaniche dei materiali utilizzati}
+	\caption{Propriet\'a meccaniche dei materiali utilizzati}
 	\label{tab:material}
 	\begin{tabular}{cccccc}
 		\hline\hline
@@ -228,21 +249,24 @@
  \subsection{Ricerca picchi e costruzione matrici dei dati}
  
  \subsection{Filtraggio}
- L'operazione di filtraggio viene effettuata sulla matrice $F$ allo scopo di abbattere il segnale prodotto dal martello dopo il suo distacco dalla superficie del campione e quindi non correlato con l'accelerazione misura sul campione. In \figurename~\ref{fig:Effettofiltraggio} è possibile osservare come l'effetto del filtraggio (operato tramite media mobile) sulla Power Spectral Density si concentri al di sopra della regione in cui lo spettro della Forza risulta piatto e della frequenza di coerenza. Considerando che la stima delle grandezze oggetto della misura avviene al di sotto della frequenza di coerenza, l'operazione di filtraggio  appare in ultima analisi ininfluente.
+ L'operazione di filtraggio viene effettuata sulla matrice $F$ allo scopo di abbattere il segnale prodotto dal martello dopo il suo distacco dalla superficie del campione e quindi non correlato con l'accelerazione misura sul campione. In \figurename~\ref{fig:Effettofiltraggio} Ã¨ possibile osservare come l'effetto del filtraggio (operato tramite media mobile) sulla Power Spectral Density si concentri al di sopra della regione in cui lo spettro della Forza risulta piatto e della frequenza di coerenza. Considerando che la stima delle grandezze oggetto della misura avviene al di sotto della frequenza di coerenza, l'operazione di filtraggio  appare in ultima analisi ininfluente.
  \begin{figure}
 	\centering
 	\includegraphics[width=14cm]{Effettofiltraggio}
 	\caption{Effetto del filtraggio sulla PSD sel segnale della forza. Differenze evidenti si riscontrano esclusivamente ad alta frequenza.}
 	\label{fig:Effettofiltraggio}
  \end{figure}
+
 \subsection{Finestratura}
-La finestratura del segnale ha lo scopo di scongiurare l'incorrere di artefatti nella trasformata del segnale dovuti alla durata finita del segnale nel tempo. A tal fine sono state prese in esame diverse tipologie di finestre tra cui Hamming, Hann, rettangolare e se ne sono studiate le prestazioni in funzione della lunghezza delle stesse. In \figurename~\ref{fig:effettofinestra} possiamo osservare l'effetto profotto da finestre Hann progressivamente più larghe (la 1/64 della lunghezza del campione alla lunghezza del compione). Come possiamo osservare, nessun effetto è riscontrabile sulla coerenz, che resta invariata al cambiare della larghezza della finestra ma lo stesso non lo si può dire per fase e modulo della Costante elastica dinamica. Allargando la finestra sopraggiungono una serie di risonanze iniziamlente non riscontrate dunque ci chiediamo se queste siano presenti nel segnale originale o piuttosto figlie della finestratura.
+
 \begin{figure}
 	\centering
 	\includegraphics[width=16cm]{effettofinestra}
 	\caption{Effetto della finestratura su coerenza dei segnali e modulo e fase della Dynamic Stiffness K. In alto la coerenza tra i segnali, al centro il modulo della costante elastica dinamica K e in basso la sua fase.}
 	\label{fig:effettofinestra}
 \end{figure}
+
+La finestratura del segnale ha lo scopo di scongiurare l'incorrere di artefatti nella trasformata del segnale dovuti alla durata finita del segnale nel tempo. A tal fine sono state prese in esame diverse tipologie di finestre tra cui Hamming, Hann, rettangolare e se ne sono studiate le prestazioni in funzione della lunghezza delle stesse. In \figurename~\ref{fig:effettofinestra} possiamo osservare l'effetto prodotto da finestre Hann progressivamente pi\'u larghe (la 1/64 della lunghezza del campione alla lunghezza del compione). Come possiamo osservare, nessun effetto Ã¨ riscontrabile sulla coerenz, che resta invariata al cambiare della larghezza della finestra ma lo stesso non lo si pu\'o dire per fase e modulo della Costante elastica dinamica. Allargando la finestra sopraggiungono una serie di risonanze iniziamlente non riscontrate dunque ci chiediamo se queste siano presenti nel segnale originale o piuttosto figlie della finestratura.
 \subsection{Calcolo delle PSD}
 
 
