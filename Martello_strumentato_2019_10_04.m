@@ -29,14 +29,14 @@ conf=[]
 %utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
 %la punta del martello
 
-campione={'c1'};
-piastra={'pesante1'};
-appoggio={'pavimento'};
-adesivo={'nessuno'};
-punta={'metallica'};
-martellatore=1;
-accelerometro=0;
-conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
+% campione={'c1'};
+% piastra={'pesante1'};
+% appoggio={'pavimento'};
+% adesivo={'nessuno'};
+% punta={'metallica'};
+% martellatore=1;
+% accelerometro=0;
+% conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
 
 campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064];
 campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015];
