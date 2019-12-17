@@ -55,11 +55,11 @@ piastre.Properties.VariableNames={'massa','h','d'}
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% x = c1_a0_pesante1_met_terra_nonattaccata(:,1); % Force [N]
-% y = c1_a0_pesante1_met_terra_nonattaccata (:,2); % Accelerazione [m/s^2]
+x = c1_a0_pesante1_met_terra_nonattaccata(:,1); % Force [N]
+y = c1_a0_pesante1_met_terra_nonattaccata (:,2); % Accelerazione [m/s^2]
 
-x = reshape(F, [],1);
-y = reshape(A, [],1);
+% x = reshape(F, [],1);
+% y = reshape(A, [],1);
 
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri di controllo
