@@ -6,9 +6,9 @@ close all
 clear variables
 
 %%
-campione={'c1'};
-piastra={'pesante1'};
-appoggio={'pavimento'};
+campione={'polipropilene'};
+piastra={'quadrata2'};
+appoggio={'blocco'};
 adesivo={'nessuno'};
 punta={'metallica'};
 martellatore=1;
@@ -42,7 +42,7 @@ campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  
 campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015];
 campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi); 0.1     ;0.1];
 campioni = table(campioni_mass,campioni_h,campioni_d);
-campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilena','teflon','PVC'};
+campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC'};
 campioni.Properties.VariableNames={'massa','h','d'}
 
 piastre_mass =  [0; 0.006;  0.1967; 0.6274; 0.6249; 1.4293; 2.8871; 15];
@@ -55,8 +55,8 @@ piastre.Properties.VariableNames={'massa','h','d'}
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x = c1_a0_pesante1_met_terra_nonattaccata(:,1); % Force [N]
-y = c1_a0_pesante1_met_terra_nonattaccata (:,2); % Accelerazione [m/s^2]
+x = polipropilene_a0_grande2_met_noincollaggio (:,1); % Force [N]
+y = polipropilene_a0_grande2_met_noincollaggio (:,2); % Accelerazione [m/s^2]
 
 % x = reshape(F, [],1);
 % y = reshape(A, [],1);
