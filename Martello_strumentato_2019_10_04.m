@@ -20,9 +20,9 @@ clc
 close all
 clear variables
 
-%load dati.mat
-load Forza.mat
-load Accelerazione.mat
+load dati.mat
+% load Forza.mat
+% load Accelerazione.mat
 
 conf=[]
 %In configuration mettiamo degli indici che ci dicono il campione
