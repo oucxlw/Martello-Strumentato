@@ -24,7 +24,7 @@ load dati.mat
 % load Forza.mat
 % load Accelerazione.mat
 
-conf=[]
+% conf=[]
 %In configuration mettiamo degli indici che ci dicono il campione
 %utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
 %la punta del martello
