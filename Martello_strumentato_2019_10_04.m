@@ -100,7 +100,7 @@ wintype = 'hann';
 ascissamin=1;         % Frequenza minima da plottare nei grafici
 ascissamax=5000;       % Frequenza massima da plottare nei grafici
 misura = cell2mat(['Campione ',conf.campione,', martellatore ',...
-    num2str(conf.martellatore),', punta ',punta,', piastra ',piastra,...
+    num2str(conf.martellatore),', punta ',conf.punta,', piastra ',conf.piastra,...
     ',Hann,PSDvsFFT, ',num2str(bandwidth),' Hz']);
 
 colore=[
@@ -319,7 +319,7 @@ end
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 figure (109),hold on,
-%sgtitle {'Dynamic Stiffness media K(f)'}
+sgtitle {'Dynamic Stiffness media K(f)'}
 
 subplot(4,1,[2,3]),hold on
 plot (f_fft,10*log10(abs(FFT_Kav_fft).^2),'color',string(colore(i,:)),'LineWidth',1)
@@ -405,7 +405,7 @@ lim_sup = find ( f > 1000);
 lim_inf = find ( f < 100);
 K0_av_bin=[];
 E_av_bin=[];
-
+PSD_K_bin=[];
 kkk=0;indice=0;
 [R,C]=size(PSD_F);
 dt=1/fs; time1=1000*(0:dt:r/fs-dt);
@@ -451,7 +451,7 @@ for indice = 1:bin
         % Ciclo for per plottare segnali e spettri (PSD)
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(101), grid on,
-        %sgtitle(misura)
+        sgtitle(misura)
         for j=1:C
             if Y(j)==indice
                 subplot(2,2,1), hold on
