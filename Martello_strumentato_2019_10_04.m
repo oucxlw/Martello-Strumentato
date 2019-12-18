@@ -55,8 +55,8 @@ piastre.Properties.VariableNames={'massa','h','d'}
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x = polipropilene_a0_grande2_met_noincollaggio (:,1); % Force [N]
-y = polipropilene_a0_grande2_met_noincollaggio (:,2); % Accelerazione [m/s^2]
+x = polipropilene_a0_pesante_met_biad (:,1); % Force [N]
+y = polipropilene_a0_pesante_met_biad (:,2); % Accelerazione [m/s^2]
 
 % x = reshape(F, [],1);
 % y = reshape(A, [],1);
@@ -509,7 +509,7 @@ for indice = 1:bin
         %plot sulla PSD della forza
         figure (101)
         subplot (2,2,3),hold on
-        % xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
         
         %<<<<<<<<<<<<<<<<<<<
@@ -546,7 +546,7 @@ for indice = 1:bin
             ' to ',num2str(E(indice+1)),' N)'];
         
         title([titolo]),
-%        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
         
         saveas (gcf, ['from ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff.fig'])
@@ -557,7 +557,7 @@ for indice = 1:bin
         figure (107),hold on,
         semilogx (f, 10*log10(PSD_Kav_bin),'color',string(colore(kkk,:)), 'LineWidth', 1),
         %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3),
-%        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         
 
         min_k = min(PSD_Kav_bin(lim_inf(end):lim_sup(1)));
@@ -581,8 +581,9 @@ plot (f_fft, 10*log10(abs(FFT_Kav_fft).^2),'LineWidth',2)
 plot (f(1:length(PSD_Kav_pgram)), 10*log10(PSD_Kav_pgram),'.','LineWidth',2)
 grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
-xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
-title(['Dynamic Stiffness (Force/Displacement) Amplitude, Sample: ',conf.campione,'']),
+xlabel('Frequenza [Hz]'), ylabel('Psd Rigidezza Dinamica [dB ref 1 N/m]'),
+title(['Pds della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
+    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])]),
 
 save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Psd.mat']),'PSD_Kav_pgram');
 save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Fft.mat']),'FFT_Kav_fft');
