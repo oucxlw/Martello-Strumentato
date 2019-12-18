@@ -55,8 +55,8 @@ piastre.Properties.VariableNames={'massa','h','d'}
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x = polipropilene_a0_pesante_met_biad (:,1); % Force [N]
-y = polipropilene_a0_pesante_met_biad (:,2); % Accelerazione [m/s^2]
+x = c1_a0_pesante1_met_terra_nonattaccata (:,1); % Force [N]
+y = c1_a0_pesante1_met_terra_nonattaccata (:,2); % Accelerazione [m/s^2]
 
 % x = reshape(F, [],1);
 % y = reshape(A, [],1);
@@ -403,6 +403,7 @@ h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
 lim_sup = find ( f > 1000);
 lim_inf = find ( f < 100);
+F_bin=[];
 K0_av_bin=[];
 E_av_bin=[];
 PSD_K_bin=[];
@@ -430,7 +431,7 @@ for indice = 1:bin
     [RR,CC]=size(PSD_Fbin);
     
     if CC>=1
-        F_bin(kkk)=(E(kkk)+E(kkk+1))/2;
+        F_bin=[F_bin,(E(kkk)+E(kkk+1))/2];
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo la media degli spettri
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
