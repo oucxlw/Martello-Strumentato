@@ -6,10 +6,10 @@ close all
 clear variables
 
 %%
-campione={'polipropilene'};
+campione={'viabattelli'};
 piastra={'quadrata2'};
-appoggio={'blocco'};
-adesivo={'nessuno'};
+appoggio={'pavimento'};
+adesivo={'biadesivo'};
 punta={'metallica'};
 martellatore=1;
 accelerometro=0;
@@ -38,13 +38,6 @@ load dati.mat
 % accelerometro=0;
 % conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
 
-campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064];
-campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015];
-campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi); 0.1     ;0.1];
-campioni = table(campioni_mass,campioni_h,campioni_d);
-campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC'};
-campioni.Properties.VariableNames={'massa','h','d'}
-
 piastre_mass =  [0; 0.006;  0.1967; 0.6274; 0.6249; 1.4293; 2.8871; 15];
 piastre_h =     [0; 0.0018; 0.008;  0.008;  0.008;  0.024;  0.0475; 0.16];
 piastre_d =     [0; 0.026;  2*sqrt(0.056*0.057/pi); 2*sqrt(0.1*0.1/pi); 2*sqrt(0.1*0.1/pi); 0.1; 0.1;2*sqrt(0.25*0.25/pi)];
@@ -52,11 +45,18 @@ piastre = table(piastre_mass,piastre_h,piastre_d);
 piastre.Properties.RowNames={'mini','piastrina','quadrata_piccola','quadrata1','quadrata2','pesante1','pesante2','blocco'};
 piastre.Properties.VariableNames={'massa','h','d'}
 
+campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064;0;0;0];
+campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015; 0.045; 0.045; 0.045];
+campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi); 0.1     ;0.1;   2*sqrt(0.3*0.9/pi);piastre.d(conf.piastra);piastre.d(conf.piastra)];
+campioni = table(campioni_mass,campioni_h,campioni_d);
+campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC','slab','viabattelli','viacocchi'};
+campioni.Properties.VariableNames={'massa','h','d'}
+
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x = c1_a0_pesante1_met_terra_nonattaccata (:,1); % Force [N]
-y = c1_a0_pesante1_met_terra_nonattaccata (:,2); % Accelerazione [m/s^2]
+x = battelli3_1_pg_m_biad_1 (:,1); % Force [N]
+y = battelli3_1_pg_m_biad_1 (:,conf.accelerometro+2); % Accelerazione [m/s^2]
 
 % x = reshape(F, [],1);
 % y = reshape(A, [],1);
@@ -75,7 +75,7 @@ div_A=500;              % Divisione applicata alla Accelerazione prima della scr
 fs=52100;               % Freq. di campionamento (Hz);
 soglia=10;              % Soglia dei picchi;
 delay=round(0.5*fs);    % Sample da saltare una volta superata la soglia
-inizio=1*fs;            % Punto di inizio della ricerca dei picchi;
+inizio=15*fs;            % Punto di inizio della ricerca dei picchi;
 fine=round(0.95*size(x));           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
 bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
