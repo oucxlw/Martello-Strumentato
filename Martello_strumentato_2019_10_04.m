@@ -55,8 +55,8 @@ campioni.Properties.VariableNames={'massa','h','d'}
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x = piastrina (:,1); % Force [N]
-y = piastrina (:,conf.accelerometro+2); % Accelerazione [m/s^2]
+x = cocchi_pg_m_biad_4 (:,1); % Force [N]
+y = cocchi_pg_m_biad_4 (:,conf.accelerometro+2); % Accelerazione [m/s^2]
 
 % x = reshape(F, [],1);
 % y = reshape(A, [],1);
@@ -502,7 +502,7 @@ for indice = 1:bin
         saveas (gcf, ['Segnali e spettri.fig'])
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        % Calcolo della frequenza massima
+        % Calcolo della  massima
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         PSD_Fav_dB = 10*log10(PSD_Fav_bin);
         fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
