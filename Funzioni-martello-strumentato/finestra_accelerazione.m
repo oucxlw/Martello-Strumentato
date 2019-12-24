@@ -27,7 +27,7 @@ dt=1/fs; time=1000*(0:dt:L/fs-dt);
 for kk=1:picchi_sel
   
     %sottrazione della media
-    A(:,kk)=A(:,kk)-mean(A(:,kk));
+    %A(:,kk)=A(:,kk)-mean(A(:,kk));
 
     %<<<<<<<<<<<<<<<<<<<
     % Finestratura di A
@@ -104,9 +104,9 @@ for kk=1:picchi_sel
             A_filt=[A_filt, temp];
              
         case 5 % finestra: hann lunga 2 volte L_win
-            t0=1; 
+            t0=20; 
             [~,pos] = max(A(:,kk));
-            tf=round(3*L_win(kk));
+            tf=round(27*L_win(kk));
             Lp = tf - t0;
             Delta_f = round(Lp/5);
             Sgn=A(1:tf-1,kk);

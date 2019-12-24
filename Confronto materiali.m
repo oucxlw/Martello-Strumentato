@@ -31,7 +31,8 @@ semilogx (f, 20*log10(Dstiff_av_teflonPVC_6_10),     '--','color','#77AC30','Lin
 
 
 legend('Teflon 1 cm','PVC 1.5 mm','Polipropilene 0.5 mm','Campione 3','Teflon + PVC',...
-    'Teflon 1 cm (forti)','PVC 1.5 mm (forti)','Polipropilene 0.5 mm (forti)','Campione 3 (forti)','Teflon + PVC (forti)')
+    'Teflon 1 cm (forti)','PVC 1.5 mm (forti)','Polipropilene 0.5 mm (forti)','Campione 3 (forti)',...
+    'Teflon + PVC (forti)')
 
 
 set(gca, 'Xscale', 'log'), set(gca, 'YScale', 'log'),

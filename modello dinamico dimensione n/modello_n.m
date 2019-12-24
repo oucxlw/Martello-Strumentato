@@ -5,8 +5,11 @@
 clear all
 %close all
 load f %vettore f
+fs=52100;
+f=0:2^15-1;
+f=f'*fs/(2^15-1);
+% f=[f;f(1:end)+f(end)+f(2)]; % Allungo f fino a fs
 
-f=[f;f(1:end)+f(end)+f(2)] % Allungo f fino a fs
 w=2*pi*f; % Creo vettore omega
 n=3; %ordine del sistema
 m=ones(n,1);
@@ -48,12 +51,12 @@ plot(t,F(:,i));
 F_f=fft(F);
 % plot(abs(F_f));
 
-A=ifft(-F_f./M(1:end-1),length(F),'symmetric');
+A=ifft(-F_f./M(1:end),length(F),'symmetric');
 plot( t,A(:,i) )
 
 save('Dati_simulazione.mat','F','A','K','I','M')
 %save('pippo.mat','data','F',...)
-
+return
 load Forza_filtrata %In forza c'è F che è la forza nel tempo espressa in N
 t=1:length(F_filt);
 t=t./52100;
