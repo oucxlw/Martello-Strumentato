@@ -6,12 +6,12 @@ close all
 clear variables
 
 %%
-campione={'legno'};
-piastra={'piastrina'};
-appoggio={'pavimento'};
+campione={'c1'};
+piastra={'pesante2'};
+appoggio={'cemento'};
 adesivo={'biadesivo'};
 punta={'metallica'};
-martellatore=1;
+martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
 
@@ -55,8 +55,8 @@ campioni.Properties.VariableNames={'massa','h','d'}
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x = cocchi_pg_m_biad_4 (:,1); % Force [N]
-y = cocchi_pg_m_biad_4 (:,conf.accelerometro+2); % Accelerazione [m/s^2]
+x = data (:,1); % Force [N]
+y = data (:,conf.accelerometro+2); % Accelerazione [m/s^2]
 
 % x = reshape(F, [],1);
 % y = reshape(A, [],1);
