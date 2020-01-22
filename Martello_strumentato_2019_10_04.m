@@ -3,13 +3,15 @@
 set (0,'DefaultFigureWindowStyle','docked')
 clc
 close all
+
+%%
 clear variables
 
 %%
 campione={'c1'};
-piastra={'pesante2'};
+piastra={'pesante1'};
 appoggio={'cemento'};
-adesivo={'biadesivo'};
+adesivo={'gesso'};
 punta={'metallica'};
 martellatore=2;
 accelerometro=0;
