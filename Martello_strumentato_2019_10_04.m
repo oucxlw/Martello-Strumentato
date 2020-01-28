@@ -289,6 +289,7 @@ grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
 
 legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})','PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
 
+
 %<<<<<<<<<<<<<<<<<<<<<
 % Calcolo tramite FFT
 %<<<<<<<<<<<<<<<<<<<<<
@@ -315,6 +316,21 @@ for ii=1:length(f)
         FFT_Kav_gate(ii)=1;
     end
 end
+
+Acc=PSD_Aav_pgram/PSD_Fav_pgram;
+
+
+figure(111), hold on
+subplot (2,1,1),hold on,
+plot(f_coer,Cxy1,'-.','LineWidth',2)
+grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})','PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
+
+subplot (2,1,2),hold on
+plot(f,Acc(1:length(f)),'LineWidth',2)
+grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+
+return
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Confronto PSD calcolata tramite Fft e Psd
