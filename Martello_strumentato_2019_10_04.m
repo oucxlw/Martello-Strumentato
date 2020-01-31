@@ -8,9 +8,9 @@ close all
 clear variables
 
 %%
-campione={'c1'};
+campione={'arezzo1'};
 piastra={'pesante1'};
-appoggio={'cemento'};
+appoggio={'nessuno'};
 adesivo={'gesso'};
 punta={'metallica'};
 martellatore=2;
@@ -47,11 +47,14 @@ piastre = table(piastre_mass,piastre_h,piastre_d);
 piastre.Properties.RowNames={'mini','piastrina','quadrata_piccola','quadrata1','quadrata2','pesante1','pesante2','blocco'};
 piastre.Properties.VariableNames={'massa','h','d'}
 
-campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064;0;0;0;0];
-campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015; 0.045; 0.045; 0.045;0.019];
-campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi); 0.1     ;0.1;   2*sqrt(0.3*0.9/pi);piastre.d(conf.piastra);piastre.d(conf.piastra);piastre.d(conf.piastra)];
+campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064;1;1;1;1;1];
+campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015; 0.045; 0.045; 0.045;0.019;0.05];
+campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi);...
+    0.1     ;0.1;   2*sqrt(0.3*0.9/pi);piastre.d(conf.piastra);...
+    piastre.d(conf.piastra);piastre.d(conf.piastra);piastre.d(conf.piastra)];
 campioni = table(campioni_mass,campioni_h,campioni_d);
-campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC','slab','viabattelli','viacocchi','legno'};
+campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC',...
+    'slab','viabattelli','viacocchi','legno','arezzo1'};
 campioni.Properties.VariableNames={'massa','h','d'}
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -99,7 +102,7 @@ wintype = 'hann';
 % 4 = blackmanharris anticipata
 % 5 = Hann Window
 % Plotting
-ascissamin=1;         % Frequenza minima da plottare nei grafici
+ascissamin=10;         % Frequenza minima da plottare nei grafici
 ascissamax=5000;       % Frequenza massima da plottare nei grafici
 misura = cell2mat(['Campione ',conf.campione,', martellatore ',...
     num2str(conf.martellatore),', punta ',conf.punta,', piastra ',conf.piastra,...
@@ -317,20 +320,53 @@ for ii=1:length(f)
     end
 end
 
-Acc=PSD_Aav_pgram/PSD_Fav_pgram;
+Acc=PSD_Aav_pgram./PSD_Fav_pgram;
+save(('Acc'), 'Acc');
+save(('Forza'), 'PSD_Fav_pgram');
+save(('Accelerazione'), 'PSD_Aav_pgram');
 
 
 figure(111), hold on
 subplot (2,1,1),hold on,
-plot(f_coer,Cxy1,'-.','LineWidth',2)
+plot(f_coer,Cxy1,'LineWidth',2)
 grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})','PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
+legend('Coerenza')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
 
 subplot (2,1,2),hold on
 plot(f,Acc(1:length(f)),'LineWidth',2)
 grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+legend('Accelerazione su Forza')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
 
-return
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo della f massima media
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+PSD_Fav_dB = 10*log10(PSD_Fav_pgram);
+fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
+fmax=f(fmax(1)+f0);
+%plot sulla PSD della forza
+figure (111)
+subplot (2,1,2),hold on
+xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+hold off
+saveas(gcf,'Acc.fig');
+
+fr=f(find (Acc==max(Acc(find (f>ascissamin,1):find (f>fmax,1)))));
+
+m=piastre.massa(conf.piastra); %massa della piastra in uso
+h=campioni.h(conf.campione);
+s=pi*(campioni.d(conf.campione)/2)^2;
+
+K0_av=(2*pi*fr)^2*m
+St=K0_av/s
+E_av=K0_av*h/s
+
+Risultati_Acc = table(fr,K0_av,St,E_av);
+Risultati_Acc.Properties.VariableNames={'f_r','K_0','S_t','E'}
+save (['Risultati_Acc.mat'], 'Risultati_Acc');
+
+
+
+ return
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Confronto PSD calcolata tramite Fft e Psd

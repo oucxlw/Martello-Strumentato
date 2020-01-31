@@ -5,41 +5,45 @@ close all
 
 figure (1)
 hold on 
-titolo= 'Confronto ripetizioni';
+titolo= 'Confronto ripetizioni pinto 5 (pesante1 gesso)';
 sgtitle(titolo)
 % colori: #0072BD #D95319 #EDB120 #7E2F8E #77AC30 #7E2F8E
 
 %confronto campioni di materiali diversi
 subplot(3,1,1),hold on,
-plot (f, 20*log10(PSD_Fav_pgram1_1),        'LineWidth', 2),
-plot (f, 20*log10(PSD_Fav_pgram1_2),        'LineWidth', 2),
-plot (f, 20*log10(PSD_Fav_pgram1_3),        'LineWidth', 2),
-set(gca, 'Xscale', 'log'), set(gca, 'YScale', 'log'),
+plot (f, 20*log10(PSD_Fav_pgram1_1),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Fav_pgram1_2),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Fav_pgram1_3),        'LineWidth', 1),
+set(gca, 'Xscale', 'log'), %set(gca, 'YScale', 'log'),
 ylabel('Forza [dB]'),
-
-subplot(3,1,3),hold on,
-plot (f, 20*log10(PSD_Aav_pgram1_1),        'LineWidth', 2),
-plot (f, 20*log10(PSD_Aav_pgram1_2),        'LineWidth', 2),
-plot (f, 20*log10(PSD_Aav_pgram1_3),        'LineWidth', 2),
-set(gca, 'Xscale', 'log'), set(gca, 'YScale', 'log'),
-ylabel('Accelerazione [dB]'),
+xlim([20 10000]), %ylim([130 170])
 
 subplot(3,1,2),hold on,
-plot (f, 20*log10(Acc1_1),        'LineWidth', 2),
-plot (f, 20*log10(Acc1_2),        'LineWidth', 2),
-plot (f, 20*log10(Acc1_3),        'LineWidth', 2),
-% set(gca, 'Xscale', 'log'), set(gca, 'YScale', 'log'),
+plot (f, 20*log10(PSD_Aav_pgram1_1),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Aav_pgram1_2),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Aav_pgram1_3),        'LineWidth', 1),
+set(gca, 'Xscale', 'log'), %set(gca, 'YScale', 'log'),
+ylabel('Accelerazione [dB]'),
+xlim([20 10000]), %ylim([130 170])
+
+subplot(3,1,3),hold on,
+plot (f, 20*log10(Acc1_1),        'LineWidth', 1),
+plot (f, 20*log10(Acc1_2),        'LineWidth', 1),
+plot (f, 20*log10(Acc1_3),        'LineWidth', 1),
+set(gca, 'Xscale', 'log'), %set(gca, 'YScale', 'log'),
 ylabel('Forza/Accelerazione [dB]'),
-% xlabel('log(Frequency) [Hz]')
+xlim([20 10000]), %ylim([130 170])
+
+xlabel('log(Frequenza) [Hz]')
 % legend('Rip 1','Rip 2','Rip 3')
 
 
 %grid on,
 hold off
-
+saveas (gcf, [titolo,'.fig'])
 %title(['Dynamic Stiffness (Force/Displacement) Amplitude']), 
 %ylim([100 200])
-%xlim([20 2000]), %ylim([130 170])
+% xlim([20 2000]), %ylim([130 170])
 
 %legend('Piccola biad','Piccola Attak','Piccola pattex','Grande biadesivo','Grande attak','Grande pattex','Grande pattex 2gg')
 return
