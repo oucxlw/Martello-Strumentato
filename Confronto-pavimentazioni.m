@@ -5,31 +5,31 @@ close all
 
 figure (1)
 hold on 
-titolo= 'Confronto ripetizioni pinto 5 (pesante1 gesso)';
+titolo= 'Confronto ripetizioni punto 4 (pesante1 gesso)';
 sgtitle(titolo)
 % colori: #0072BD #D95319 #EDB120 #7E2F8E #77AC30 #7E2F8E
 
 %confronto campioni di materiali diversi
 subplot(3,1,1),hold on,
-plot (f, 20*log10(PSD_Fav_pgram1_1),        'LineWidth', 1),
-plot (f, 20*log10(PSD_Fav_pgram1_2),        'LineWidth', 1),
-plot (f, 20*log10(PSD_Fav_pgram1_3),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Fav_pgram4_1),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Fav_pgram4_2),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Fav_pgram4_3),        'LineWidth', 1),
 set(gca, 'Xscale', 'log'), %set(gca, 'YScale', 'log'),
 ylabel('Forza [dB]'),
 xlim([20 10000]), %ylim([130 170])
 
 subplot(3,1,2),hold on,
-plot (f, 20*log10(PSD_Aav_pgram1_1),        'LineWidth', 1),
-plot (f, 20*log10(PSD_Aav_pgram1_2),        'LineWidth', 1),
-plot (f, 20*log10(PSD_Aav_pgram1_3),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Aav_pgram4_1),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Aav_pgram4_2),        'LineWidth', 1),
+plot (f, 20*log10(PSD_Aav_pgram4_3),        'LineWidth', 1),
 set(gca, 'Xscale', 'log'), %set(gca, 'YScale', 'log'),
 ylabel('Accelerazione [dB]'),
 xlim([20 10000]), %ylim([130 170])
 
 subplot(3,1,3),hold on,
-plot (f, 20*log10(Acc1_1),        'LineWidth', 1),
-plot (f, 20*log10(Acc1_2),        'LineWidth', 1),
-plot (f, 20*log10(Acc1_3),        'LineWidth', 1),
+plot (f, 20*log10(Acc4_1),        'LineWidth', 1),
+plot (f, 20*log10(Acc4_2),        'LineWidth', 1),
+plot (f, 20*log10(Acc4_3),        'LineWidth', 1),
 set(gca, 'Xscale', 'log'), %set(gca, 'YScale', 'log'),
 ylabel('Forza/Accelerazione [dB]'),
 xlim([20 10000]), %ylim([130 170])
