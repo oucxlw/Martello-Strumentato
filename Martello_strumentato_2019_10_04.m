@@ -85,8 +85,9 @@ fine=round(0.95*size(x));           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
 bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
 % Dimensioni dei campioni
-L_pre=round((2^15/2)); % Lunghezza della parte prima del picco
-L_coda=round(2^15-L_pre-1);     % Lunghezza della coda dei segnali
+Lsample=2^8;
+L_pre=round((Lsample/8)); % Lunghezza della parte prima del picco
+L_coda=round(Lsample-L_pre-1);     % Lunghezza della coda dei segnali
 % Filtraggio doppi colpi
 filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 % Normalizzazione colpi
@@ -102,8 +103,8 @@ wintype = 'hann';
 % 4 = blackmanharris anticipata
 % 5 = Hann Window
 % Plotting
-ascissamin=10;         % Frequenza minima da plottare nei grafici
-ascissamax=5000;       % Frequenza massima da plottare nei grafici
+ascissamin=100;         % Frequenza minima da plottare nei grafici
+ascissamax=10000;       % Frequenza massima da plottare nei grafici
 misura = cell2mat(['Campione ',conf.campione,', martellatore ',...
     num2str(conf.martellatore),', punta ',conf.punta,', piastra ',conf.piastra,...
     ',Hann,PSDvsFFT, ',num2str(bandwidth),' Hz']);
@@ -169,25 +170,42 @@ picchi_sel1=length(pos)
 % [F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
 
 i=1 %vuol dire che sto applicando una finestra larga quanto 1/i la lunghezza del segnale.
-M_win=r/i; %M_win è l'ordine della finestratura, ossia la sua lunghezza
+M_win=L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
 switch wintype
-case 'hann'
-win=[zeros((r-M_win)/2,1);hann(M_win);zeros((r-M_win)/2,1)];
-case 'rect' %finestratura rettangolare
-win=[zeros((r-M_win)/2,1);ones(M_win,1);zeros((r-M_win)/2,1)];
+    case 'hann'
+        curve=hann(M_win);
+        win_A=[curve(1:end/2);ones((r-M_win-1),1);curve(end/2:end)];
+    case 'rect' %finestratura rettangolare
+        curve=ones(M_win);
+        win_A=[curve(1:end/2);ones((r-2*M_win-1),1);curve(end/2:end)];
+    case 'none'
+        win_A=ones(r,1);
 end
-E_win=sum(win.^2)/length(win);
+E_win=sum(win_A.^2)/length(win_A);
+dt=1/fs; time1=1000*(0:dt:r/fs-dt);
+
+figure(101),hold on
+subplot(2,2,2)
+plot(time1,win_A*20*log10(max(max(A))));
+
+L_win_F=L_pre+round(1*fs/1000)+M_win/2;
+win_F=[ones(L_win_F-(M_win/2),1);curve(end/2:end-1);zeros(Lsample-L_win_F,1)];
+win_F(1,1)=0;
+
+figure(101),hold on
+subplot(2,2,1);
+plot(time1,win_F*max(max(F)));
 
 %finestratura
-A_filt=A.*win;
-F_filt=F.*win;
+A_filt=A.*win_A;
+F_filt=F.*win_F;
 %trasformata (non normalizzata rispetto al numero di punti Fft)
 FFT_F=fft(F_filt);
 FFT_A=fft(A_filt);
 f_fft=0:(r-1);
 f_fft=f_fft'/(r-1)*fs;
 
-PSD_F_fft = abs(FFT_F).^2./length (FFT_F(:,1))/fs/E_win; %PSD di F stimata tramite fft
+PSD_F_fft = abs(FFT_F).^2./length(FFT_F(:,1))/fs/1; %PSD di F stimata tramite fft
 PSD_F_fft(2:end,:)= 2*PSD_F_fft(2:end,:);
 PSD_A_fft = abs(FFT_A).^2./length (FFT_A(:,1))/fs/E_win;
 PSD_A_fft(2:end,:)= 2*PSD_A_fft(2:end,:);
@@ -204,8 +222,8 @@ PSD_A_fft(2:end,:)= 2*PSD_A_fft(2:end,:);
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle PSDs
 %<<<<<<<<<<<<<<<<<<<<
-[PSD_F, f]= periodogram(F_filt, win, r, fs); %PSD Forza [N^2]
-[PSD_A, f]= periodogram(A_filt, win, r, fs); %PSD Accelerazione [g^2]
+[PSD_F, f]= periodogram(F, win_F, r, fs); %PSD Forza [N^2]
+[PSD_A, f]= periodogram(A, win_A, r, fs); %PSD Accelerazione [g^2]
 save ('f.mat', 'f');
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -366,7 +384,7 @@ save (['Risultati_Acc.mat'], 'Risultati_Acc');
 
 
 
- return
+ 
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Confronto PSD calcolata tramite Fft e Psd
@@ -463,7 +481,7 @@ E_av_bin=[];
 PSD_K_bin=[];
 kkk=0;indice=0;
 [R,C]=size(PSD_F);
-dt=1/fs; time1=1000*(0:dt:r/fs-dt);
+
 
 for indice = 1:bin
     kkk=kkk+1;
