@@ -8,7 +8,7 @@ close all
 clear variables
 
 %%
-campione={'arezzo1'};
+campione={'massarosa1'};
 piastra={'pesante1'};
 appoggio={'nessuno'};
 adesivo={'gesso'};
@@ -47,14 +47,14 @@ piastre = table(piastre_mass,piastre_h,piastre_d);
 piastre.Properties.RowNames={'mini','piastrina','quadrata_piccola','quadrata1','quadrata2','pesante1','pesante2','blocco'};
 piastre.Properties.VariableNames={'massa','h','d'}
 
-campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064;1;1;1;1;1];
-campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015; 0.045; 0.045; 0.045;0.019;0.05];
+campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064;1;1;1;1;1;1];
+campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015; 0.045; 0.045; 0.045;0.019;0.05;0.05];
 campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi);...
-    0.1     ;0.1;   2*sqrt(0.3*0.9/pi);piastre.d(conf.piastra);...
+    0.1     ;0.1;   2*sqrt(0.3*0.9/pi);piastre.d(conf.piastra);piastre.d(conf.piastra);...
     piastre.d(conf.piastra);piastre.d(conf.piastra);piastre.d(conf.piastra)];
 campioni = table(campioni_mass,campioni_h,campioni_d);
 campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC',...
-    'slab','viabattelli','viacocchi','legno','arezzo1'};
+    'slab','viabattelli','viacocchi','legno','arezzo1','massarosa1'};
 campioni.Properties.VariableNames={'massa','h','d'}
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -85,8 +85,8 @@ fine=round(0.95*size(x));           % Punto di fine della ricerca dei picchi
 % Parametri di filtro
 bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
 % Dimensioni dei campioni
-Lsample=2^8;
-L_pre=round((Lsample/8)); % Lunghezza della parte prima del picco
+Lsample=2^11;
+L_pre=round((Lsample/16)); % Lunghezza della parte prima del picco
 L_coda=round(Lsample-L_pre-1);     % Lunghezza della coda dei segnali
 % Filtraggio doppi colpi
 filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
@@ -195,6 +195,10 @@ win_F(1,1)=0;
 figure(101),hold on
 subplot(2,2,1);
 plot(time1,win_F*max(max(F)));
+
+A_rev=cumsum(flip(A.^2));
+figure(4), hold on, plot(10*log10(A.^2))
+figure(4), hold on, plot(10*log10(flip(A_rev)))
 
 %finestratura
 A_filt=A.*win_A;
