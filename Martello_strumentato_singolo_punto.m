@@ -1,4 +1,5 @@
-% Martello strumentato filtro intensita
+% Martello strumentato
+% Versione per elzborare una singola registrazione
 %
 set (0,'DefaultFigureWindowStyle','docked')
 clc
