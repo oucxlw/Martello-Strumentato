@@ -8,12 +8,18 @@ close all
 clear variables
 
 %%
-campione={'massarosa1'};
+conf=[]
+
+%In configuration mettiamo degli indici che ci dicono il campione
+%utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
+%la punta del martello
+
+campione={'polipropilene'};
 piastra={'pesante1'};
 appoggio={'nessuno'};
-adesivo={'gesso'};
+adesivo={'nessuno'};
 punta={'metallica'};
-martellatore=2;
+martellatore=1;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
 
@@ -23,39 +29,9 @@ close all
 clear variables
 
 load dati.mat
-% load Forza.mat
-% load Accelerazione.mat
 
-% conf=[]
-%In configuration mettiamo degli indici che ci dicono il campione
-%utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
-%la punta del martello
-
-% campione={'c1'};
-% piastra={'pesante1'};
-% appoggio={'pavimento'};
-% adesivo={'nessuno'};
-% punta={'metallica'};
-% martellatore=1;
-% accelerometro=0;
-% conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
-
-piastre_mass =  [0; 0.006;  0.1967; 0.6274; 0.6249; 1.4293; 2.8871; 15];
-piastre_h =     [0; 0.0018; 0.008;  0.008;  0.008;  0.024;  0.0475; 0.16];
-piastre_d =     [0; 0.026;  2*sqrt(0.056*0.057/pi); 2*sqrt(0.1*0.1/pi); 2*sqrt(0.1*0.1/pi); 0.1; 0.1;2*sqrt(0.25*0.25/pi)];
-piastre = table(piastre_mass,piastre_h,piastre_d);
-piastre.Properties.RowNames={'mini','piastrina','quadrata_piccola','quadrata1','quadrata2','pesante1','pesante2','blocco'};
-piastre.Properties.VariableNames={'massa','h','d'}
-
-campioni_mass = [0.5531;0.3926; 0.1461  ;0.6128;0.0383;                 0.0705  ;0.1064;1;1;1;1;1;1];
-campioni_h =    [0.031; 0.027;  0.031   ;0.039; 0.005;                  0.01    ;0.015; 0.045; 0.045; 0.045;0.019;0.05;0.05];
-campioni_d =    [0.1;   0.99;   0.97    ;0.1;   2*sqrt(0.098*0.096/pi);...
-    0.1     ;0.1;   2*sqrt(0.3*0.9/pi);piastre.d(conf.piastra);piastre.d(conf.piastra);...
-    piastre.d(conf.piastra);piastre.d(conf.piastra);piastre.d(conf.piastra)];
-campioni = table(campioni_mass,campioni_h,campioni_d);
-campioni.Properties.RowNames={'c0','c1','c2','c3','polipropilene','teflon','PVC',...
-    'slab','viabattelli','viacocchi','legno','arezzo1','massarosa1'};
-campioni.Properties.VariableNames={'massa','h','d'}
+[piastre] = tabella_piastre ();
+[campioni] = tabella_campioni (conf,piastre);
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
@@ -69,26 +45,11 @@ y = data (:,conf.accelerometro+2); % Accelerazione [m/s^2]
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri di controllo
 %<<<<<<<<<<<<<<<<<<<<<<<<
-% Parametri fisici
-% sensit_F=1/1000;      % Sensibilità Martello strumentato [V/N]
-% sensit_A1=1/1000;%95.8/1000;    % Sensibilità Accelerometro1 [V/g]
-% sensit_A2=1/1000;%0.03/1000;   % Sensibilità Accelerometro2 [V/g]
-g=9.81;                 % Accelerazione di gravità [m/s^2]
-div_F=2000;             % Divisione applicata alla Forza prima della scrittura sul file WAVE
-div_A=500;              % Divisione applicata alla Accelerazione prima della scrittura sul file WAVE
-% Parametri di ricerca
-fs=52100;               % Freq. di campionamento (Hz);
-soglia=10;              % Soglia dei picchi;
-delay=round(0.5*fs);    % Sample da saltare una volta superata la soglia
-inizio=1*fs;            % Punto di inizio della ricerca dei picchi;
-fine=round(0.95*size(x));           % Punto di fine della ricerca dei picchi
+[g,div_F,div_A,fs] = parametri_fisici();
+[soglia,delay,inizio,fine] = parametri_ricerca_picchi(fs);
+[Lsample,L_pre,L_coda] = parametri_creamatrice();
 % Parametri di filtro
-bandwidth=0;            % Larghezza di banda richiesta al singolo colpo
-% Dimensioni dei campioni
-Lsample=2^11;
-L_pre=round((Lsample/16)); % Lunghezza della parte prima del picco
-L_coda=round(Lsample-L_pre-1);     % Lunghezza della coda dei segnali
-% Filtraggio doppi colpi
+bandwidth=0;
 filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 % Normalizzazione colpi
 norm=0;                 % Se norm=1 i colpi vengono normalizzati
@@ -96,15 +57,16 @@ norm=0;                 % Se norm=1 i colpi vengono normalizzati
 window_F=5;             % Tipo di finestratura da applicare
 window_A=5;
 wintype = 'hann';
-% 0 = nessuna finestratura
+% hann = utilizza la finestra di hann
 % 1 = finestratura quadrata
 % 2 = hamming (da verificare)
 % 3 = blackmanharris ritardata
 % 4 = blackmanharris anticipata
 % 5 = Hann Window
 % Plotting
-ascissamin=100;         % Frequenza minima da plottare nei grafici
-ascissamax=10000;       % Frequenza massima da plottare nei grafici
+ascissamin=20;         % Frequenza minima da plottare nei grafici
+ascissamax=20000;  
+
 misura = cell2mat(['Campione ',conf.campione,', martellatore ',...
     num2str(conf.martellatore),', punta ',conf.punta,', piastra ',conf.piastra,...
     ',Hann,PSDvsFFT, ',num2str(bandwidth),' Hz']);
@@ -197,7 +159,7 @@ subplot(2,2,1);
 plot(time1,win_F*max(max(F)));
 
 A_rev=cumsum(flip(A.^2));
-figure(4), hold on, plot(10*log10(A.^2))
+figure, hold on, plot(10*log10(movmean(A(:,1).^2,20)))
 figure(4), hold on, plot(10*log10(flip(A_rev)))
 
 %finestratura
@@ -226,8 +188,9 @@ PSD_A_fft(2:end,:)= 2*PSD_A_fft(2:end,:);
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle PSDs
 %<<<<<<<<<<<<<<<<<<<<
-[PSD_F, f]= periodogram(F, win_F, r, fs); %PSD Forza [N^2]
-[PSD_A, f]= periodogram(A, win_A, r, fs); %PSD Accelerazione [g^2]
+win_1=ones(size(win_F));
+[PSD_F, f]= periodogram(F_filt, win_1, r, fs); %PSD Forza [N^2]
+[PSD_A, f]= periodogram(A_filt, win_1, r, fs); %PSD Accelerazione [g^2]
 save ('f.mat', 'f');
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -299,21 +262,21 @@ PSD_Kav_pgram = PSD_Fav_pgram./PSD_Dav_pgram; %dynamic stiffness calcolata trami
 % end
 % hold on
 % plot(F_filt(:,1))
-
+i=1;
 figure(110), hold on
 subplot (2,1,1),hold on,
-plot(f_fft,10*log10(PSD_F_fft(:,1)),'color',string(colore(i,:)))
-plot(f,10*log10(PSD_F(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
+plot(f_fft,10*log10(mean(PSD_F_fft,2)),'color',string(colore(i,:)))
+plot(f,10*log10(PSD_Fav_pgram(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
 grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
 legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})','PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
 
 subplot (2,1,2),hold on
-plot(f_fft,10*log10(PSD_A_fft(:,1)),'color',string(colore(i,:)))
-plot(f,10*log10(PSD_A(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
+plot(f_fft,10*log10(mean(PSD_A_fft,2)),'color',string(colore(i,:)))
+plot(f,10*log10(PSD_Aav_pgram(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
 grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
 
 legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})','PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
-
+saveas(gcf,'Forza_vs_Accelerazione.fig');
 
 %<<<<<<<<<<<<<<<<<<<<<
 % Calcolo tramite FFT
@@ -598,36 +561,36 @@ for indice = 1:bin
         %Dstiff1_av_ph = angle(FFT_Fav(1:L/2+1)./FFT_D1av); %trovo la fase media usando le FFT;
         %save (['Dstiffness_av_ph, misura - ',num2str(campione),'-Acc',num2str(accelerometro),'-',martellamento,'-',punta,'-',piastra,'-',num2str(bandwidth),'Hz','.mat'], 'Dstiff1_av_ph');
         
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        % plot singole ripetizioni nel range selezionato
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        
-        figure (round(indice+200))
-        hold on
-        for iii=1:CC
-            semilogx (f, 10*log10(abs(PSD_Fbin(:,iii).*((1i*2*pi*f).^4)./PSD_Abin (:,iii) )),...
-                'color',string(colore(kkk,:)), 'LineWidth', 1),    
-        end
-        
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        % plot valore medio del bin
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        
-        semilogx (f,    10*log10(PSD_Kav_bin),'k--', 'LineWidth', 2),
-        semilogx (f_fft,10*log10(abs(FFT_Kav_bin.^2)),'r--', 'LineWidth', 2),
-
-        set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
-        xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
-        
-        titolo=['Dynamic Stiffness (Force/Displacement) Amplitude (fron ',num2str(E(indice)),...
-            ' to ',num2str(E(indice+1)),' N)'];
-        
-        title([titolo]),
-        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
-        grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
-        
-        saveas (gcf, ['from ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff.fig'])
-        
+%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         % plot singole ripetizioni nel range selezionato
+%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         
+%         figure (round(indice+200))
+%         hold on
+%         for iii=1:CC
+%             semilogx (f, 10*log10(abs(PSD_Fbin(:,iii).*((1i*2*pi*f).^4)./PSD_Abin (:,iii) )),...
+%                 'color',string(colore(kkk,:)), 'LineWidth', 1),    
+%         end
+%         
+%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         % plot valore medio del bin
+%         %<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%         
+%         semilogx (f,    10*log10(PSD_Kav_bin),'k--', 'LineWidth', 2),
+%         semilogx (f_fft,10*log10(abs(FFT_Kav_bin.^2)),'r--', 'LineWidth', 2),
+% 
+%         set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+%         xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
+%         
+%         titolo=['Dynamic Stiffness (Force/Displacement) Amplitude (fron ',num2str(E(indice)),...
+%             ' to ',num2str(E(indice+1)),' N)'];
+%         
+%         title([titolo]),
+%         xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+%         grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
+%         
+%         saveas (gcf, ['from ',num2str(E(indice)),' to ',num2str(E(indice+1)),' N)',' N Dstiff.fig'])
+%         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot singolo D-Stiffness
         %<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -707,7 +670,20 @@ risultati_bin.Properties.VariableNames={'F_bin','K0_av_bin'}
 save (cell2mat(['Risultati_bin_',conf.campione,'_',conf.piastra,'.mat']),'risultati_bin')
 
 %%
+% TEST CALCOLO PSD
 
+win_1=ones(size(win_F));
+[PSD_F, f]= periodogram(F, win_F, r, fs); %PSD Forza [N^2]
+[PSD_F1, f]= periodogram(F, win_1, r, fs); %PSD Forza [N^2]
+[PSD_F2, f]= periodogram(F_filt, win_F, r, fs); %PSD Forza [N^2]
+[PSD_F3, f]= periodogram(F_filt, win_1, r, fs); %PSD Forza [N^2]
+
+figure(56),hold on
+plot(f,20*log10(PSD_F(:,1)));plot(f,20*log10(PSD_F1(:,1)))
+plot(f,20*log10(PSD_F2(:,1))),plot(f,20*log10(PSD_F3(:,1)))
+grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+
+legend('F win_f','F win_1','F_{filt} win_f','F_{filt} win_1')
 %%
 
 Dstiff1_av=[Dstiff1_av_01, Dstiff1_av_02, Dstiff1_av_03, Dstiff1_av_04, Dstiff1_av_05];
