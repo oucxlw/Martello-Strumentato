@@ -139,7 +139,7 @@ picchi_sel1=length(pos)
 % [F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
 
 i=1; %vuol dire che sto applicando una finestra larga quanto 1/i la lunghezza del segnale.
-M_win=L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
+M_win=L_pre; %M_win Ã¨ l'ordine della finestratura, ossia la sua lunghezza
 switch wintype
     case 'hann'
         curve=hann(M_win);
@@ -251,7 +251,7 @@ PSD_A(:,tagli)=[];
 % Calcolo tramite periodogram
 PSD_Fav_pgram = mean(PSD_F, 2);
 PSD_Aav_pgram = mean(PSD_A, 2);
-PSD_Vav_pgram = PSD_Aav_pgram./(1i*2*pi*f).^2; % velocità
+PSD_Vav_pgram = PSD_Aav_pgram./(1i*2*pi*f).^2; % velocitÃ 
 PSD_Dav_pgram = PSD_Vav_pgram./(1i*2*pi*f).^2; % displacement
 PSD_Kav_pgram = PSD_Fav_pgram./PSD_Dav_pgram; % dynamic stiffness calcolata tramite periodogram
 
@@ -372,7 +372,7 @@ grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]);ylim([-180 180]
 subplot(4,1,[2,3]),hold on,ylabel('10\cdotlog_1_0(K(f)) [dB ref. 1 N/m]')
 subplot(4,1,[2,3]),hold on,title 'Modulo'
 subplot(4,1,[2,3]),ylim([100 200])
-subplot(4,1,4),hold on ,ylabel('Angolo [°]'),yticks([-180 -90 0 90 180])
+subplot(4,1,4),hold on ,ylabel('Angolo [Â°]'),yticks([-180 -90 0 90 180])
 subplot(4,1,1),title 'Coerenza'
 subplot(4,1,4),title 'Fase'
 xlabel('Frequenza [Hz]')
@@ -381,7 +381,7 @@ saveas (gcf, cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig']));
 cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig'])
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Analisi in intensità PSD
+% Analisi in intensitÃ  PSD
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 %calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
 %operando la radice)
@@ -456,16 +456,16 @@ for indice = 1:bin
     % Calcolo dimensioni del BIN
     [RR,CC]=size(PSD_Fbin);
     
-    if CC>=1 % se il BIN non è vuoto
+    if CC>=1 % se il BIN non Ã¨ vuoto
         
-        F_bin=[F_bin,(E(kkk)+E(kkk+1))/2]; %#ok<AGROW> %Fbin è la forza media del BIN
+        F_bin=[F_bin,(E(kkk)+E(kkk+1))/2]; %#ok<AGROW> %Fbin Ã¨ la forza media del BIN
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo la media degli spettri
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         PSD_Fav_bin = mean(PSD_Fbin,2);
         PSD_Aav_bin = mean(PSD_Abin,2);
-        PSD_Vav_bin = PSD_Aav_bin./(1i*2*pi*f).^2; %velocità
+        PSD_Vav_bin = PSD_Aav_bin./(1i*2*pi*f).^2; %velocitÃ 
         PSD_Dav_bin = PSD_Vav_bin./(1i*2*pi*f).^2; %spostamento
         % Dynamic Stiffness
         PSD_Kav_bin = PSD_Fav_bin./PSD_Dav_bin; %Modulo della Dynamic Stiffness
