@@ -139,7 +139,6 @@ picchi_sel1=length(pos)
 % [A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
 % [F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
 
-i=1; %vuol dire che sto applicando una finestra larga quanto 1/i la lunghezza del segnale.
 M_win=L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
 switch wintype
     case 'hann'
