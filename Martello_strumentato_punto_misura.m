@@ -699,7 +699,7 @@ C = abs(Cxy(1:1+end/2,mis));
 K = PSD_Kav_misura(:,mis);
 % K = F*(1i*2*pi).^4 /A
 
-dK= ( ((b./A).*dF).^2 + ((-b.*F./A.^2).*dA).^2 + C.*(b./A).*(-b.*F./A.^2).*dF.*dA   ).^2;
+dK= ( ((b./A).*dF).^2 + ((-b.*F./A.^2).*dA).^2 + C.*(b./A).*(-b.*F./A.^2).*dF.*dA  ).^(1/2);
 
 % k= abs (F b /A) 
 figure, hold on
