@@ -69,9 +69,6 @@ clear data;
 bandwidth=0;
 filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 
-% Normalizzazione colpi
-norm=0;                 % Se norm=1 i colpi vengono normalizzati
-
 % Finestratura
 wintype = 'hann';
 % Determina il tipo di finestratura da utilizzare per i segnali di
@@ -161,32 +158,31 @@ n_picchi3
 [A1] = creamatriceaccelerazione (y1, pos, L_pre, L_coda, fs);
 picchi_sel1=length(pos)
 
-[r,c]=size(F1);
-
 pos=[];
 [F2, pos] = creamatriceforza_noavg (x2, picchi2,n_picchi3, L_pre, L_coda, filt_doppi, fs);
 [A2] = creamatriceaccelerazione (y2, pos, L_pre, L_coda, fs);
 picchi_sel2=length(pos)
 
 pos=[];
-[F3, pos] = creamatriceforza_noavg (x2, picchi3,n_picchi3, L_pre, L_coda, filt_doppi, fs);
+[F3, pos] = creamatriceforza_noavg (x3, picchi3,n_picchi3, L_pre, L_coda, filt_doppi, fs);
 [A3] = creamatriceaccelerazione (y3, pos, L_pre, L_coda, fs);
 picchi_sel3=length(pos)
 
+% Accodo tutti i segnali di forza e accelerazione in un'unica matrice
+F=[F1 F2 F3];
+A=[A1 A2 A3];
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Finestratura e Normalizzazione
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% %F=[]; A=[];
-% %load Dati_simulazione
-% %A=real(A);
-% %Faccio un calcolo di F_filt per ottenere L_win
-% [~, L_win] = finestra_forza (F, window_F, fs); 
-% %Non applico una vera finestratura.
-% [A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
-% [F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
+% Matrice degli indici
+% Se l'elemento i-esimo di I vale x, la colonna i-esima di F appartiene
+% alla matrice forza Fx.
+I=[ones(size(F1(1,:))) 2*ones(size(F2(1,:))) 3*ones(size(F3(1,:)))];
 
-M_win=L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
+[r,c]=size(F);
+
+%<<<<<<<<<<<<<<
+% Finestratura 
+%<<<<<<<<<<<<<<
+M_win=L_pre; %M_win � l'ordine della finestratura, ossia la sua lunghezza
 switch wintype
     case 'hann'
         curve=hann(M_win);
@@ -207,41 +203,29 @@ win_F(1,1)=0;
 % Plot delle finestre
 figure(101),hold on 
 subplot(2,2,2)
-plot(time1,win_A*20*log10(max(max(A1))));
+plot(time1,win_A*20*log10(max(max(A))));
 subplot(2,2,1);
 plot(time1,win_F*max(max(F1)));
 hold off
 
+% Finestratura
+F_filt=F.*win_F;
+A_filt=A.*win_A;
+
 %<<<<<<<<<<<<<<<<<<<<<
 % Analisi smorzamento
 %<<<<<<<<<<<<<<<<<<<<<
-A_reverse=cumsum(flip(A1.^2));
-figure (2), hold on, 
-plot(10*log10(movmean(A1.^2,20)))
-figure(4), hold on, plot(10*log10(flip(A_reverse)))
-
-% Finestratura
-A1_filt=A1.*win_A;
-F1_filt=F1.*win_F;
-
-A2_filt=A2.*win_A;
-F2_filt=F2.*win_F;
-
-A3_filt=A3.*win_A;
-F3_filt=F3.*win_F;
-return
-
-F_tot={F1,F2,F3};
-F_filt=F_tot{1}.*win_F;
-figure,plot(F_tot(:,:,1))
-return
+A_reverse=cumsum(flip(A.^2));
+figure (14), hold on, 
+plot(10*log10(movmean(A.^2,20)))
+figure(15), hold on, plot(10*log10(flip(A_reverse)))
 
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle PSDs
 %<<<<<<<<<<<<<<<<<<<<
 % Trasformata (non normalizzata rispetto al numero di punti Fft)
-FFT_F=fft(F1_filt);
-FFT_A=fft(A1_filt);
+FFT_F=fft(F_filt);
+FFT_A=fft(A_filt);
 
 % Frequenza della FFT_F
 f_fft=0:(r-1);
@@ -255,8 +239,15 @@ PSD_A_fft(2:end,:)= 2*PSD_A_fft(2:end,:);
 
 % Calcolo della PSD tramite Periodogram
 win_1=ones(size(win_F)); % finestra unitaria per non far calcolare la normalizzazione a periodogram
-[PSD_F, f]= periodogram(F1_filt, win_1, r, fs); %PSD Forza [N^2]
-[PSD_A, f]= periodogram(A1, win_A, r, fs); %PSD Accelerazione [g^2]
+PSD_F = []; PSD_A = [];
+for i=1:3
+    [PSD_Ftemp, f]= periodogram(F_filt(:,I==i), win_1, r, fs); %PSD Forza [N^2]
+    [PSD_Atemp, f]= periodogram(A(:,I==i), win_A, r, fs); %PSD Accelerazione [g^2]
+    PSD_F=[PSD_F PSD_Ftemp];
+    PSD_A=[PSD_A PSD_Atemp];
+end
+clear PSD_Ftemp
+clear PSD_Atemp
 save ('f.mat', 'f');
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -265,43 +256,54 @@ save ('f.mat', 'f');
 [R,C]=size(PSD_F);
 tagli=[];
 scarti=0;
-for jj=1:(C-scarti)
-    f0=find(f>ascissamin,1);
-    fmax=find(PSD_F(f0:end, jj-scarti)<((PSD_F(f0, jj-scarti)/10)),1);
-    fmax=f(fmax+f0);
+f0=find(f>ascissamin,1);
+for jj=1:C    
+    fmax=find(PSD_F(f0:end, jj)<((PSD_F(f0, jj)/10)),1);
+    fmax=f(fmax+f0)
     if  fmax<bandwidth
-        PSD_F(:,jj-scarti)=[];
-        tagli=[tagli; jj];
-        scarti=scarti+1;
+        tagli=[tagli; jj]
     end
 end
+scarti=length(tagli);
 picchi_sel2 = picchi_sel1 - scarti
-PSD_A(:,tagli)=[];
+
+% Eliminazione degli scarti
+PSD_F(:,tagli)=[]; % Cancello le forze
+PSD_A(:,tagli)=[]; % Cancello le accelerazioni
+PSD_F_fft(:,tagli)=[]; % Cancello le forze fft
+PSD_A_fft(:,tagli)=[]; % Cancello le accelerazioni fft
+I(:,tagli)=[]; % Cancello gli indici corrispondenti
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Analisi statistica pre filtraggio
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-bin=round(sqrt(picchi_sel2))+1;
-%[Y,E] = discretize(sqrt(max(PSD_F)),bin);
-values=1:bin;
-figure (3), hold on
-histfit(sqrt(max(PSD_F)),bin);
+bin=[]
+Y=[]
+E=[]
+% bin=round(sqrt(picchi_sel2))+1;
+% %[Y,E] = discretize(sqrt(max(PSD_F)),bin);
+% values=1:bin;
+% figure (3), hold on
+% histfit(sqrt(max(PSD_F)),bin);
 
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Filtraggio Intensita'
 %<<<<<<<<<<<<<<<<<<<<<<<
-[r,c]=size(PSD_F);
-tagli=[];
-scarti=0;
-for jj=1:(c-scarti)
-    if (max(PSD_F(:,jj-scarti))< 0.5*max(max(PSD_F)))
-        PSD_F(:,jj-scarti)=[];
-        tagli=[tagli; jj];
-        scarti=scarti+1;
-    end
-end
-picchi_sel2 = picchi_sel2 - scarti
-PSD_A(:,tagli)=[];
+% [r,c]=size(PSD_F);
+% tagli=[];
+% scarti=0;
+% for jj=1:(c-scarti)
+%     if (max(PSD_F(:,jj-scarti))< 0.01*max(max(PSD_F)))
+%         PSD_F(:,jj-scarti)=[];
+%         tagli=[tagli; jj];
+%         scarti=scarti+1;
+%     end
+% end
+% picchi_sel2 = picchi_sel2 - scarti
+% PSD_A(:,tagli)=[];
+% PSD_F_fft(:,tagli)=[];
+% PSD_A_fft(:,tagli)=[];
+% I(:,tagli)=[]
 
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo Dstiff totale
@@ -345,9 +347,10 @@ saveas(gcf,'Forza_vs_Accelerazione.fig');
 % COERENZA usando Forza / Accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 %Coerenza usando tutto il segnale campionato e filtrato
-F_filtall = reshape(F1_filt, [],1);
-A_filtall = reshape(A1_filt, [],1);
-[r,c]=size(F1_filt);
+F_filtall = reshape(F_filt, [],1);
+A_filtall = reshape(A_filt, [],1);
+
+[r,c]=size(F_filt);
 [Cxy1,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
 save (cell2mat(['Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy1');
 
@@ -410,41 +413,40 @@ save (['Risultati_Acc.mat'], 'Risultati_Acc');
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Confronto PSD calcolata tramite Fft e Psd
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-figure (109),hold on,
-sgtitle {'Dynamic Stiffness media K(f)'}
-
-subplot(4,1,[2,3]),hold on
-plot (f_fft,10*log10(abs(FFT_Kav_fft).^2),'color',string(colore(i,:)),'LineWidth',1)
-plot (f(1:length(PSD_Kav_pgram)),10*log10(PSD_Kav_pgram),'.','color',string(colore(i,:)),'LineWidth',1)
-semilogx (f_Kav_gate,10*log10(abs(PSD_Kav_gate).^2),'r.','LineWidth',2)
-grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]), %ylim([60 200])
-legend({'k(f) tramite Fft (medio sui complessi)','k(f) tramite Psd (medio sui quadrati)'},'Location','southeast')
-
-subplot(4,1,1)
-semilogx(f_coer,Cxy1,'color',string(colore(i,:)),'LineWidth',2),ylim([0 1])
-grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-
-subplot(4,1,4)
-semilogx (f_fft,180/pi*angle(FFT_Kav_fft),'color',string(colore(i,:)))
-grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]);ylim([-180 180])
-
-subplot(4,1,[2,3]),hold on,ylabel('10\cdotlog_1_0(K(f)) [dB ref. 1 N/m]')
-subplot(4,1,[2,3]),hold on,title 'Modulo'
-subplot(4,1,[2,3]),ylim([100 200])
-subplot(4,1,4),hold on ,ylabel('Angolo [°]'),yticks([-180 -90 0 90 180])
-subplot(4,1,1),title 'Coerenza'
-subplot(4,1,4),title 'Fase'
-xlabel('Frequenza [Hz]')
-
-saveas (gcf, cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig']));
-cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig'])
+% figure (109),hold on,
+% sgtitle {'Dynamic Stiffness media K(f)'}
+% 
+% subplot(4,1,[2,3]),hold on
+% plot (f_fft,10*log10(abs(FFT_Kav_fft).^2),'color',string(colore(i,:)),'LineWidth',1)
+% plot (f(1:length(PSD_Kav_pgram)),10*log10(PSD_Kav_pgram),'.','color',string(colore(i,:)),'LineWidth',1)
+% semilogx (f_Kav_gate,10*log10(abs(PSD_Kav_gate).^2),'r.','LineWidth',2)
+% grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]), %ylim([60 200])
+% legend({'k(f) tramite Fft (medio sui complessi)','k(f) tramite Psd (medio sui quadrati)'},'Location','southeast')
+% 
+% subplot(4,1,1)
+% semilogx(f_coer,Cxy1,'color',string(colore(i,:)),'LineWidth',2),ylim([0 1])
+% grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
+% 
+% subplot(4,1,4)
+% semilogx (f_fft,180/pi*angle(FFT_Kav_fft),'color',string(colore(i,:)))
+% grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]);ylim([-180 180])
+% 
+% subplot(4,1,[2,3]),hold on,ylabel('10\cdotlog_1_0(K(f)) [dB ref. 1 N/m]')
+% subplot(4,1,[2,3]),hold on,title 'Modulo'
+% subplot(4,1,[2,3]),ylim([100 200])
+% subplot(4,1,4),hold on ,ylabel('Angolo [°]'),yticks([-180 -90 0 90 180])
+% subplot(4,1,1),title 'Coerenza'
+% subplot(4,1,4),title 'Fase'
+% xlabel('Frequenza [Hz]')
+% 
+% saveas (gcf, cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig']));
+% cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig'])
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Analisi in intensità PSD
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 %calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
 %operando la radice)
-
 bin=round(sqrt(picchi_sel2))+1;
 Max_pic=sqrt(max(max(PSD_F))); %calcolo del massimo dei massimi
 Min_pic=sqrt(min(max(PSD_F))); %calcolo del minimo dei minimi
@@ -453,35 +455,39 @@ delta=(Max_pic-Min_pic)/bin;
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Plot del massimi di F
 %>>>>>>>>>>>>>>>>>>>>>>>
-PSD_F2=PSD_F;
-PSD_A2=PSD_A;
-% Ricerca dei massimi e ordinamento
-PSD_Fsort=[];
-PSD_Asort=[];
-for i=1:picchi_sel2
-    pos=find(sqrt(max(PSD_F2))==sqrt(max(max(PSD_F2))));
-    PSD_Fsort=[PSD_Fsort,PSD_F2(:,pos)];
-    PSD_Asort=[PSD_Asort,PSD_A2(:,pos)];
-    PSD_F2(:,pos)=[];
-    PSD_A2(:,pos)=[];
-end
-% plot dei massimi
-figure (5), hold on
-ylimsup =  floor(max(max(PSD_F)));
-ylim=([0 1]); 
-plot(max(PSD_Fsort));
-plot(max(PSD_F));
-hold off
+% PSD_F2=PSD_F;
+% PSD_A2=PSD_A;
+% % Ricerca dei massimi e ordinamento
+% PSD_Fsort=[];
+% PSD_Asort=[];
+% for i=1:picchi_sel2
+%     pos=find(sqrt(max(PSD_F2))==sqrt(max(max(PSD_F2))));
+%     PSD_Fsort=[PSD_Fsort,PSD_F2(:,pos)];
+%     PSD_Asort=[PSD_Asort,PSD_A2(:,pos)];
+%     PSD_F2(:,pos)=[];
+%     PSD_A2(:,pos)=[];
+% end
+% % plot dei massimi
+% figure (5), hold on
+% ylimsup =  floor(max(max(PSD_F)));
+% ylim=([0 1]); 
+% plot(max(PSD_Fsort));
+% plot(max(PSD_F));
+% hold off
+
+% Calcolo Fmedio
+F_max_av=[mean(max(PSD_F(:,I==1))) mean(max(PSD_F(:,I==2))) mean(max(PSD_F(:,I==3)))]
+
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Analisi statistica post filtraggio
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-[Y,E] = discretize(sqrt(max(abs(PSD_F))),bin);
-values=1:bin;
-
-figure (3), hold on
-histfit(sqrt(max(abs(PSD_F))),bin);
-hold off
+% [Y,E] = discretize(sqrt(max(abs(PSD_F))),bin);
+% values=1:bin;
+% 
+% figure (3), hold on
+% histfit(sqrt(max(abs(PSD_F))),bin);
+% hold off
 
 %<<<<<<<<<<<<<<<<<<<<<
 % Analisi bin per bin
@@ -491,79 +497,71 @@ h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
 lim_sup = find ( f > 1000);
 lim_inf = find ( f < 100);
-F_bin=[];
 K0_av_bin=[];
 E_av_bin=[];
 PSD_K_bin=[];
-kkk=0;
 [R,C]=size(PSD_F);
 
-for indice = 1:bin
-    kkk=kkk+1;
+for indice = 1:3
 
-    PSD_Fbin=[];
-    PSD_Abin=[];
-
+    PSD_F_misura=[];
+    PSD_A_misura=[];
+    
     % Seleziono i campioni appartenenti al BIN
-    for jj=1:C
-        if Y(jj)==indice
-            PSD_Fbin=[PSD_Fbin,PSD_F(:,jj)]; %#ok<AGROW>
-            PSD_Abin=[PSD_Abin,PSD_A(:,jj)]; %#ok<AGROW>
-        end
-    end
+    PSD_F_misura = PSD_F(:,I==indice);
+    PSD_A_misura = PSD_A(:,I==indice);
     
     % Calcolo dimensioni del BIN
-    [RR,CC]=size(PSD_Fbin);
+    [RR,CC]=size(I==indice);
     
     if CC>=1 % se il BIN non è vuoto
-        
-        F_bin=[F_bin,(E(kkk)+E(kkk+1))/2]; %#ok<AGROW> %Fbin è la forza media del BIN
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo la media degli spettri
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        PSD_Fav_bin = mean(PSD_Fbin,2);
-        PSD_Aav_bin = mean(PSD_Abin,2);
-        PSD_Vav_bin = PSD_Aav_bin./(1i*2*pi*f).^2; %velocità
-        PSD_Dav_bin = PSD_Vav_bin./(1i*2*pi*f).^2; %spostamento
+        PSD_Fav_misura = mean(PSD_F_misura,2);
+        PSD_Aav_misura = mean(PSD_A_misura,2);
+        PSD_Vav_misura = PSD_Aav_misura./(1i*2*pi*f).^2; %velocità
+        PSD_Dav_misura = PSD_Vav_misura./(1i*2*pi*f).^2; %spostamento
         % Dynamic Stiffness
-        PSD_Kav_bin = PSD_Fav_bin./PSD_Dav_bin; %Modulo della Dynamic Stiffness
-        save (['Dstiffness_av_bin.mat'], 'PSD_Kav_bin');
+        PSD_Kav_bin = PSD_Fav_misura./PSD_Dav_misura; %Modulo della Dynamic Stiffness
+        save (['Dstiffness_av_misura_',num2str(indice),'.mat'], 'PSD_Kav_bin');
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo della frequenza massima
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        PSD_Fav_dB = 10*log10(PSD_Fav_bin);
+        PSD_Fav_dB = 10*log10(PSD_Fav_misura);
         fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
         fmax=f(fmax(1)+f0);        
         
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot di segnali e spettri (PSD)
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(101), grid on,
         sgtitle(misura)
-        for j=1:C
-            if Y(j)==indice
+        for i=1:c
+            if I(i)==indice
                 subplot(2,2,1), hold on
-                plot(time1, F1(:, j),'color',string(colore(kkk,:))),
+                plot(time1, F(:,i),'color',string(colore(indice,:))),
                 
                 subplot(2,2,2), hold on,
-                plot(time1, 20*log10(abs(A1(:, j))),'color',string(colore(kkk,:)))
+                plot(time1, 20*log10(abs(A(:, i))),'color',string(colore(indice,:)))
                 
                 subplot(2,2,3), hold on
-                semilogx (f, 10*log10(PSD_F(:, j)),'color',string(colore(kkk,:)))
+                semilogx (f, 10*log10(PSD_F(:, i)),'color',string(colore(indice,:)))
                 
                 subplot(2,2,4), hold on,
-                semilogx (f, 10*log10(PSD_A(:, j)),'color',string(colore(kkk,:)))
+                semilogx (f, 10*log10(PSD_A(:, i)),'color',string(colore(indice,:)))
             end
         end
+        
         % Plot spettri medi
         subplot(2,2,3), hold on,
-        plot (f, 10*log10(PSD_Fav_bin), '-.','color',string(colore(kkk,:)), 'LineWidth', 3),
+        plot (f, 10*log10(PSD_Fav_misura), '-.','color',string(colore(indice,:)), 'LineWidth', 3),
         grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
         
         subplot(2,2,4), hold on,
-        plot (f, 10*log10(PSD_Aav_bin), '-.' ,'color',string(colore(kkk,:)), 'LineWidth', 3),
+        plot (f, 10*log10(PSD_Aav_misura), '-.' ,'color',string(colore(indice,:)), 'LineWidth', 3),
         grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
         %plot frequenza massima sulla PSD della forza
         subplot (2,2,3), hold on
@@ -574,9 +572,9 @@ for indice = 1:bin
         % Plot grafico riassuntivo con dstiff medi di tutti i BIN
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure (107),hold on,
-        semilogx (f, 10*log10(PSD_Kav_bin),'color',string(colore(kkk,:)), 'LineWidth', 1),
+        semilogx (f, 10*log10(PSD_Kav_bin),'color',string(colore(indice,:)), 'LineWidth', 1),
         %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3),
-        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(indice,:)));
         
         %<<<<<<<<<<<<<<<<<<<<
         % Calcolo K0 del bin
@@ -647,34 +645,14 @@ E_av=K0_av*h/s
 
 %figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<
-% Stampo K(F) interpolato
-%<<<<<<<<<<<<<<<<<<<<<<<<<
-figure(120)
-plot(F_bin,K0_av_bin,'+')
-P = polyfit(F_bin,K0_av_bin,1);
-hold on
-plot(F_bin,F_bin*P(1)+P(2),'-')
-grid on
-saveas (gcf, cell2mat(['Fit_Dstiffness_',conf.campione,'_',conf.piastra,'.fig']))
-
-K0_fit=P(2)
-E_fit=K0_fit*h/s
-risultati = table(fr,K0_av,E_av,K0_fit,E_fit)
-save (cell2mat(['Risultati_',conf.campione,'_',conf.piastra,'.mat']),'risultati')
-
-risultati_bin = table(F_bin',K0_av_bin');
-risultati_bin.Properties.VariableNames={'F_bin','K0_av_bin'}
-save (cell2mat(['Risultati_bin_',conf.campione,'_',conf.piastra,'.mat']),'risultati_bin')
-
 %%
 % TEST CALCOLO PSD
 
 win_1=ones(size(win_F));
-[PSD_F, f]= periodogram(F1, win_F, r, fs); %PSD Forza [N^2]
-[PSD_F1, f]= periodogram(F1, win_1, r, fs); %PSD Forza [N^2]
-[PSD_F2, f]= periodogram(F1_filt, win_F, r, fs); %PSD Forza [N^2]
-[PSD_F3, f]= periodogram(F1_filt, win_1, r, fs); %PSD Forza [N^2]
+[PSD_F, f]= periodogram(F, win_F, r, fs); %PSD Forza [N^2]
+[PSD_F1, f]= periodogram(F, win_1, r, fs); %PSD Forza [N^2]
+[PSD_F2, f]= periodogram(F_filt, win_F, r, fs); %PSD Forza [N^2]
+[PSD_F3, f]= periodogram(F_filt, win_1, r, fs); %PSD Forza [N^2]
 
 figure(56),hold on
 plot(f,20*log10(PSD_F(:,1)));plot(f,20*log10(PSD_F1(:,1)))
