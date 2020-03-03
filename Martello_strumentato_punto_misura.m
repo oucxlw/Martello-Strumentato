@@ -717,7 +717,9 @@ legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
 
+% Plot della massa della piastra
 subplot(4,1,[2,3]), hold on
+plot(f,10*log10(m*(2*pi*f).^4),'--k');
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
 xlabel('Frequenza [Hz]'), ylabel('PSD Rigidezza Dinamica [dB @ 1 N/m]'),
