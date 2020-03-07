@@ -625,7 +625,7 @@ for mis = 1:3
         semilogx (f, 10*log10(PSD_Kav_misura(:,mis)),'color',string(colore(mis,:)), 'LineWidth', 2),
         
         % Plot deviazione standard
-        semilogx (f, 10*log10(PSD_Kav_misura(:,mis)-dK),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        semilogx (f, 10*log10(abs(PSD_Kav_misura(:,mis)-dK)),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
         semilogx (f, 10*log10(PSD_Kav_misura(:,mis)+dK),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
         
         % Plot limite in frequenza
@@ -761,8 +761,28 @@ saveas (gcf, cell2mat(['Forza_vs_Accelerazione_',conf.campione,'_',conf.piastra,
 % save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Psd.mat']),'PSD_Kav_pgram');
 % save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Fft.mat']),'FFT_Kav_fft');
 
+figure,
+grid on, %xlim([0 10])
+set(gca, 'XScale', 'log')
+xlim([10 20000])
+hold on
 
-return
+for i=1:3
+subplot(2,1,1),hold on
+plot(f,10*log10(abs(PSD_Fav_misura(:,i)./PSD_Vav_misura(:,i))))
+subplot(2,1,2),hold on
+plot(f_fft,angle(FFT_F_misura(:,i)./FFT_V_misura(:,i)))
+
+end
+subplot(2,1,1),hold on, set(gca, 'XScale', 'log')
+subplot(2,1,2),hold on, set(gca, 'XScale', 'log')
+figure,plot(f,PSD_Fav_misura(:,1)./PSD_Aav_misura(:,1))
+grid on, %xlim([0 10])
+set(gca, 'XScale', 'log')
+xlim([10 20000])
+hold on
+plot(f,PSD_Fav_misura(:,2)./PSD_Aav_misura(:,2))
+plot(f,PSD_Fav_misura(:,3)./PSD_Aav_misura(:,3))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo frequenza di risonanza e K
