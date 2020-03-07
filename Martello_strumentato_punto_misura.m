@@ -501,6 +501,7 @@ E_av_bin=[];
 PSD_K_bin=[];
 [R,C]=size(PSD_F);
 F_max=[];
+
 % Parametri di ingresso:
 % PSD_F, PSD_A, F_filt, A_filt,I
 for mis = 1:3
@@ -580,7 +581,7 @@ for mis = 1:3
         % Plot di segnali e spettri (PSD)
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(101), grid on,
-        sgtitle(misura)
+        %sgtitle(misura)
         for i=1:c
             if I(i)==mis
                 subplot(2,2,1), hold on
@@ -607,7 +608,7 @@ for mis = 1:3
         
         %plot frequenza massima sulla PSD della forza
         subplot (2,2,3), hold on
-        xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        %xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -622,12 +623,13 @@ for mis = 1:3
         subplot(4,1,[2,3]), hold on
         % Plot rigidezza dinamica
         semilogx (f, 10*log10(PSD_Kav_misura(:,mis)),'color',string(colore(mis,:)), 'LineWidth', 2),
+        
         % Plot deviazione standard
         semilogx (f, 10*log10(PSD_Kav_misura(:,mis)-dK),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
         semilogx (f, 10*log10(PSD_Kav_misura(:,mis)+dK),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
         
         % Plot limite in frequenza
-        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(mis,:)));
+        %xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(mis,:)));
         
         % Plot fase
         subplot(4,1,4), hold on
@@ -706,8 +708,8 @@ save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'P
 % Plot Dstiff totale e settaggio parametri grafico
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure (107)
-sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
-    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+%sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
+%    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
 
 subplot(4,1,1), hold on
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
