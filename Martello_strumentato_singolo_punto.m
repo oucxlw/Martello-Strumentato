@@ -15,7 +15,7 @@ conf=[]
 %utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
 %la punta del martello
 
-campione={'polipropilene'};
+campione={'c2'};
 piastra={'pesante1'};
 appoggio={'nessuno'};
 adesivo={'nessuno'};
