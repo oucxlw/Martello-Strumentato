@@ -26,7 +26,7 @@ conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelero
 
 %%
 clc
-%close all
+close all
 clear variables
 
 load dati.mat
@@ -117,6 +117,16 @@ hold off
 [picchi,n_picchi] = trovacolpi(x, soglia, delay, inizio, fine);
 n_picchi
 
+
+[pks,picchi_t,w,p] = findpeaks(x,fs,'MinPeakProminence',20,'MinPeakDistance',0.3,'Annotate','extents');
+picchi_t=picchi_t(w<0.2);
+pks=pks(w<0.2);
+picchi=picchi_t*fs;
+
+figure(1)
+subplot(2,1,1), hold on, plot(picchi_t,pks,'*')
+
+n_picchi=length(picchi)
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Definizione delle matrici (selezione dei segnali)
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -330,7 +340,7 @@ fmax=f(fmax(1)+f0);
 %plot sulla PSD della forza
 figure (111)
 subplot (2,1,2),hold on
-xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+%xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
 hold off
 saveas(gcf,'Acc.fig');
 
@@ -352,7 +362,7 @@ save (['Risultati_Acc.mat'], 'Risultati_Acc');
 % Confronto PSD calcolata tramite Fft e Psd
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure (109),hold on,
-sgtitle {'Dynamic Stiffness media K(f)'}
+%sgtitle {'Dynamic Stiffness media K(f)'}
 
 subplot(4,1,[2,3]),hold on
 plot (f_fft,10*log10(abs(FFT_Kav_fft).^2),'color',string(colore(i,:)),'LineWidth',1)
@@ -420,9 +430,9 @@ hold off
 [Y,E] = discretize(sqrt(max(abs(PSD_F))),bin);
 values=1:bin;
 
-figure (3), hold on
-histfit(sqrt(max(abs(PSD_F))),bin);
-hold off
+%figure (3), hold on
+%histfit(sqrt(max(abs(PSD_F))),bin);
+%hold off
 
 %<<<<<<<<<<<<<<<<<<<<<
 % Analisi bin per bin
@@ -482,7 +492,7 @@ for indice = 1:bin
         % Plot di segnali e spettri (PSD)
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(101), grid on,
-        sgtitle(misura)
+        %sgtitle(misura)
         for j=1:C
             if Y(j)==indice
                 subplot(2,2,1), hold on
@@ -508,7 +518,7 @@ for indice = 1:bin
         grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
         %plot frequenza massima sulla PSD della forza
         subplot (2,2,3), hold on
-        xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        %xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -524,7 +534,7 @@ for indice = 1:bin
         % Plot valore medio del bin
         semilogx (f,    10*log10(PSD_Kav_bin),'k--', 'LineWidth', 2),        
         % Plot frequenza massima
-        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        %xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         % Settaggio parametri Grafico
         set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
         xlabel('log(Frequency) [Hz]'), ylabel('20 log |Dynamic Stiffness| (dB ref 1 N/m]'),
@@ -541,7 +551,7 @@ for indice = 1:bin
         figure (107),hold on,
         semilogx (f, 10*log10(PSD_Kav_bin),'color',string(colore(kkk,:)), 'LineWidth', 1),
         %semilogx (f, 20*log10(Dstiff_av), 'LineWidth', 3),
-        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
+        %xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(kkk,:)));
         
         %<<<<<<<<<<<<<<<<<<<<
         % Calcolo K0 del bin

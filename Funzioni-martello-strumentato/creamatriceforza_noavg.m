@@ -29,7 +29,7 @@ for j = 1: n_picchi
     %<<<<<<<<<<<<<<<<<<<<<
     % Media Mobile
     %<<<<<<<<<<<<<<<<<<<<<
-    x_temp = x(in:out); 
+    x_temp = x(in:out)-x(in); 
 
     %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     % Filtraggio per doppio colpo
