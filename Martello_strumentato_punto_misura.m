@@ -18,9 +18,9 @@ conf=[]
 campione={'c2'};
 piastra={'pesante1'};
 appoggio={'nessuno'};
-adesivo={'nessuno'};
-punta={'gomma'};
-martellatore=1;
+adesivo={'gesso'};
+punta={'plastica'};
+martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
 
@@ -77,7 +77,7 @@ wintype = 'hann';
 % none = non applica nessuna finestratura.
 
 % Plotting
-ascissamin=80;          % Frequenza minima da plottare nei grafici
+ascissamin=20;          % Frequenza minima da plottare nei grafici
 ascissamax=5000;       % Frequenza massima da plottare nei grafici
 
 misura = cell2mat(['Campione ',conf.campione,', martellatore ',...
@@ -138,15 +138,58 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
 %<<<<<<<<<<<<<<<<<<<<
-% inizio=29.3*fs;
-[picchi1,n_picchi1] = trovacolpi(x1, soglia, delay, inizio, fine1);
-n_picchi1
-% inizio=0.1*fs
-[picchi2,n_picchi2] = trovacolpi(x2, soglia, delay, inizio, fine2);
-n_picchi2
+prominanza=10;
+distanza=0.5;
+larghezza=10;
+fpass=35
 
-[picchi3,n_picchi3] = trovacolpi(x3, soglia, delay, inizio, fine3);
-n_picchi3
+
+x1_Hpass = highpass(x1,fpass,fs);
+x2_Hpass = highpass(x2,fpass,fs);
+x3_Hpass = highpass(x3,fpass,fs);
+
+% inizio=29.3*fs;
+% [picchi1,n_picchi1] = trovacolpi(x1_Hpass, soglia, delay, inizio, fine1);
+% n_picchi1
+
+[pks1,picchi_t1,w1,p1] = findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+picchi_t1=picchi_t1(w1<larghezza);
+pks1=pks1(w1<larghezza);
+picchi1=picchi_t1*fs;
+n_picchi1=length(picchi1)
+
+figure(1)
+subplot(2,1,1), hold on, plot(picchi_t1,pks1,'*')
+findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+
+% inizio=0.1*fs
+% [picchi2,n_picchi2] = trovacolpi(x2_Hpass, soglia, delay, inizio, fine2);
+% n_picchi2
+
+[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+picchi_t2=picchi_t2(w2<larghezza);
+pks2=pks2(w2<larghezza);
+picchi2=picchi_t2*fs;
+n_picchi2=length(picchi2)
+
+figure(2)
+subplot(2,1,1), hold on, plot(picchi_t2,pks2,'*')
+findpeaks(x2_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+
+
+% [picchi3,n_picchi3] = trovacolpi(x3_Hpass, soglia, delay, inizio, fine3);
+% n_picchi3
+
+[pks3,picchi_t3,w3,p3] = findpeaks(x3_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+picchi_t3=picchi_t3(w3<larghezza);
+pks3=pks3(w3<larghezza);
+picchi3=picchi_t3*fs;
+n_picchi3=length(picchi3)
+
+figure(3)
+subplot(2,1,1), hold on, plot(picchi_t3,pks3,'*')
+findpeaks(x3_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Definizione delle matrici (selezione dei segnali)
@@ -156,7 +199,7 @@ n_picchi3
 picchi_sel1=length(pos)
 
 pos=[];
-[F2, pos] = creamatriceforza_noavg (x2, picchi2,n_picchi3, L_pre, L_coda, filt_doppi, fs);
+[F2, pos] = creamatriceforza_noavg (x2, picchi2,n_picchi2, L_pre, L_coda, filt_doppi, fs);
 [A2] = creamatriceaccelerazione (y2, pos, L_pre, L_coda, fs);
 picchi_sel2=length(pos)
 
@@ -298,6 +341,7 @@ for jj=1:(c)
         tagli=[tagli; jj];
     end
 end
+scarti=length(tagli)
 picchi_sel2 = picchi_sel2 - scarti
 % PSD_F(:,tagli)=[];
 % PSD_A(:,tagli)=[];
@@ -570,6 +614,7 @@ for mis = 1:3
         dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
         devst_K_misura(:,mis) = dK;
         
+        
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo della frequenza massima
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -678,10 +723,56 @@ for mis = 1:3
     
 end
 % Salvataggio coerenza
-save (cell2mat(['Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
+save (cell2mat(['Collezione_Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
 
-% Salvataggio rigidezza dinamica
-save (['Dstiffness_av_misura.mat'], 'PSD_Kav_misura');
+% Salvataggio rigidezza dinamica PSD
+save (cell2mat(['Collezione_Dstiffness_PSD_',conf.campione,'_',conf.piastra]), 'PSD_Kav_misura');
+
+% Salvataggio rigidezza dinamica FFT
+save (cell2mat(['Collezione_Dstiffness_FFT_',conf.campione,'_',conf.piastra]), 'FFT_K_misura');
+
+% Salvataggio deviazione standard rigidezza dinamica PSD
+save (cell2mat(['Collezione_DevSt_',conf.campione,'_',conf.piastra]), 'devst_K_misura');
+
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo delle grandezze sintetiche della misura
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+PSD_Kav_sintetico=mean(PSD_Kav_misura);
+devst_K_sintetico=(devst_K_misura(:,1).^2+devst_K_misura(:,2).^2+devst_K_misura(:,3).^2).^(1/2);
+
+F_filtall = reshape(F_filt, [],1);
+A_filtall = reshape(A_filt, [],1);
+[r,c]=size(F_filt);
+
+% Calcolo coerenza
+[Cxy_sintetico,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
+
+%deviazione standard
+devst_F_sintetico = std (abs(PSD_F),0,2);
+devst_A_sintetico = std (abs(PSD_A),0,2);
+
+dF = devst_F_sintetico;
+dA  = devst_A_sintetico;
+b = abs((1i*2*pi*f).^4);
+FF = abs(mean(PSD_F,2));
+AA = abs(mean(PSD_A,2));
+C = abs(Cxy_sintetico(1:1+end/2));
+KK = PSD_Kav_misura(:,mis);
+% K = F*(1i*2*pi).^4 /A
+
+dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
+devst_K_sintetico = dK;
+% Salvataggio deviazione standard sintetica rigidezza dinamica PSD
+save (cell2mat(['DevSt_sintetica_',conf.campione,'_',conf.piastra]), 'devst_K_sintetico');
+
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<
+% Salvataggio dati misura
+%<<<<<<<<<<<<<<<<<<<<<<<<<
+
+save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico')
 
 % Figura Segnali e Spettri
 % Settaggio parametri grafico
@@ -769,6 +860,7 @@ hold on
 
 for i=1:3
 subplot(2,1,1),hold on
+title('Impedenza meccanica')
 plot(f,10*log10(abs(PSD_Fav_misura(:,i)./PSD_Vav_misura(:,i))))
 subplot(2,1,2),hold on
 plot(f_fft,angle(FFT_F_misura(:,i)./FFT_V_misura(:,i)))
@@ -798,6 +890,12 @@ K0_av=(2*pi*fr)^2*m
 E_av=K0_av*h/s
 
 %figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
+
+save('frequenze.mat','f','f_fft')
+
+save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
+
+
 
 %%
 
