@@ -19,7 +19,7 @@ campione={'c2'};
 piastra={'pesante1'};
 appoggio={'nessuno'};
 adesivo={'gesso'};
-punta={'plastica'};
+punta={'metallo'};
 martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
@@ -138,7 +138,7 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
 %<<<<<<<<<<<<<<<<<<<<
-prominanza=10;
+prominanza=25;
 distanza=0.5;
 larghezza=10;
 fpass=35
