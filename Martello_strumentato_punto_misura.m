@@ -722,6 +722,7 @@ for mis = 1:3
     end
     
 end
+return
 % Salvataggio coerenza
 save (cell2mat(['Collezione_Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
 
