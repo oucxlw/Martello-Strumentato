@@ -864,11 +864,13 @@ subplot(2,1,1),hold on
 title('Impedenza meccanica')
 plot(f,10*log10(abs(PSD_Fav_misura(:,i)./PSD_Vav_misura(:,i))))
 subplot(2,1,2),hold on
-plot(f_fft,angle(FFT_F_misura(:,i)./FFT_V_misura(:,i)))
+plot(f_fft,180/pi*unwrap(angle(FFT_F_misura(:,i)./FFT_V_misura(:,i))))
 
 end
 subplot(2,1,1),hold on, set(gca, 'XScale', 'log')
+ylim([-200 200])
 subplot(2,1,2),hold on, set(gca, 'XScale', 'log')
+ylim([-200 200])
 figure,plot(f,PSD_Fav_misura(:,1)./PSD_Aav_misura(:,1))
 grid on, %xlim([0 10])
 set(gca, 'XScale', 'log')
