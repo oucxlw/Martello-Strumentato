@@ -111,3 +111,30 @@ for j= 1:5
 end
 f0
 Df
+%%
+y=[mean(PSD_K_1,2) ,mean(PSD_K_2,2) ,mean(PSD_K_3,2) ,mean(PSD_K_4,2), mean(PSD_K_5,2)];
+x=[10 ; 20; 100; 200;1000];
+f;
+waterfall(f,x,10*log10(abs(y')))
+set(gca, 'XScale', 'log')
+meshc(f,x,10*log10(abs(y')))
+set(gca, 'YScale', 'log')
+
+
+for i=1:length(y(:,1))
+    p = polyfit(x,abs(y(i,:)),1);
+    P(i,:)=p;
+end
+figure, hold on
+
+subplot(2,1,1)
+plot(f,10*log10(P(:,2)))
+title('intercetta')
+grid on, set(gca, 'XScale', 'log')
+xlim([20 5000])
+
+subplot(2,1,2)
+plot(f,P(:,1))
+
+xlim([20 5000]), 
+grid on,set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
