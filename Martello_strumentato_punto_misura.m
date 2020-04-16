@@ -138,7 +138,7 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
 %<<<<<<<<<<<<<<<<<<<<
-prominanza=25;
+prominanza=10;%25
 distanza=0.5;
 larghezza=10;
 fpass=35
@@ -653,7 +653,7 @@ for mis = 1:3
         
         %plot frequenza massima sulla PSD della forza
         subplot (2,2,3), hold on
-        %xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -674,11 +674,11 @@ for mis = 1:3
         semilogx (f, 10*log10(PSD_Kav_misura(:,mis)+dK),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
         
         % Plot limite in frequenza
-        %xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(mis,:)));
+        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(mis,:)));
         
         % Plot fase
         subplot(4,1,4), hold on
-        semilogx (f_fft,180/pi*angle(FFT_K_misura(:,mis)),'color',string(colore(mis,:)),'LineWidth', 2)
+        semilogx (f_fft,180/pi*unwrap(angle(FFT_K_misura(:,mis))),'color',string(colore(mis,:)),'LineWidth', 2)
         
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -722,7 +722,7 @@ for mis = 1:3
     end
     
 end
-return
+
 % Salvataggio coerenza
 save (cell2mat(['Collezione_Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
 
@@ -827,8 +827,8 @@ legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
 
 % Salvataggio
-saveas (gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
-saveas (gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
+saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
+saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png'])) 
 
 
 
@@ -837,24 +837,24 @@ saveas (gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure(110), hold on
 
-subplot (2,1,1),hold on,
-set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+subplot(2,1,1),hold on
+set(gca, 'XScale', 'log')%, set(gca, 'YScale', 'log'),
 grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
 xlabel('Frequenza [Hz]'), ylabel('PSD Forza [dB @ 1 N]'),
 
-subplot (2,1,2),hold on,
+subplot(2,1,2),hold on,
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
 xlabel('Frequenza [Hz]'), ylabel('PSD Accelerazione [dB @ 1 m/s^2]'),
-saveas (gcf, cell2mat(['Forza_vs_Accelerazione_',conf.campione,'_',conf.piastra,'.fig']))
+saveas(gcf, cell2mat(['Forza_vs_Accelerazione_',conf.campione,'_',conf.piastra,'.fig']))
 
 
 % Salvataggio delle dstiffness medie FFT e PSD
 % save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Psd.mat']),'PSD_Kav_pgram');
 % save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Fft.mat']),'FFT_Kav_fft');
 
-figure,
-grid on, %xlim([0 10])
+figure (106)
+grid on %xlim([0 10])
 set(gca, 'XScale', 'log')
 xlim([10 20000])
 hold on
@@ -868,17 +868,39 @@ plot(f_fft,180/pi*unwrap(angle(FFT_F_misura(:,i)./FFT_V_misura(:,i))))
 
 end
 subplot(2,1,1),hold on, set(gca, 'XScale', 'log')
-ylim([-200 200])
+
 subplot(2,1,2),hold on, set(gca, 'XScale', 'log')
 ylim([-200 200])
-figure,plot(f,PSD_Fav_misura(:,1)./PSD_Aav_misura(:,1))
-grid on, %xlim([0 10])
-set(gca, 'XScale', 'log')
-xlim([10 20000])
-hold on
-plot(f,PSD_Fav_misura(:,2)./PSD_Aav_misura(:,2))
-plot(f,PSD_Fav_misura(:,3)./PSD_Aav_misura(:,3))
 
+% accelerazione/forza
+figure, hold on
+plot(f,PSD_Aav_misura(:,1)./PSD_Fav_misura(:,1))
+plot(f,PSD_Aav_misura(:,2)./PSD_Fav_misura(:,2))
+plot(f,PSD_Aav_misura(:,3)./PSD_Fav_misura(:,3))
+grid on
+set(gca, 'XScale', 'log')
+xlim([10 2000])
+title('Accelerazione normalizzata','FontSize',18)
+xlabel('Frequency [Hz]','FontSize',12),
+ylabel('Acceleration/Force [Kg^{-1}]','FontSize',12),
+saveas(gcf,'Accelerazione.fig');
+% % velocità/forza
+% figure, hold on
+% plot(f,PSD_Vav_misura(:,1)./PSD_Fav_misura(:,1))
+% plot(f,PSD_Vav_misura(:,2)./PSD_Fav_misura(:,2))
+% plot(f,PSD_Vav_misura(:,3)./PSD_Fav_misura(:,3))
+% grid on
+% set(gca, 'XScale', 'log')
+% xlim([10 2000])
+% 
+% % spostamento/forza
+% figure, hold on
+% plot(f,PSD_Dav_misura(:,1)./PSD_Fav_misura(:,1))
+% plot(f,PSD_Dav_misura(:,2)./PSD_Fav_misura(:,2))
+% plot(f,PSD_Dav_misura(:,3)./PSD_Fav_misura(:,3))
+% grid on
+% set(gca, 'XScale', 'log')
+% xlim([10 2000])
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo frequenza di risonanza e K
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
