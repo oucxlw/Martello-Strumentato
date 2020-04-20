@@ -16,7 +16,7 @@ conf=[]
 %la punta del martello
 
 campione={'c2'};
-piastra={'pesante1'};
+piastra={'pesante2'};
 appoggio={'nessuno'};
 adesivo={'gesso'};
 punta={'metallo'};
@@ -138,7 +138,7 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
 %<<<<<<<<<<<<<<<<<<<<
-prominanza=10;%25
+prominanza=25;
 distanza=0.5;
 larghezza=10;
 fpass=35
@@ -166,7 +166,7 @@ findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,
 % [picchi2,n_picchi2] = trovacolpi(x2_Hpass, soglia, delay, inizio, fine2);
 % n_picchi2
 
-[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass(1:(end-fs)),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
 picchi_t2=picchi_t2(w2<larghezza);
 pks2=pks2(w2<larghezza);
 picchi2=picchi_t2*fs;
@@ -872,13 +872,43 @@ subplot(2,1,1),hold on, set(gca, 'XScale', 'log')
 subplot(2,1,2),hold on, set(gca, 'XScale', 'log')
 ylim([-200 200])
 
+
 % accelerazione/forza
+f1=20
+f2=200
+f_zoom = f1:0.5:f2;
+PSD_F_zoom = [];
+PSD_A_zoom = [];
+
+for i=1:3
+    [PSD_Ftemp, f2,pxxc] = periodogram(F_filt(:,I==i), win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
+    [PSD_Atemp, f2,pyyc] = periodogram(A(:,I==i), win_A, f_zoom, fs, 'ConfidenceLevel',0.60); %PSD Accelerazione [g^2]
+    PSD_F_zoom(:,i) = mean(PSD_Ftemp, 2);
+    PSD_A_zoom(:,i) = mean(PSD_Atemp, 2);  
+end
+
+
+figure (107)
+subplot(4,1,[2,3]), hold on
+for i=1:3
+    plot (f_zoom, 10*log10(abs(PSD_F_zoom(:,i)./PSD_A_zoom(:,i).*(1i*2*pi*f_zoom').^4)),'LineWidth', 3)
+end
+hold off
+saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
+saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png'])) 
+
 figure, hold on
-plot(f,PSD_Aav_misura(:,1)./PSD_Fav_misura(:,1))
-plot(f,PSD_Aav_misura(:,2)./PSD_Fav_misura(:,2))
-plot(f,PSD_Aav_misura(:,3)./PSD_Fav_misura(:,3))
+plot(f,10*log10(PSD_Aav_misura(:,1)./PSD_Fav_misura(:,1)))
+plot(f,10*log10(PSD_Aav_misura(:,2)./PSD_Fav_misura(:,2)))
+plot(f,10*log10(PSD_Aav_misura(:,3)./PSD_Fav_misura(:,3)))
+% psd zoom
+plot(f_zoom, 10*log10(PSD_A_zoom(:,1)./PSD_F_zoom(:,1)))
+plot(f_zoom, 10*log10(PSD_A_zoom(:,2)./PSD_F_zoom(:,2)))
+plot(f_zoom, 10*log10(PSD_A_zoom(:,3)./PSD_F_zoom(:,3)))
+plot(f_zoom, 10*log10(pyyc./PSD_F_zoom(:,3)), '-*')
+
 grid on
-set(gca, 'XScale', 'log')
+set(gca, 'XScale', 'log'),
 xlim([10 2000])
 title('Accelerazione normalizzata','FontSize',18)
 xlabel('Frequency [Hz]','FontSize',12),
