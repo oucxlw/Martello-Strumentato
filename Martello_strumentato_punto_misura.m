@@ -626,7 +626,7 @@ for mis = 1:3
         % Plot di segnali e spettri (PSD)
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(101), grid on,
-        %sgtitle(misura)
+        sgtitle(misura)
         for i=1:c
             if I(i)==mis
                 subplot(2,2,1), hold on
@@ -800,8 +800,8 @@ save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'P
 % Plot Dstiff totale e settaggio parametri grafico
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure (107)
-%sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
-%    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
+    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
 
 subplot(4,1,1), hold on
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
