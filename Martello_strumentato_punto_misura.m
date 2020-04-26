@@ -16,10 +16,10 @@ conf=[]
 %la punta del martello
 
 campione={'c1'};
-piastra={'pesante2'};
+piastra={'pesante1'};
 appoggio={'cemento'};
 adesivo={'gesso'};
-punta={'metallo'};
+punta={'gomma'};
 martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
@@ -138,7 +138,7 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
 %<<<<<<<<<<<<<<<<<<<<
-prominanza=250;
+prominanza=10;%25;
 distanza=0.5;
 larghezza=10;
 fpass=35
@@ -152,7 +152,7 @@ x3_Hpass = highpass(x3,fpass,fs);
 % [picchi1,n_picchi1] = trovacolpi(x1_Hpass, soglia, delay, inizio, fine1);
 % n_picchi1
 
-[pks1,picchi_t1,w1,p1] = findpeaks(x1_Hpass((1*fs):(end)),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+[pks1,picchi_t1,w1,p1] = findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
 picchi_t1=picchi_t1(w1<larghezza);
 pks1=pks1(w1<larghezza);
 picchi1=picchi_t1*fs;
@@ -166,7 +166,7 @@ findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,
 % [picchi2,n_picchi2] = trovacolpi(x2_Hpass, soglia, delay, inizio, fine2);
 % n_picchi2
 
-[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass(),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass(1:(end-fs)),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
 picchi_t2=picchi_t2(w2<larghezza);
 pks2=pks2(w2<larghezza);
 picchi2=picchi_t2*fs;
@@ -539,7 +539,7 @@ m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
 lim_sup = find ( f > 2000);
-lim_inf = find ( f < 50);
+lim_inf = find ( f < 25);
 K0_av_bin=[];
 S_av_bin=[];
 E_av_bin=[];
@@ -715,11 +715,11 @@ for mis = 1:3
         % Calcolo K0 della misura
         %<<<<<<<<<<<<<<<<<<<<<<<<<
         min_k = min(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis));
-        fr = f(lim_inf(end)+find(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis) == min_k));
-        K0_av_bin=[K0_av_bin,(2*pi*fr)^2*m];
-        S_av_bin=[S_av_bin,K0_av_bin/s];
-        E_av_bin=[E_av_bin,K0_av_bin*h/s];
-        PSD_K_bin = [PSD_K_bin,K0_av_bin];
+        fr = f( lim_inf(end)+find(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis) == min_k) );
+        K0_av_bin = [K0_av_bin, (2*pi*fr)^2*m];
+        S_av_bin  = [S_av_bin,  (2*pi*fr)^2*m/s];
+        E_av_bin  = [E_av_bin,  (2*pi*fr)^2*m*h/s];
+        PSD_K_bin = [PSD_K_bin, (2*pi*fr)^2*m];
         
     end
     
@@ -870,8 +870,8 @@ ylim([-200 200])
 
 
 % accelerazione/forza
-f1=20
-f2=200
+f1=100
+f2=2000
 f_zoom = f1:0.5:f2;
 PSD_F_zoom = [];
 PSD_A_zoom = [];
@@ -914,6 +914,16 @@ title('Accelerazione normalizzata','FontSize',18)
 xlabel('Frequency [Hz]','FontSize',12),
 ylabel('Acceleration/Force [Kg^{-1}]','FontSize',12),
 saveas(gcf,'Accelerazione.fig');
+
+% accelerazione/forza
+figure, hold on
+plot(f,PSD_Aav_misura(:,1)./PSD_Fav_misura(:,1))
+plot(f,PSD_Aav_misura(:,2)./PSD_Fav_misura(:,2))
+plot(f,PSD_Aav_misura(:,3)./PSD_Fav_misura(:,3))
+grid on
+set(gca, 'XScale', 'log')
+xlim([10 1000])
+
 % % velocità/forza
 % figure, hold on
 % plot(f,PSD_Vav_misura(:,1)./PSD_Fav_misura(:,1))
@@ -938,7 +948,7 @@ m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
 lim_sup = find ( f > 1000);
-lim_inf = find ( f < 50);
+lim_inf = find ( f < 100);
 min_k = min(PSD_Kav_pgram(lim_inf(end):lim_sup(1)));
 fr = f(lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k)); % calcolata con la fft meno 
 K0_av = (2*pi*fr)^2*m
@@ -951,7 +961,7 @@ E_av = K0_av*h/s
 % Salvataggio dati misura
 %<<<<<<<<<<<<<<<<<<<<<<<<<
 
-save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico','S_av_bin')
+save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico','S_av_bin','conf','piastre','campioni')
 
 save('frequenze.mat','f','f_fft')
 
