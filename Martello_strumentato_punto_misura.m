@@ -15,9 +15,9 @@ conf=[]
 %utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
 %la punta del martello
 
-campione={'c2'};
+campione={'c1'};
 piastra={'pesante2'};
-appoggio={'nessuno'};
+appoggio={'cemento'};
 adesivo={'gesso'};
 punta={'metallo'};
 martellatore=2;
@@ -138,7 +138,7 @@ hold off
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
 %<<<<<<<<<<<<<<<<<<<<
-prominanza=25;
+prominanza=250;
 distanza=0.5;
 larghezza=10;
 fpass=35
@@ -152,7 +152,7 @@ x3_Hpass = highpass(x3,fpass,fs);
 % [picchi1,n_picchi1] = trovacolpi(x1_Hpass, soglia, delay, inizio, fine1);
 % n_picchi1
 
-[pks1,picchi_t1,w1,p1] = findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+[pks1,picchi_t1,w1,p1] = findpeaks(x1_Hpass((1*fs):(end)),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
 picchi_t1=picchi_t1(w1<larghezza);
 pks1=pks1(w1<larghezza);
 picchi1=picchi_t1*fs;
@@ -166,7 +166,7 @@ findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,
 % [picchi2,n_picchi2] = trovacolpi(x2_Hpass, soglia, delay, inizio, fine2);
 % n_picchi2
 
-[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass(1:(end-fs)),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass(),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
 picchi_t2=picchi_t2(w2<larghezza);
 pks2=pks2(w2<larghezza);
 picchi2=picchi_t2*fs;
@@ -538,9 +538,10 @@ PSD_Kav_pgram = PSD_Fav_pgram./PSD_Dav_pgram; % dynamic stiffness calcolata tram
 m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
-lim_sup = find ( f > 1000);
-lim_inf = find ( f < 100);
+lim_sup = find ( f > 2000);
+lim_inf = find ( f < 50);
 K0_av_bin=[];
+S_av_bin=[];
 E_av_bin=[];
 PSD_K_bin=[];
 [R,C]=size(PSD_F);
@@ -716,6 +717,7 @@ for mis = 1:3
         min_k = min(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis));
         fr = f(lim_inf(end)+find(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis) == min_k));
         K0_av_bin=[K0_av_bin,(2*pi*fr)^2*m];
+        S_av_bin=[S_av_bin,K0_av_bin/s];
         E_av_bin=[E_av_bin,K0_av_bin*h/s];
         PSD_K_bin = [PSD_K_bin,K0_av_bin];
         
@@ -750,7 +752,7 @@ A_filtall = reshape(A_filt, [],1);
 % Calcolo coerenza
 [Cxy_sintetico,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
 
-%deviazione standard
+% deviazione standard
 devst_F_sintetico = std (abs(PSD_F),0,2);
 devst_A_sintetico = std (abs(PSD_A),0,2);
 
@@ -769,11 +771,6 @@ devst_K_sintetico = dK;
 save (cell2mat(['DevSt_sintetica_',conf.campione,'_',conf.piastra]), 'devst_K_sintetico');
 
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<
-% Salvataggio dati misura
-%<<<<<<<<<<<<<<<<<<<<<<<<<
-
-save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico')
 
 % Figura Segnali e Spettri
 % Settaggio parametri grafico
@@ -800,8 +797,8 @@ save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'P
 % Plot Dstiff totale e settaggio parametri grafico
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure (107)
-sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
-    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+% sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
+%     ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
 
 subplot(4,1,1), hold on
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
@@ -829,7 +826,6 @@ legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
 % Salvataggio
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png'])) 
-
 
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -889,11 +885,15 @@ end
 
 
 figure (107)
-subplot(4,1,[2,3]), hold on
+subplot(4,1,[2,3]), hold on,
 for i=1:3
     plot (f_zoom, 10*log10(abs(PSD_F_zoom(:,i)./PSD_A_zoom(:,i).*(1i*2*pi*f_zoom').^4)),'LineWidth', 3)
 end
+sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
+     ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+
 hold off
+
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png'])) 
 
@@ -938,13 +938,20 @@ m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
 lim_sup = find ( f > 1000);
-lim_inf = find ( f < 100);
+lim_inf = find ( f < 50);
 min_k = min(PSD_Kav_pgram(lim_inf(end):lim_sup(1)));
-fr = f(lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k));
-K0_av=(2*pi*fr)^2*m
-E_av=K0_av*h/s
+fr = f(lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k)); % calcolata con la fft meno 
+K0_av = (2*pi*fr)^2*m
+S_star_av = K0_av/s
+E_av = K0_av*h/s
 
 %figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<
+% Salvataggio dati misura
+%<<<<<<<<<<<<<<<<<<<<<<<<<
+
+save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico','S_av_bin')
 
 save('frequenze.mat','f','f_fft')
 
