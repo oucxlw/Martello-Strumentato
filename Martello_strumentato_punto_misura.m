@@ -19,7 +19,7 @@ campione={'c1'};
 piastra={'pesante1'};
 appoggio={'cemento'};
 adesivo={'gesso'};
-punta={'gomma'};
+punta={'plastica'};
 martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
@@ -538,14 +538,20 @@ PSD_Kav_pgram = PSD_Fav_pgram./PSD_Dav_pgram; % dynamic stiffness calcolata tram
 m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
-lim_sup = find ( f > 2000);
-lim_inf = find ( f < 25);
+lim_sup =  find(f > 2000);
+lim_inf =  find(f < 25);
 K0_av_bin=[];
 S_av_bin=[];
 E_av_bin=[];
 PSD_K_bin=[];
+
+K0_av_A_bin = [];
+S_av_A_bin  = [];
+E_av_A_bin  = [];
+
 [R,C]=size(PSD_F);
 F_max=[];
+fmax_misura = []; % la collzione della frequenza massima della bandwidth della forza a -10dB 
 
 % Parametri di ingresso:
 % PSD_F, PSD_A, F_filt, A_filt,I
@@ -622,6 +628,7 @@ for mis = 1:3
         PSD_Fav_dB = 10*log10(PSD_Fav_misura(:,mis));
         fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
         fmax=f(fmax(1)+f0);
+        fmax_misura=[fmax_misura, fmax];
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot di segnali e spettri (PSD)
@@ -710,16 +717,25 @@ for mis = 1:3
         %
         % saveas(gcf,'Forza_vs_Accelerazione.fig');
         
-        
         %<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo K0 della misura
         %<<<<<<<<<<<<<<<<<<<<<<<<<
+        
+        % seconfo minimo di k
         min_k = min(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis));
         fr = f( lim_inf(end)+find(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis) == min_k) );
         K0_av_bin = [K0_av_bin, (2*pi*fr)^2*m];
         S_av_bin  = [S_av_bin,  (2*pi*fr)^2*m/s];
         E_av_bin  = [E_av_bin,  (2*pi*fr)^2*m*h/s];
         PSD_K_bin = [PSD_K_bin, (2*pi*fr)^2*m];
+        
+        % seconfo massimo di A
+        temp = PSD_Aav_misura(:,mis)./PSD_Fav_misura(:,mis);
+        max_k = max(temp(lim_inf(end):lim_sup(1)));
+        fr_A = f( lim_inf(end)+find(temp(lim_inf(end):lim_sup(1)) == max_k) );
+        K0_av_A_bin = [K0_av_A_bin, (2*pi*fr_A)^2*m];
+        S_av_A_bin  = [S_av_A_bin,  (2*pi*fr_A)^2*m/s];
+        E_av_A_bin  = [E_av_A_bin,  (2*pi*fr_A)^2*m*h/s];
         
     end
     
@@ -916,10 +932,10 @@ ylabel('Acceleration/Force [Kg^{-1}]','FontSize',12),
 saveas(gcf,'Accelerazione.fig');
 
 % accelerazione/forza
-figure, hold on
-plot(f,PSD_Aav_misura(:,1)./PSD_Fav_misura(:,1))
-plot(f,PSD_Aav_misura(:,2)./PSD_Fav_misura(:,2))
-plot(f,PSD_Aav_misura(:,3)./PSD_Fav_misura(:,3))
+figure (5), hold on
+for i=1:3
+plot(f,PSD_Aav_misura(:,i)./PSD_Fav_misura(:,i))
+end
 grid on
 set(gca, 'XScale', 'log')
 xlim([10 1000])
@@ -941,19 +957,37 @@ xlim([10 1000])
 % grid on
 % set(gca, 'XScale', 'log')
 % xlim([10 2000])
+
+
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo frequenza di risonanza e K
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
-lim_sup = find ( f > 1000);
-lim_inf = find ( f < 100);
+lim_sup =  find(f > min(fmax_misura)*0.7);
+lim_inf =  find(f < 100);
 min_k = min(PSD_Kav_pgram(lim_inf(end):lim_sup(1)));
-fr = f(lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k)); % calcolata con la fft meno 
+
+% basato su minimo Dynamic Stiffness
+fr = f( lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k)); % calcolata con la fft meno 
 K0_av = (2*pi*fr)^2*m
 S_star_av = K0_av/s
 E_av = K0_av*h/s
+
+%basato sul massimo dell'accelerazione/forza
+for i=1:3
+    temp = PSD_Aav_misura(:,i)./PSD_Fav_misura(:,i);
+    max_A = max(temp(lim_inf(end):lim_sup(1)));
+    fr_A(i) = f(lim_inf(end)+find(temp(lim_inf(end):lim_sup(1)) == max_A)); % calcolata con la fft meno
+end
+K0_av_A = (2*pi*mean(fr_A))^2*m
+S_star_av_A = K0_av_A/s
+E_av_A = K0_av_A*h/s
+
+figure (5), hold on
+xl=xline (f(lim_sup(1)),'.',['limite superiore']); xl.LabelVerticalAlignment = 'bottom';
+xl=xline (f(lim_inf(end)),'.',['limite superiore']); xl.LabelVerticalAlignment = 'bottom';
 
 %figure(107),hold on, plot(f,20*log10(abs(K(1:length(f)))),'r.','LineWidth', 2)
 
@@ -961,7 +995,8 @@ E_av = K0_av*h/s
 % Salvataggio dati misura
 %<<<<<<<<<<<<<<<<<<<<<<<<<
 
-save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico','S_av_bin','conf','piastre','campioni')
+save (['misura'],'Cxy','PSD_Kav_misura','FFT_K_misura','devst_K_misura','devst_K_sintetico',...
+    'S_av_bin','conf','piastre','campioni','S_star_av_A')
 
 save('frequenze.mat','f','f_fft')
 

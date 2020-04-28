@@ -1,0 +1,6 @@
+Temperatura	21
+Punta Gomma	0
+Punta Plastica	1
+Punta Metallo	0
+Piastra	
+Fattori di divisione wav	2000, 500, 500, 500, 500, 500

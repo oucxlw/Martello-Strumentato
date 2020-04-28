@@ -5,6 +5,8 @@ PSD_K_1=PSD_Kav_misura;
 devst1=devst_K_sintetico;
 FFT_K_1=FFT_K_misura;
 S_star_1 = S_av_bin;
+S_star_A_1 = S_star_av_A;
+
 conf1=conf;
 
 load('misura2.mat')
@@ -13,6 +15,7 @@ PSD_K_2=PSD_Kav_misura;
 devst2=devst_K_sintetico;
 FFT_K_2=FFT_K_misura;
 S_star_2 = S_av_bin;
+S_star_A_2 = S_star_av_A;
 
 load('misura3.mat')
 Cxy3=Cxy;
@@ -20,6 +23,7 @@ PSD_K_3=PSD_Kav_misura;
 devst3=devst_K_sintetico;
 FFT_K_3=FFT_K_misura;
 S_star_3 = S_av_bin;
+S_star_A_3 = S_star_av_A;
 
 %quarta misura opzionale
 load('misura4.mat')
@@ -28,6 +32,7 @@ PSD_K_4=PSD_Kav_misura;
 devst4=devst_K_sintetico;
 FFT_K_4=FFT_K_misura;
 S_star_4 = S_av_bin;
+S_star_A_4 = S_star_av_A;
 
 % load('misura5.mat')
 % Cxy5=Cxy;
@@ -35,6 +40,7 @@ S_star_4 = S_av_bin;
 % devst5=devst_K_sintetico;
 % FFT_K_5=FFT_K_misura;
 % S_star_5 = S_av_bin;
+% S_star_A_5 = S_star_av_A;
 
 colore=[
     '.000, .447, .741';
@@ -116,20 +122,39 @@ for j= 1:5
     Df(j) = mean(fend_temp-f0_temp);
 end
 
+Load = piastre.massa(conf.piastra) /  pi / (piastre.d(conf.piastra)/2)^2;
+
+% tramite Dynamic styffness
 S_star=mean([S_star_1; S_star_2; S_star_3; S_star_4],2)
 x=[10 ; 20; 100; 200];
 p = polyfit(x(1:end),S_star(1:end),1);
-Load = piastre.massa(conf.piastra) /  pi / (piastre.d(conf.piastra)/2)^2;
+
 figure, hold on,
 title(['Stiffness vs Force ( Load = ', num2str(round(Load)),' [ Kg/m^2 ] )'])
 xlabel('Force [N]')
 ylabel('Stiffness [MN/m^3]')
 plot(x, S_star/10^6,'*')
 plot(x, (p(2)+p(1)*x)/10^6)
-
 p(2)
 f0
 Df
+
+% tramite accelerazione
+S_star_A=mean([S_star_A_1; S_star_A_2; S_star_A_3; S_star_A_4],2)
+x=[10 ; 20; 100; 200];
+p = polyfit(x(1:end),S_star_A(1:end),1);
+
+figure, hold on,
+title(['Stiffness vs Force ( Load = ', num2str(round(Load)),' [ Kg/m^2 ] )'])
+xlabel('Force [N]')
+ylabel('Stiffness [MN/m^3]')
+plot(x, S_star_A/10^6,'*')
+plot(x, (p(2)+p(1)*x)/10^6)
+p(2)
+f0
+Df
+
+
 %%
 y=[mean(PSD_K_1,2) ,mean(PSD_K_2,2) ,mean(PSD_K_3,2) ,mean(PSD_K_4,2), mean(PSD_K_5,2)];
 x=[10 ; 20; 100; 200;1000];

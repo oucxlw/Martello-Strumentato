@@ -60,9 +60,6 @@ y = data (:,conf.accelerometro+2); % Accelerazione [m/s^2]
 bandwidth=0;
 filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 
-% Normalizzazione colpi
-norm=0;                 % Se norm=1 i colpi vengono normalizzati
-
 % Finestratura
 wintype = 'hann';
 % Determina il tipo di finestratura da utilizzare per i segnali di
