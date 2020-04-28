@@ -29,7 +29,11 @@ clc
 close all
 clear variables
 
-load dati1.mat
+dati = load ('dati1');
+dati(2) = load ('dati2');
+dati(3) = load ('dati3');
+conf = dati(1).conf;
+fs=dati(1).fs;
 
 [piastre] = tabella_piastre ();
 [campioni] = tabella_campioni (conf,piastre);
@@ -37,19 +41,13 @@ load dati1.mat
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Importazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x1 = data (:,1); % Force [N]
-y1 = data (:,conf.accelerometro+2); % Accelerazione [m/s^2]
-clear data;
-
-load dati2.mat
-x2 = data (:,1); % Force [N]
-y2 = data (:,conf.accelerometro+2); % Accelerazione [m/s^2]
-clear data;
-
-load dati3.mat
-x3 = data (:,1); % Force [N]
-y3 = data (:,conf.accelerometro+2); % Accelerazione [m/s^2]
-clear data;
+misure = cell(length(dati),1);
+sng = struct('x',misure,'y',[]);
+N = length (dati);
+for i = 1:N
+    sng(i).x = dati(i).data(:,1);
+    sng(i).y = dati(i).data(:,conf.accelerometro+2);
+end
 
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri di controllo 
@@ -58,15 +56,17 @@ clear data;
 [g,div_F,div_A,fs] = parametri_fisici();
 
 % Parametri di ricerca
-[soglia,delay,inizio,fine1] = parametri_ricerca_picchi(fs,x1);
-[soglia,delay,inizio,fine2] = parametri_ricerca_picchi(fs,x2);
-[soglia,delay,inizio,fine3] = parametri_ricerca_picchi(fs,x3);
+fine = cell(1,N);
+for i = 1:length(sng)
+    [soglia,delay,inizio,fine{i,1}] = parametri_ricerca_picchi(fs,sng(i).x);
+end
+
 % Parametri di creazione dei campioni
 [Lsample,L_pre,L_coda] = parametri_creamatrice();
 
 % Parametri di filtro
-bandwidth=0;
-filt_doppi=0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
+bandwidth = 0;
+filt_doppi = 0;           % Se filt_doppi=1 i colpi vengono filtrati eliminando i doppi colpi
 
 % Finestratura
 wintype = 'hann';
@@ -77,14 +77,14 @@ wintype = 'hann';
 % none = non applica nessuna finestratura.
 
 % Plotting
-ascissamin=20;          % Frequenza minima da plottare nei grafici
-ascissamax=5000;       % Frequenza massima da plottare nei grafici
+ascissamin = 20;          % Frequenza minima da plottare nei grafici
+ascissamax = 5000;       % Frequenza massima da plottare nei grafici
 
 misura = cell2mat(['Campione ',conf.campione,', martellatore ',...
     num2str(conf.martellatore),', punta ',conf.punta,', piastra ',conf.piastra,...
     ',Hann,PSDvsFFT, ',num2str(bandwidth),' Hz']);
 
-colore=[
+colore = [
     '.000, .447, .741';
     '.850, .325, .098';
     '.929, .694, .125';
@@ -106,34 +106,20 @@ colore=[
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calibrazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-x1 =   div_F*x1;     % Force [N]
-y1 = g*div_A*(-y1);
-x2 =   div_F*x2;     % Force [N]
-y2 = g*div_A*(-y2);
-x3 =   div_F*x3;     % Force [N]
-y3 = g*div_A*(-y3);
+for i = 1:N
+    sng(i).x = div_F * sng(i).x;
+    sng(i).y = g * div_A * sng(i).y;
+end
 
 % Plot dei segnali
-L = length(x1);
+for i=1:N
+L = length(sng(i).x);
 dt=1/fs; time=[0:dt:L/fs-dt];
-figure(1)
-subplot(2,1,1), hold on, plot (time, x1)
-subplot(2,1,2), hold on, plot (time, y1),
+figure(i)
+subplot(2,1,1), hold on, plot (time, sng(i).x)
+subplot(2,1,2), hold on, plot (time, sng(i).y),
 hold off
-
-L = length(x2);
-dt=1/fs; time=[0:dt:L/fs-dt];
-figure(2)
-subplot(2,1,1), hold on, plot (time, x2)
-subplot(2,1,2), hold on, plot (time, y2),
-hold off
-
-L = length(x3);
-dt=1/fs; time=[0:dt:L/fs-dt];
-figure(3)
-subplot(2,1,1), hold on, plot (time, x3)
-subplot(2,1,2), hold on, plot (time, y3),
-hold off
+end
 
 %<<<<<<<<<<<<<<<<<<<<
 % Ricerca dei PICCHI
@@ -142,82 +128,51 @@ prominanza=10;%25;
 distanza=0.5;
 larghezza=10;
 fpass=35
+x_Hpass = cell(1,N);
+for i=1:N
+    x_Hpass{i} = highpass(sng(i).x,fpass,fs);
+end
 
+picchi_t = cell(1:N);
+picchi1 = cell(1:N);
+p = cell(1:N);
+w = cell(1:N);
+n_picchi = cell(1:N);
 
-x1_Hpass = highpass(x1,fpass,fs);
-x2_Hpass = highpass(x2,fpass,fs);
-x3_Hpass = highpass(x3,fpass,fs);
-
-% inizio=29.3*fs;
-% [picchi1,n_picchi1] = trovacolpi(x1_Hpass, soglia, delay, inizio, fine1);
-% n_picchi1
-
-[pks1,picchi_t1,w1,p1] = findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-picchi_t1=picchi_t1(w1<larghezza);
-pks1=pks1(w1<larghezza);
-picchi1=picchi_t1*fs;
-n_picchi1=length(picchi1)
-
-figure(1)
-subplot(2,1,1), hold on, plot(picchi_t1,pks1,'*')
-findpeaks(x1_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-
-% inizio=0.1*fs
-% [picchi2,n_picchi2] = trovacolpi(x2_Hpass, soglia, delay, inizio, fine2);
-% n_picchi2
-
-[pks2,picchi_t2,w2,p2] = findpeaks(x2_Hpass(1:(end-fs)),fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-picchi_t2=picchi_t2(w2<larghezza);
-pks2=pks2(w2<larghezza);
-picchi2=picchi_t2*fs;
-n_picchi2=length(picchi2)
-
-figure(2)
-subplot(2,1,1), hold on, plot(picchi_t2,pks2,'*')
-findpeaks(x2_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-
-
-% [picchi3,n_picchi3] = trovacolpi(x3_Hpass, soglia, delay, inizio, fine3);
-% n_picchi3
-
-[pks3,picchi_t3,w3,p3] = findpeaks(x3_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-picchi_t3=picchi_t3(w3<larghezza);
-pks3=pks3(w3<larghezza);
-picchi3=picchi_t3*fs;
-n_picchi3=length(picchi3)
-
-figure(3)
-subplot(2,1,1), hold on, plot(picchi_t3,pks3,'*')
-findpeaks(x3_Hpass,fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-
-
+for i=1:N
+    [pks1,picchi_t{i},w{i},p{i}] = findpeaks(x_Hpass{i},fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+    
+    picchi_t{i}=picchi_t{i}(w{i}<larghezza);
+    pks1=pks1(w{i}<larghezza);
+    picchi1{i} = picchi_t{i}*fs;
+    n_picchi{i} = length(picchi1{i})
+    
+    figure(i)
+    subplot(2,1,1), hold on, plot(picchi_t{i},pks1,'*')
+    findpeaks(x_Hpass{i},fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+end
+%%
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Definizione delle matrici (selezione dei segnali)
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-[F1, pos] = creamatriceforza_noavg (x1, picchi1,n_picchi1, L_pre, L_coda, filt_doppi, fs);
-[A1] = creamatriceaccelerazione (y1, pos, L_pre, L_coda, fs);
-picchi_sel1=length(pos)
+pos = cell(1:N);
+for i = 1:N
+[sng(i).F, pos{i}] = creamatriceforza_noavg (sng(i).x, picchi1{i}, n_picchi{i}, L_pre, L_coda, filt_doppi, fs);
+[sng(i).A] = creamatriceaccelerazione (sng(i).y, pos{i}, L_pre, L_coda, fs);
+picchi_sel1=length(pos{1})
+end
+return
 
-pos=[];
-[F2, pos] = creamatriceforza_noavg (x2, picchi2,n_picchi2, L_pre, L_coda, filt_doppi, fs);
-[A2] = creamatriceaccelerazione (y2, pos, L_pre, L_coda, fs);
-picchi_sel2=length(pos)
-
-pos=[];
-[F3, pos] = creamatriceforza_noavg (x3, picchi3,n_picchi3, L_pre, L_coda, filt_doppi, fs);
-[A3] = creamatriceaccelerazione (y3, pos, L_pre, L_coda, fs);
-picchi_sel3=length(pos)
-
-% Accodo tutti i segnali di forza e accelerazione in un'unica matrice
-F=[F1 F2 F3];
-A=[A1 A2 A3];
+% % Accodo tutti i segnali di forza e accelerazione in un'unica matrice
+% F=[F1 F2 F3];
+% A=[A1 A2 A3];
 
 % Matrice degli indici
 % Se l'elemento i-esimo di I vale x, la colonna i-esima di F appartiene
 % alla matrice forza Fx.
-I=[ones(size(F1(1,:))) 2*ones(size(F2(1,:))) 3*ones(size(F3(1,:)))];
-I0=I;
-[r,c]=size(F);
+% I=[ones(size(F1(1,:))) 2*ones(size(F2(1,:))) 3*ones(size(F3(1,:)))];
+% I0=I;
+% [r,c]=size(F);
 
 %<<<<<<<<<<<<<<
 % Finestratura
@@ -245,9 +200,9 @@ win_F(1,1)=0;
 % Plot delle finestre
 figure(101),hold on
 subplot(2,2,2)
-plot(time1,win_A*20*log10(max(max(A))));
+plot(time1,win_A*20*log10(max(max(sng(1).A))));
 subplot(2,2,1);
-plot(time1,win_F*max(max(F1)));
+plot(time1,win_F*max(max(sng(1).F)));
 hold off
 
 % Finestratura
