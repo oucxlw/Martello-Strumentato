@@ -133,11 +133,11 @@ for i=1:N
     x_Hpass{i} = highpass(sng(i).x,fpass,fs);
 end
 
-picchi_t = cell(1:N);
-picchi1 = cell(1:N);
-p = cell(1:N);
-w = cell(1:N);
-n_picchi = cell(1:N);
+picchi_t = cell(1,N);
+picchi1 = cell(1,N);
+p = cell(1,N);
+w = cell(1,N);
+n_picchi = cell(1,N);
 
 for i=1:N
     [pks1,picchi_t{i},w{i},p{i}] = findpeaks(x_Hpass{i},fs,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
@@ -156,12 +156,15 @@ end
 % Definizione delle matrici (selezione dei segnali)
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 pos = cell(1:N);
+picchi_sel1 = zeros(1,N);
 for i = 1:N
 [sng(i).F, pos{i}] = creamatriceforza_noavg (sng(i).x, picchi1{i}, n_picchi{i}, L_pre, L_coda, filt_doppi, fs);
 [sng(i).A] = creamatriceaccelerazione (sng(i).y, pos{i}, L_pre, L_coda, fs);
-picchi_sel1=length(pos{1})
+picchi_sel1(i) = length(pos{i});
 end
-return
+picchi_sel1
+
+
 
 % % Accodo tutti i segnali di forza e accelerazione in un'unica matrice
 % F=[F1 F2 F3];
@@ -172,106 +175,110 @@ return
 % alla matrice forza Fx.
 % I=[ones(size(F1(1,:))) 2*ones(size(F2(1,:))) 3*ones(size(F3(1,:)))];
 % I0=I;
-% [r,c]=size(F);
 
+[r,c] = size(sng(1).F(:,1));
 %<<<<<<<<<<<<<<
 % Finestratura
 %<<<<<<<<<<<<<<
 % Generazione finestra Accelerazione
-M_win=L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
+M_win = L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
 switch wintype
     case 'hann'
         curve=hann(M_win);
-        win_A=[curve(1:end/2);ones((r-M_win-1),1);curve(end/2:end)];
+        win_A = [curve(1:end/2);ones((r-M_win-1),1);curve(end/2:end)];
     case 'rect' %finestratura rettangolare
-        curve=ones(M_win);
-        win_A=[curve(1:end/2);ones((r-2*M_win-1),1);curve(end/2:end)];
+        curve = ones(M_win);
+        win_A = [curve(1:end/2);ones((r-2*M_win-1),1);curve(end/2:end)];
     case 'none'
-        win_A=ones(r,1);
+        win_A = ones(r,1);
 end
 E_win=sum(win_A.^2)/length(win_A);
-dt=1/fs; time1=1000*(0:dt:r/fs-dt);
+dt = 1/fs; time1 = 1000*(0:dt:r/fs-dt);
 
 % Generazione finestra Forza
-L_win_F=L_pre+round(1*fs/1000)+M_win/2;
-win_F=[ones(L_win_F-(M_win/2),1);curve(end/2:end-1);zeros(Lsample-L_win_F,1)];
-win_F(1,1)=0;
+L_win_F = L_pre+round(1*fs/1000)+M_win/2;
+win_F = [ones(L_win_F-(M_win/2),1);curve(end/2:end-1);zeros(Lsample-L_win_F,1)];
+win_F(1,1) = 0;
 
 % Plot delle finestre
 figure(101),hold on
 subplot(2,2,2)
-plot(time1,win_A*20*log10(max(max(sng(1).A))));
+plot(time1, win_A * 20*log10(max(max(sng(1).A))));
 subplot(2,2,1);
-plot(time1,win_F*max(max(sng(1).F)));
+plot(time1, win_F * max(max(sng(1).F)));
 hold off
 
 % Finestratura
-F_filt=F.*win_F;
-A_filt=A.*win_A;
+for i = 1:N
+    sng(i).F_filt = sng(i).F  .* win_F;
+    sng(i).A_filt = sng(i).A  .* win_A;
+end
 
 %<<<<<<<<<<<<<<<<<<<<<
 % Analisi smorzamento
 %<<<<<<<<<<<<<<<<<<<<<
-A_reverse=cumsum(flip(A.^2));
-figure (14), hold on,
-plot(10*log10(movmean(A.^2,20)))
-figure(15), hold on, plot(10*log10(flip(A_reverse)))
+% A_reverse=cumsum(flip(A.^2));
+% figure (14), hold on,
+% plot(10*log10(movmean(A.^2,20)))
+% figure(15), hold on, plot(10*log10(flip(A_reverse)))
 
 %<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle PSDs
 %<<<<<<<<<<<<<<<<<<<<
-% Trasformata (non normalizzata rispetto al numero di punti Fft)
-FFT_F=fft(F_filt);
-FFT_A=fft(A_filt);
+% Trasformata (non normalizzata rispetto al numero di punti fft)
+FFT = struct('F',cell(1,N),'A',[]);
+for i = 1:N
+    FFT(i).F = fft(sng(i).F);
+    FFT(i).A = fft(sng(i).A);
+end
 
 % Frequenza della FFT_F
-f_fft=0:(r-1);
-f_fft=f_fft'/(r-1)*fs;
+f_fft = 0:(r-1);
+f_fft = f_fft'/(r-1)*fs;
+
 
 % Calcolo della PSD tramite FFT
-PSD_F_fft = abs(FFT_F).^2./length(FFT_F(:,1))/fs/1; %PSD di F stimata tramite fft
-PSD_F_fft(2:end,:)= 2*PSD_F_fft(2:end,:);
-PSD_A_fft = abs(FFT_A).^2./length (FFT_A(:,1))/fs/E_win;
-PSD_A_fft(2:end,:)= 2*PSD_A_fft(2:end,:);
+PSD = struct('F',cell(1,N),'A',[],'F_fft',[],'A_fft',[]);
+
+for i = 1:N
+    PSD(i).F_fft = abs(FFT(i).F).^2./length (FFT(i).F(:,1))/fs/1; %PSD di F stimata tramite fft
+    PSD(i).F_fft(2:end,:) = 2*PSD(i).F_fft(2:end,:);
+    PSD(i).A_fft = abs(FFT(i).A).^2./length (FFT(i).A(:,1))/fs/E_win;
+    PSD(i).A_fft(2:end,:) = 2*PSD(i).A_fft(2:end,:);
+end
 
 % Calcolo della PSD tramite Periodogram
 win_1=ones(size(win_F)); % finestra unitaria per non far calcolare la normalizzazione a periodogram
-PSD_F = []; PSD_A = [];
+
 % Periodogram non gestisce più di 40 colonne contemporaneamente quindi
 % eseguo le operazioni ciclicamente
-for i=1:3
-    [PSD_Ftemp, f]= periodogram(F_filt(:,I==i), win_1, r, fs); %PSD Forza [N^2]
-    [PSD_Atemp, f]= periodogram(A(:,I==i), win_A, r, fs); %PSD Accelerazione [g^2]
-    PSD_F=[PSD_F PSD_Ftemp];
-    PSD_A=[PSD_A PSD_Atemp];
+for i=1:N
+    [PSD(i).F, ~]= periodogram(sng(i).F_filt, win_1, r, fs); %PSD Forza [N^2]
+    [PSD(i).A, f]= periodogram(sng(i).A, win_A, r, fs); %PSD Accelerazione [g^2]
 end
-clear PSD_Ftemp
-clear PSD_Atemp
-save ('f.mat', 'f');
 
 %<<<<<<<<<<<<<<<<<<<<<<
 % Filtraggio per Banda
 %<<<<<<<<<<<<<<<<<<<<<<
-[R,C]=size(PSD_F);
-tagli=[];
-scarti=0;
-f0=find(f>ascissamin,1);
-for jj=1:C
-    fmax=find(PSD_F(f0:end, jj)<((PSD_F(f0, jj)/10)),1);
-    fmax=f(fmax+f0);
-    if  fmax<bandwidth
-        tagli=[tagli; jj];
+scarti = [0,0,0];
+if bandwidth>0
+    tagli = [];
+
+    f0=find(f>ascissamin,1); % posizione che corrispondelalla minima frequenza visualizzata
+    for i=1:N % Scorro sulle misure
+        [~,C]=size(PSD(i).F);
+        for jj = 1:C % Scorro sui colpi
+            fmax = find(PSD(i).F(f0:end, jj) < ((PSD(i).F(f0, jj)/10)), 1);
+            fmax = f(fmax+f0);
+            if  fmax < bandwidth
+                tagli = [tagli, jj]; %#ok<AGROW>
+            end
+            PSD(i).F(:, tagli) = [];
+            scarti(i) = length(tagli);
+        end
     end
 end
-scarti=length(tagli);
 picchi_sel2 = picchi_sel1 - scarti
-
-% Eliminazione degli scarti
-% PSD_F(:,tagli)=[]; % Cancello le forze
-% PSD_A(:,tagli)=[]; % Cancello le accelerazioni
-% PSD_F_fft(:,tagli)=[]; % Cancello le forze fft
-% PSD_A_fft(:,tagli)=[]; % Cancello le accelerazioni fft
-I(:,tagli)=0; % Cancello gli indici corrispondenti
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Analisi statistica pre filtraggio
@@ -285,35 +292,55 @@ E=[];
 % figure (3), hold on
 % histfit(sqrt(max(PSD_F)),bin);
 
+%%
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Filtraggio Intensita'
 %<<<<<<<<<<<<<<<<<<<<<<<
-[~,c]=size(PSD_F);
-tagli=[];
-scarti=0;
-for jj=1:(c)
-    if (max(PSD_F(:,jj))< 0.1*max(max(PSD_F)))
-        tagli=[tagli; jj];
+% Filtro i picchi che sono molto più piccoli del picco più grande
+scarti = [0,0,0];
+
+for i = 1:N
+    tagli=[];
+    [~,C] = size(PSD(i).F);
+    for jj = 1:C
+        if (max(PSD(i).F(:,jj)) < 0.2 * max(max(PSD(i).F)))
+            tagli = [tagli, jj]; %#ok<AGROW>
+        end
     end
+    PSD(i).F(:, tagli) = [];
+    scarti(i) = length(tagli);
+
 end
-scarti=length(tagli)
-picchi_sel2 = picchi_sel2 - scarti
-% PSD_F(:,tagli)=[];
-% PSD_A(:,tagli)=[];
-% PSD_F_fft(:,tagli)=[];
-% PSD_A_fft(:,tagli)=[];
-I(:,tagli)=0;
+picchi_sel2 = picchi_sel1 - scarti
+
 
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo Dstiff totale
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo tramite periodogram
-PSD_Fav_pgram = mean(PSD_F(:,I~=0), 2);
-PSD_Aav_pgram = mean(PSD_A(:,I~=0), 2);
-PSD_Vav_pgram = PSD_Aav_pgram./(1i*2*pi*f).^2; % velocitÃ 
-PSD_Dav_pgram = PSD_Vav_pgram./(1i*2*pi*f).^2; % displacement
-PSD_Kav_pgram = PSD_Fav_pgram./PSD_Dav_pgram; % dynamic stiffness calcolata tramite periodogram
+for i = 1:N
+    PSD(i).Fav = mean(PSD(i).F, 2);
+    PSD(i).Aav = mean(PSD(i).A, 2);
+    
+    PSD(i).Vav = PSD(i).Aav./(1i*2*pi*f).^2; % velocitÃ 
+    PSD(i).Dav = PSD(i).Vav./(1i*2*pi*f).^2; % displacement
+    
+    PSD(i).Kav = PSD(i).Fav./PSD(i).Dav; % dynamic stiffness calcolata tramite periodogram
+end
+temp=vertcat([PSD([1 :N]).F]);
 
+misura.PSD = struct('F',[],'A',[])
+
+misura.PSD.F=mean(vertcat([PSD([1:N]).F]),2);
+misura.PSD.A=mean(vertcat([PSD([1:N]).F]),2);
+
+% sono arrivato qui
+
+
+
+
+%% %%
+return
 % Calcolo delle FFT (serve per la fase)
 % FFT_Fav_fft = mean(FFT_F,2);
 % FFT_Aav_fft = mean(FFT_A,2);
