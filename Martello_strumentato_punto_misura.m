@@ -32,6 +32,15 @@ clear variables
 dati = load ('dati1');
 dati(2) = load ('dati2');
 dati(3) = load ('dati3');
+dati(4) = load ('dati1a');
+dati(5) = load ('dati2a');
+dati(6) = load ('dati3a');
+dati(7) = load ('dati1b');
+dati(8) = load ('dati2b');
+dati(9) = load ('dati3b');
+dati(10) = load ('dati1c');
+dati(11) = load ('dati2c');
+dati(12) = load ('dati3c');
 conf = dati(1).conf;
 fs=dati(1).fs;
 
@@ -50,7 +59,7 @@ for i = 1:N
 end
 
 %<<<<<<<<<<<<<<<<<<<<<<<<
-% Parametri di controllo 
+% Parametri di controllo
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri fisici
 [g,div_F,div_A,fs] = parametri_fisici();
@@ -113,12 +122,12 @@ end
 
 % Plot dei segnali
 for i=1:N
-L = length(sng(i).x);
-dt=1/fs; time=[0:dt:L/fs-dt];
-figure(i)
-subplot(2,1,1), hold on, plot (time, sng(i).x)
-subplot(2,1,2), hold on, plot (time, sng(i).y),
-hold off
+    L = length(sng(i).x);
+    dt=1/fs; time=[0:dt:L/fs-dt];
+    figure(i)
+    subplot(2,1,1), hold on, plot (time, sng(i).x)
+    subplot(2,1,2), hold on, plot (time, sng(i).y),
+    hold off
 end
 
 %<<<<<<<<<<<<<<<<<<<<
@@ -158,9 +167,9 @@ end
 pos = cell(1:N);
 picchi_sel1 = zeros(1,N);
 for i = 1:N
-[sng(i).F, pos{i}] = creamatriceforza_noavg (sng(i).x, picchi1{i}, n_picchi{i}, L_pre, L_coda, filt_doppi, fs);
-[sng(i).A] = creamatriceaccelerazione (sng(i).y, pos{i}, L_pre, L_coda, fs);
-picchi_sel1(i) = length(pos{i});
+    [sng(i).F, pos{i}] = creamatriceforza_noavg (sng(i).x, picchi1{i}, n_picchi{i}, L_pre, L_coda, filt_doppi, fs);
+    [sng(i).A] = creamatriceaccelerazione (sng(i).y, pos{i}, L_pre, L_coda, fs);
+    picchi_sel1(i) = length(pos{i});
 end
 picchi_sel1
 
@@ -260,11 +269,10 @@ end
 %<<<<<<<<<<<<<<<<<<<<<<
 % Filtraggio per Banda
 %<<<<<<<<<<<<<<<<<<<<<<
-scarti = [0,0,0];
+f0=find(f>50,1); % posizione che corrisponde a 50 Hz
+scarti = zeros(1,N);
 if bandwidth>0
     tagli = [];
-
-    f0=find(f>ascissamin,1); % posizione che corrispondelalla minima frequenza visualizzata
     for i=1:N % Scorro sulle misure
         [~,C]=size(PSD(i).F);
         for jj = 1:C % Scorro sui colpi
@@ -274,6 +282,15 @@ if bandwidth>0
                 tagli = [tagli, jj]; %#ok<AGROW>
             end
             PSD(i).F(:, tagli) = [];
+            PSD(i).A(:, tagli) = [];
+            PSD(i).F_fft(:, tagli) = [];
+            PSD(i).A_fft(:, tagli) = [];
+            sng(i).F(:, tagli) = [];
+            sng(i).A(:, tagli) = [];
+            
+            sng(i).F_filt(:, tagli) = [];
+            sng(i).A_filt(:, tagli) = [];
+            
             scarti(i) = length(tagli);
         end
     end
@@ -292,113 +309,84 @@ E=[];
 % figure (3), hold on
 % histfit(sqrt(max(PSD_F)),bin);
 
-%%
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Filtraggio Intensita'
 %<<<<<<<<<<<<<<<<<<<<<<<
 % Filtro i picchi che sono molto più piccoli del picco più grande
-scarti = [0,0,0];
-
+scarti = zeros(1,N);
 for i = 1:N
     tagli=[];
     [~,C] = size(PSD(i).F);
     for jj = 1:C
-        if (max(PSD(i).F(:,jj)) < 0.2 * max(max(PSD(i).F)))
+        if (PSD(i).F(f0,jj) < 0.2 * max(PSD(i).F(f0,:)))
             tagli = [tagli, jj]; %#ok<AGROW>
         end
     end
     PSD(i).F(:, tagli) = [];
+    PSD(i).A(:, tagli) = [];
+    PSD(i).F_fft(:, tagli) = [];
+    PSD(i).A_fft(:, tagli) = [];
+    sng(i).F(:, tagli) = [];
+    sng(i).A(:, tagli) = [];
+    sng(i).F_filt(:, tagli) = [];
+    sng(i).A_filt(:, tagli) = [];
     scarti(i) = length(tagli);
-
+    
 end
 picchi_sel2 = picchi_sel1 - scarti
 
-
-%<<<<<<<<<<<<<<<<<<<<<<<
-% Calcolo Dstiff totale
-%<<<<<<<<<<<<<<<<<<<<<<<
-% Calcolo tramite periodogram
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo delle grandezze fisiche delle singole registrazioni
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 for i = 1:N
+    % psd
     PSD(i).Fav = mean(PSD(i).F, 2);
     PSD(i).Aav = mean(PSD(i).A, 2);
     
-    PSD(i).Vav = PSD(i).Aav./(1i*2*pi*f).^2; % velocitÃ 
+    PSD(i).Vav = PSD(i).Aav./(1i*2*pi*f).^2; % velocita'
     PSD(i).Dav = PSD(i).Vav./(1i*2*pi*f).^2; % displacement
     
     PSD(i).Kav = PSD(i).Fav./PSD(i).Dav; % dynamic stiffness calcolata tramite periodogram
+    
+    % fft
+    FFT(i).Fav = mean(FFT(i).F, 2);
+    FFT(i).Aav = mean(FFT(i).A, 2);
+    
+    FFT(i).Vav = FFT(i).Aav ()./(1i*2*pi*f_fft); % velocita'
+    FFT(i).Dav = FFT(i).Aav./(1i*2*pi*f_fft).^2; % displacement
+    
+    FFT(i).Kav = FFT(i).Fav ./ FFT(i).Dav;  % dynamic stiffness calcolata tramite fft
 end
-temp=vertcat([PSD([1 :N]).F]);
 
-misura.PSD = struct('F',[],'A',[])
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo risultati - Dstiff totale
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo tramite periodogram
+pnt_misura.PSD = struct('F',[],'A',[]);
 
-misura.PSD.F=mean(vertcat([PSD([1:N]).F]),2);
-misura.PSD.A=mean(vertcat([PSD([1:N]).F]),2);
+pnt_misura.PSD.F = mean(vertcat([PSD([1:N]).F]),2);
+pnt_misura.PSD.A = mean(vertcat([PSD([1:N]).A]),2);
 
-% sono arrivato qui
+pnt_misura.PSD.V = pnt_misura.PSD.A./(1i*2*pi*f).^2; % velocitÃ 
+pnt_misura.PSD.D = pnt_misura.PSD.V./(1i*2*pi*f).^2; % displacement
 
+pnt_misura.PSD.K = pnt_misura.PSD.F./pnt_misura.PSD.D; % Dynamic stiffness FFT
+pnt_misura.PSD.MI = pnt_misura.PSD.F./pnt_misura.PSD.V; % Mechanical Impedence PSD
 
+% Calcolo tramite fft
+pnt_misura.FFT = struct('F',[],'A',[]);
 
+pnt_misura.FFT.F = mean(vertcat([FFT([1:N]).F]),2);
+pnt_misura.FFT.A = mean(vertcat([FFT([1:N]).A]),2);
 
-%% %%
-return
-% Calcolo delle FFT (serve per la fase)
-% FFT_Fav_fft = mean(FFT_F,2);
-% FFT_Aav_fft = mean(FFT_A,2);
-% FFT_Vav_fft = FFT_Aav_fft./(1i*2*pi*f_fft);
-% FFT_Dav_fft = FFT_Aav_fft./(1i*2*pi*f_fft).^2;
-% FFT_Kav_fft = FFT_Fav_fft./FFT_Dav_fft;
+pnt_misura.FFT.V = pnt_misura.FFT.A./(1i*2*pi*f_fft).^2; % velocitÃ 
+pnt_misura.FFT.D = pnt_misura.FFT.V./(1i*2*pi*f_fft).^2; % displacement
 
-% Plot Forza media vs Accelerazione media e confronto tra periodogram e fft
-% i=1;
-% figure(110), hold on
-%
-% subplot (2,1,1),hold on,
-% plot(f_fft,10*log10(mean(PSD_F_fft,2)),'color',string(colore(i,:)))
-% plot(f,10*log10(PSD_Fav_pgram(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
-% grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-% legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})',...
-%     'PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
-%
-% subplot (2,1,2),hold on
-% plot(f_fft,10*log10(mean(PSD_A_fft,2)),'color',string(colore(i,:)))
-% plot(f,10*log10(PSD_Aav_pgram(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
-% grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-% legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})',...
-%     'PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
-%
-% saveas(gcf,'Forza_vs_Accelerazione.fig');
+pnt_misura.FFT.K = pnt_misura.FFT.F./pnt_misura.FFT.D; % Dynamic stiffness FFT
+pnt_misura.FFT.MI = pnt_misura.FFT.F./pnt_misura.FFT.V; % Mechanical Impedence PSD
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% COERENZA usando Forza / Accelerazione
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Calcolo le tre coerenze. forse è il caso di spostare tutto nel ciclo
-% principale
-% for i=1:3
-%     % Accodo tutti i segnali della stessa misura
-%     F_filtall = reshape(F_filt(:,I==i), [],1);
-%     A_filtall = reshape(A_filt(:,I==i), [],1);
-%     [r,c]=size(F_filt);
-%     % Calcolo coerenza
-%     [Cxy(:,i),f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
-% end
-% save (cell2mat(['Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy1');
+%%
 
-% PSD_Kav_gate=PSD_Kav_pgram;
-% f_Kav_gate=f;
-% tagli=[];
-% for ii=1:length(f)
-%     if Cxy(ii)<0.7 & Cxy(ii)>0.3
-%         tagli=[tagli,ii];
-%     end
-% end
-% PSD_Kav_gate(tagli)=[];
-% f_Kav_gate(tagli)=[];
-
-% Acc=PSD_Aav_pgram./PSD_Fav_pgram;
-% save(('Acc'), 'Acc');
-% save(('Forza'), 'PSD_Fav_pgram');
-% save(('Accelerazione'), 'PSD_Aav_pgram');
-%
 % figure(111), hold on
 %
 % subplot (2,1,1),hold on,
@@ -411,19 +399,6 @@ return
 % grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
 % legend('Accelerazione su Forza')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Calcolo della f massima media
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% PSD_Fav_dB = 10*log10(PSD_Fav_pgram);
-% fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
-% fmax=f(fmax(1)+f0);
-% %plot sulla PSD della forza
-% figure (111)
-% subplot (2,1,2),hold on
-% xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
-% hold off
-% saveas(gcf,'Acc.fig');
-%
 % fr=f(find (Acc==max(Acc(find (f>ascissamin,1):find (f>fmax,1)))));
 %
 % m=piastre.massa(conf.piastra); %massa della piastra in uso
@@ -438,212 +413,112 @@ return
 % Risultati_Acc.Properties.VariableNames={'f_r','K_0','S_t','E'}
 % save (['Risultati_Acc.mat'], 'Risultati_Acc');
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Confronto PSD calcolata tramite Fft e Psd
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% figure (109),hold on,
-% sgtitle {'Dynamic Stiffness media K(f)'}
-%
-% subplot(4,1,[2,3]),hold on
-% plot (f_fft,10*log10(abs(FFT_Kav_fft).^2),'color',string(colore(i,:)),'LineWidth',1)
-% plot (f(1:length(PSD_Kav_pgram)),10*log10(PSD_Kav_pgram),'.','color',string(colore(i,:)),'LineWidth',1)
-% semilogx (f_Kav_gate,10*log10(abs(PSD_Kav_gate).^2),'r.','LineWidth',2)
-% grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]), %ylim([60 200])
-% legend({'k(f) tramite Fft (medio sui complessi)','k(f) tramite Psd (medio sui quadrati)'},'Location','southeast')
-%
-% subplot(4,1,1)
-% semilogx(f_coer,Cxy1,'color',string(colore(i,:)),'LineWidth',2),ylim([0 1])
-% grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-%
-% subplot(4,1,4)
-% semilogx (f_fft,180/pi*angle(FFT_Kav_fft),'color',string(colore(i,:)))
-% grid on, set(gca, 'XScale', 'log'),xlim([ascissamin ascissamax]);ylim([-180 180])
-%
-% subplot(4,1,[2,3]),hold on,ylabel('10\cdotlog_1_0(K(f)) [dB ref. 1 N/m]')
-% subplot(4,1,[2,3]),hold on,title 'Modulo'
-% subplot(4,1,[2,3]),ylim([100 200])
-% subplot(4,1,4),hold on ,ylabel('Angolo [Â°]'),yticks([-180 -90 0 90 180])
-% subplot(4,1,1),title 'Coerenza'
-% subplot(4,1,4),title 'Fase'
-% xlabel('Frequenza [Hz]')
-%
-% saveas (gcf, cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig']));
-% cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'.fig'])
-
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Analisi in intensitÃ  PSD
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% calcolo del massimo e del minimo dei plateaux delle PSD in N (quindi
-% operando la radice)
-% bin=round(sqrt(picchi_sel2))+1;
-% Max_pic=sqrt(max(max(PSD_F))); %calcolo del massimo dei massimi
-% Min_pic=sqrt(min(max(PSD_F))); %calcolo del minimo dei minimi
-% delta=(Max_pic-Min_pic)/bin;
-
-%<<<<<<<<<<<<<<<<<<<<<<<
-% Plot del massimi di F
-%>>>>>>>>>>>>>>>>>>>>>>>
-% PSD_F2=PSD_F;
-% PSD_A2=PSD_A;
-% % Ricerca dei massimi e ordinamento
-% PSD_Fsort=[];
-% PSD_Asort=[];
-% for i=1:picchi_sel2
-%     pos=find(sqrt(max(PSD_F2))==sqrt(max(max(PSD_F2))));
-%     PSD_Fsort=[PSD_Fsort,PSD_F2(:,pos)];
-%     PSD_Asort=[PSD_Asort,PSD_A2(:,pos)];
-%     PSD_F2(:,pos)=[];
-%     PSD_A2(:,pos)=[];
-% end
-% % plot dei massimi
-% figure (5), hold on
-% ylimsup =  floor(max(max(PSD_F)));
-% ylim=([0 1]);
-% plot(max(PSD_Fsort));
-% plot(max(PSD_F));
-% hold off
-
-
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Analisi statistica post filtraggio
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% [Y,E] = discretize(sqrt(max(abs(PSD_F))),bin);
-% values=1:bin;
-%
-% figure (3), hold on
-% histfit(sqrt(max(abs(PSD_F))),bin);
-% hold off
-
 %<<<<<<<<<<<<<<<<<<<<<
 % Analisi bin per bin
 %<<<<<<<<<<<<<<<<<<<<<
-m=piastre.massa(conf.piastra); %massa della piastra in uso
-h=campioni.h(conf.campione);
-s=pi*(campioni.d(conf.campione)/2)^2;
-lim_sup =  find(f > 2000);
-lim_inf =  find(f < 25);
-K0_av_bin=[];
-S_av_bin=[];
-E_av_bin=[];
-PSD_K_bin=[];
+m = piastre.massa(conf.piastra); %massa della piastra in uso
+h = campioni.h(conf.campione);
+s = pi*(campioni.d(conf.campione)/2)^2;
 
-K0_av_A_bin = [];
-S_av_A_bin  = [];
-E_av_A_bin  = [];
 
-[R,C]=size(PSD_F);
-F_max=[];
-fmax_misura = []; % la collzione della frequenza massima della bandwidth della forza a -10dB 
+% [R,C]=size(PSD_F);
+F_max = [];
+fmax_misura = []; % la collzione della frequenza massima della bandwidth della forza a -10dB
+
+result.indici_colpo.max_A = struct('fd', misure, 'K0', misure,'S_star', [], 'E', []);
+result.indici_colpo.min_K = struct('fd', misure, 'K0', misure,'S_star', [], 'E', []);
+result.indici_colpo.UNI_10570_1997 = struct('fd', misure, 'nu_d', [], 'K0', [],'S_star', [], 'E', []);
+
+% Struttura con i risultati sintetici di ogni singola misura 
+% Effettuati sui segnali mediati per sciascuna singola registrazione
+result.indici.max_A = struct('fd', misure, 'K0', misure,'S_star', [], 'E', []);
+result.indici.min_K = struct('fd', misure, 'K0', misure,'S_star', [], 'E', []);
+result.indici.UNI_10570_1997 = struct('fd', misure, 'nu_d', [], 'K0', [],'S_star', [], 'E', []);
+
+% Struttura con i risultati sintetici di tutto l'insieme di misure
+% effettuato sul segnale ottenuto mediando tutte le registrazioni
+pnt_misura.indici.max_A = struct('fd', misure, 'K0', [],'S_star', [], 'E', []);
+pnt_misura.indici.min_K = struct('fd', misure, 'K0', [],'S_star', [], 'E', []);
+pnt_misura.indici.UNI_10570_1997 = struct('fd', [], 'nu_d', [], 'K0', [],'S_star', [], 'E', []);
 
 % Parametri di ingresso:
 % PSD_F, PSD_A, F_filt, A_filt,I
-for mis = 1:3
-    
-    % Seleziono i campioni appartenenti al BIN
-    PSD_F_misura = PSD_F(:,I==mis);
-    PSD_A_misura = PSD_A(:,I==mis);
-    
+for mis = 1:N
     % Calcolo dimensioni del BIN
-    [RR,CC]=size(PSD_F_misura);
+    [RR,CC]=size(PSD(mis).F);
     
-    if CC>=1 % se il BIN non è vuoto
-
+    if CC >= 1 % se il BIN non è vuoto
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo Forza media di ciascuna registrazione
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        F_max_av (mis)=mean(max(F(:,I==mis)));
+        sng(mis).F_max_av = mean(max(sng(mis).F));
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % COERENZA usando Forza / Accelerazione
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        % Calcolo le tre coerenze. forse è il caso di spostare tutto nel ciclo
-        % principale
-        F_filtall = reshape(F_filt(:,I==mis), [],1);
-        A_filtall = reshape(A_filt(:,I==mis), [],1);
-        [r,c]=size(F_filt);
+        sng(mis).F_filtall = reshape(sng(mis).F_filt, [],1);
+        sng(mis).A_filtall = reshape(sng(mis).A_filt, [],1);
+        [~,c]=size(sng(mis).F_filt);
         
         % Calcolo coerenza
-        [Cxy(:,mis),f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
-        
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        % Calcolo la media degli spettri
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        PSD_Fav_misura(:,mis) = mean(PSD_F_misura,2);
-        PSD_Aav_misura(:,mis) = mean(PSD_A_misura,2);
-        PSD_Vav_misura(:,mis) = PSD_Aav_misura(:,mis)./(1i*2*pi*f).^2; %velocitÃ 
-        PSD_Dav_misura(:,mis) = PSD_Vav_misura(:,mis)./(1i*2*pi*f).^2; %spostamento
-        % Dynamic Stiffness
-        PSD_Kav_misura(:,mis) = PSD_Fav_misura(:,mis)./PSD_Dav_misura(:,mis); %Modulo della Dynamic Stiffness
-        
-        
-        
-        FFT_F_misura(:,mis) = mean(FFT_F(:,I==mis),2);
-        FFT_A_misura(:,mis) = mean(FFT_A(:,I==mis),2);
-        FFT_V_misura(:,mis) = FFT_A_misura(:,mis)./(1i*2*pi*f_fft);
-        FFT_D_misura(:,mis) = FFT_A_misura(:,mis)./(1i*2*pi*f_fft).^2;
-        FFT_K_misura(:,mis) = FFT_F_misura(:,mis)./FFT_D_misura(:,mis);
-        
-        
+        [sng(mis).Cxy,~] = mscohere(sng(mis).F_filtall, sng(mis).A_filtall, round(length(sng(mis).F_filtall)./c),[],f_fft,fs);
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo deviazione standard
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        devst_F_misura(:,mis) = std (abs(PSD_F_misura),0,2);
-        devst_A_misura(:,mis) = std (abs(PSD_A_misura),0,2);
+        PSD(mis).devst_F = std (abs(PSD(mis).F), 0, 2);
+        PSD(mis).devst_A = std (abs(PSD(mis).A), 0, 2);
         
-        dF = devst_F_misura(:,mis);
-        dA  = devst_A_misura(:,mis);
-        b = abs((1i*2*pi*f).^4);
-        FF = abs(PSD_Fav_misura(:,mis));
-        AA = abs(PSD_Aav_misura(:,mis));
-        C = abs(Cxy(1:1+end/2,mis));
-        KK = PSD_Kav_misura(:,mis);
-        % K = F*(1i*2*pi).^4 /A
+        dF = PSD(mis).devst_F;
+        dA = PSD(mis).devst_A;
+        b  = abs((1i*2*pi*f).^4);
+        FF = abs(PSD(mis).Fav);
+        AA = abs(PSD(mis).Fav);
+        C  = abs(sng(mis).Cxy(1:1+end/2));
+        KK = PSD(mis).Kav;
         
         dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
-        devst_K_misura(:,mis) = dK;
+        PSD(mis).devst_K = dK;
         
-        
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        % Calcolo della frequenza massima
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        PSD_Fav_dB = 10*log10(PSD_Fav_misura(:,mis));
-        fmax=find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
-        fmax=f(fmax(1)+f0);
-        fmax_misura=[fmax_misura, fmax];
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        % Calcolo della frequenza massima delle forza media
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        PSD_Fav_dB = 10*log10(PSD(mis).Fav);
+        fmax = find(PSD_Fav_dB(f0:end) <(PSD_Fav_dB(f0)-10));
+        fmax = f(fmax(1)+f0);
+        PSD(mis).fmax = fmax;
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot di segnali e spettri (PSD)
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(101), grid on,
         sgtitle(misura)
-        for i=1:c
-            if I(i)==mis
-                subplot(2,2,1), hold on
-                plot(time1, F(:,i),'color',string(colore(mis,:))),
-                
-                subplot(2,2,2), hold on,
-                plot(time1, 20*log10(abs(A(:, i))),'color',string(colore(mis,:)))
-                
-                subplot(2,2,3), hold on
-                semilogx (f, 10*log10(PSD_F(:, i)),'--','color',string(colore(mis,:)))
-                
-                subplot(2,2,4), hold on,
-                semilogx (f, 10*log10(PSD_A(:, i)),'--','color',string(colore(mis,:)))
-            end
+        for i = 1:c
+            subplot(2,2,1), hold on
+            plot (time1, sng(mis).F(:,i),'color',string(colore(mis,:))),
+            
+            subplot(2,2,2), hold on,
+            plot (time1, 20*log10(abs(sng(mis).A(:, i))),'color',string(colore(mis,:)))
+            
+            subplot(2,2,3), hold on
+            semilogx (f, 10*log10(abs(PSD(mis).F(:, i))),'--','color',string(colore(mis,:)))
+            
+            subplot(2,2,4), hold on,
+            semilogx (f, 10*log10(abs(PSD(mis).A(:, i))),'--','color',string(colore(mis,:)))
         end
         
-        % Plot spettri medi
+        % Plot spettri medispo
         subplot(2,2,3), hold on,
-        plot (f, 10*log10(PSD_Fav_misura(:,mis)),'color',string(colore(mis,:)), 'LineWidth', 3),
+        plot (f, 10*log10(abs(PSD(mis).Fav)), 'color', string(colore(mis,:)), 'LineWidth', 3),
         grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
+        
         subplot(2,2,4), hold on,
-        plot (f, 10*log10(PSD_Aav_misura(:,mis)),'color',string(colore(mis,:)), 'LineWidth', 3),
+        plot (f, 10*log10(abs(PSD(mis).Aav)), 'color', string(colore(mis,:)), 'LineWidth', 3),
         grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
         
         %plot frequenza massima sulla PSD della forza
         subplot (2,2,3), hold on
-        xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+        %xl=xline(fmax,'.',['F max: ',num2str(round(fmax)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
         hold off
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -657,118 +532,108 @@ for mis = 1:3
         
         subplot(4,1,[2,3]), hold on
         % Plot rigidezza dinamica
-        semilogx (f, 10*log10(PSD_Kav_misura(:,mis)),'color',string(colore(mis,:)), 'LineWidth', 2),
-        
+        semilogx (f, 10 * log10(abs(PSD(mis).Kav)),'color',string(colore(mis,:)), 'LineWidth', 2),
         % Plot deviazione standard
-        semilogx (f, 10*log10(abs(PSD_Kav_misura(:,mis)-dK)),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
-        semilogx (f, 10*log10(PSD_Kav_misura(:,mis)+dK),'-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        semilogx (f, 10 * log10(abs(PSD(mis).Kav) + dK), '-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        semilogx (f, 10 * real(log10(abs(PSD(mis).Kav) - dK)), '-.','color',string(colore(mis,:)), 'LineWidth', 1),
         
         % Plot limite in frequenza
-        xline(fmax,'.',['Limite in frequenza: ',num2str(round(fmax)),' Hz'],'color',string(colore(mis,:)));
+        xline(PSD(mis).fmax, '.', ['Limite in frequenza: ',num2str(round(PSD(mis).fmax)),' Hz'],'color',string(colore(mis,:)));
         
         % Plot fase
         subplot(4,1,4), hold on
-        semilogx (f_fft,180/pi*unwrap(angle(FFT_K_misura(:,mis))),'color',string(colore(mis,:)),'LineWidth', 2)
-        
+        semilogx (f_fft, 180/pi * unwrap(angle(FFT(mis).Kav)), 'color',string(colore(mis,:)),'LineWidth', 2)
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot Accelerazione e forza
-        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<        
+        %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         figure(110), hold on
         subplot (2,1,1),hold on,
-        plot(f,10*log10(FF),'color',string(colore(mis,:)),'LineWidth',2)
-        plot(f,10*log10(FF+dF),'--','color',string(colore(mis,:)),'LineWidth',1)
-        plot(f,10*log10(FF-dF),'--','color',string(colore(mis,:)),'LineWidth',1)
+        plot (f, 10 * log10(FF),'color',string(colore(mis,:)),'LineWidth',2)
+        plot (f, 10 * log10(FF + dF),'--','color',string(colore(mis,:)),'LineWidth',1)
+        plot (f, 10 * real(log10(FF - dF)),'--','color',string(colore(mis,:)),'LineWidth',1)
         
         subplot (2,1,2),hold on,
-        plot(f,10*log10(AA),'color',string(colore(mis,:)),'LineWidth',2)
-        plot(f,10*log10(AA+dA),'--','color',string(colore(mis,:)),'LineWidth',1)
-        plot(f,10*log10(AA-dA),'--','color',string(colore(mis,:)),'LineWidth',1)
-        
-        % plot(f,10*log10(PSD_Fav_pgram(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
-        % grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-        % legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})',...
-        %     'PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
-        %
-        % subplot (2,1,2),hold on
-        % plot(f_fft,10*log10(mean(PSD_A_fft,2)),'color',string(colore(i,:)))
-        % plot(f,10*log10(PSD_Aav_pgram(1:length(f),1)),'-.','color',string(colore(i,:)),'LineWidth',2)
-        % grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
-        % legend('PSD tramite Fft (2\cdotabs(Fft(F))^2/ length(Fft(F(:,1)))/fs/E_{win})',...
-        %     'PSD tramite Periodogram')%,'2*fft^2/(l*fs)','2*fft^2/(l*fs)*E_win')
-        %
-        % saveas(gcf,'Forza_vs_Accelerazione.fig');
+        plot (f, 10 * log10(AA),'color',string(colore(mis,:)),'LineWidth',2)
+        plot (f, 10 * log10(AA + dA),'--','color',string(colore(mis,:)),'LineWidth',1)
+        plot (f, 10 * real(log10(AA - dA)),'--','color',string(colore(mis,:)),'LineWidth',1)
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo K0 della misura
         %<<<<<<<<<<<<<<<<<<<<<<<<<
+        % sono arrivato qui
         
-        % seconfo minimo di k
-        min_k = min(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis));
-        fr = f( lim_inf(end)+find(PSD_Kav_misura(lim_inf(end):lim_sup(1),mis) == min_k) );
-        K0_av_bin = [K0_av_bin, (2*pi*fr)^2*m];
-        S_av_bin  = [S_av_bin,  (2*pi*fr)^2*m/s];
-        E_av_bin  = [E_av_bin,  (2*pi*fr)^2*m*h/s];
-        PSD_K_bin = [PSD_K_bin, (2*pi*fr)^2*m];
+        lim_sup =  find(f > min(vertcat([PSD.fmax]))*0.65);
+        lim_inf =  find(f < 100);
+        
+        % secondo minimo di K
+        min_k = min(PSD(mis).Kav(lim_inf(end):lim_sup(1)));
+        fd = f( lim_inf(end)+find(PSD(mis).Kav(lim_inf(end):lim_sup(1)) == min_k) );
+        result.indici.min_K(mis).fd = fd;
+        result.indici.min_K(mis).K0 = (2*pi*fd)^2 * m;
+        result.indici.min_K(mis).S_star = (2*pi*fd)^2 * m/s;
+        result.indici.min_K(mis).E  = (2*pi*fd)^2 * m * h/s;
         
         % seconfo massimo di A
-        temp = PSD_Aav_misura(:,mis)./PSD_Fav_misura(:,mis);
-        max_k = max(temp(lim_inf(end):lim_sup(1)));
-        fr_A = f( lim_inf(end)+find(temp(lim_inf(end):lim_sup(1)) == max_k) );
-        K0_av_A_bin = [K0_av_A_bin, (2*pi*fr_A)^2*m];
-        S_av_A_bin  = [S_av_A_bin,  (2*pi*fr_A)^2*m/s];
-        E_av_A_bin  = [E_av_A_bin,  (2*pi*fr_A)^2*m*h/s];
-        
+        temp = PSD(mis).Aav./PSD(mis).Fav;
+        max_k = max(abs(temp(lim_inf(end):lim_sup(1))));
+        fd = f(lim_inf(end)+find(temp(lim_inf(end):lim_sup(1)) == max_k) );
+        result.indici.max_A(mis).fd = fd;
+        result.indici.max_A(mis).K0 = (2*pi*fd)^2 * m;
+        result.indici.max_A(mis).S_star = (2*pi*fd)^2 * m/s;
+        result.indici.max_A(mis).E  = (2*pi*fd)^2 * m * h/s;
     end
-    
 end
 
+%%
+
+figure(110)
+saveas(gcf,'Forza_vs_Accelerazione.fig');
+
 % Salvataggio coerenza
-save (cell2mat(['Collezione_Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
+% save (cell2mat(['Collezione_Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
 
-% Salvataggio rigidezza dinamica PSD
-save (cell2mat(['Collezione_Dstiffness_PSD_',conf.campione,'_',conf.piastra]), 'PSD_Kav_misura');
-
-% Salvataggio rigidezza dinamica FFT
-save (cell2mat(['Collezione_Dstiffness_FFT_',conf.campione,'_',conf.piastra]), 'FFT_K_misura');
-
-% Salvataggio deviazione standard rigidezza dinamica PSD
-save (cell2mat(['Collezione_DevSt_',conf.campione,'_',conf.piastra]), 'devst_K_misura');
+% % Salvataggio rigidezza dinamica PSD
+% save (cell2mat(['Collezione_Dstiffness_PSD_',conf.campione,'_',conf.piastra]), 'PSD_Kav_misura');
+% 
+% % Salvataggio rigidezza dinamica FFT
+% save (cell2mat(['Collezione_Dstiffness_FFT_',conf.campione,'_',conf.piastra]), 'FFT_K_misura');
+% 
+% % Salvataggio deviazione standard rigidezza dinamica PSD
+% save (cell2mat(['Collezione_DevSt_',conf.campione,'_',conf.piastra]), 'devst_K_misura');
 
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle grandezze sintetiche della misura
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-PSD_Kav_sintetico=mean(PSD_Kav_misura);
-devst_K_sintetico=(devst_K_misura(:,1).^2+devst_K_misura(:,2).^2+devst_K_misura(:,3).^2).^(1/2);
 
-F_filtall = reshape(F_filt, [],1);
-A_filtall = reshape(A_filt, [],1);
-[r,c]=size(F_filt);
-
-% Calcolo coerenza
-[Cxy_sintetico,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
+% 
+% F_filtall = reshape(F_filt, [],1);
+% A_filtall = reshape(A_filt, [],1);
+% [r,c]=size(F_filt);
+% 
+% % Calcolo coerenza
+% [Cxy_sintetico,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
 
 % deviazione standard
-devst_F_sintetico = std (abs(PSD_F),0,2);
-devst_A_sintetico = std (abs(PSD_A),0,2);
+pnt_misura.PSD.devst_K = mean(vertcat([PSD([1:N]).devst_K]).^2, 2);
+pnt_misura.PSD.devst_F = std (vertcat([PSD([1:N]).F]),0,2);
+pnt_misura.PSD.devst_A = std (vertcat([PSD([1:N]).A]),0,2);
 
-dF = devst_F_sintetico;
-dA  = devst_A_sintetico;
-b = abs((1i*2*pi*f).^4);
-FF = abs(mean(PSD_F,2));
-AA = abs(mean(PSD_A,2));
-C = abs(Cxy_sintetico(1:1+end/2));
-KK = PSD_Kav_misura(:,mis);
-% K = F*(1i*2*pi).^4 /A
-
-dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
-devst_K_sintetico = dK;
-% Salvataggio deviazione standard sintetica rigidezza dinamica PSD
-save (cell2mat(['DevSt_sintetica_',conf.campione,'_',conf.piastra]), 'devst_K_sintetico');
-
-
+% dF = pnt_misura.PSD.devst_F;
+% dA  = pnt_misura.PSD.devst_A;
+% b = abs((1i*2*pi*f).^4);
+% FF = abs(mean(PSD_F,2));
+% AA = abs(mean(PSD_A,2));
+% C = abs(Cxy_sintetico(1:1+end/2));
+% KK = PSD_Kav_misura(:,mis);
+% % K = F*(1i*2*pi).^4 /A
+% 
+% dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
+% devst_K_sintetico = dK;
+% % Salvataggio deviazione standard sintetica rigidezza dinamica PSD
+% save (cell2mat(['DevSt_sintetica_',conf.campione,'_',conf.piastra]), 'devst_K_sintetico');
 
 % Figura Segnali e Spettri
 % Settaggio parametri grafico
@@ -788,8 +653,8 @@ grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
 % Salvataggio
 figure (101),saveas (gcf, ['Segnali e spettri.fig'])
 
-% Salvataggio delle k0 misurate bin per bin
-save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
+% % Salvataggio delle k0 misurate bin per bin
+% save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dstiff totale e settaggio parametri grafico
@@ -817,14 +682,13 @@ subplot(4,1,4), hold on
 set(gca, 'XScale', 'log'), yticks([-180 -90 0 90 180])
 grid on, xlim([ascissamin ascissamax]),ylim([-180 180])
 xlabel('Frequenza [Hz]'), ylabel('Fase [ang]'),
-legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
-    ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
-    ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
+% legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
+%     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
+%     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
 
 % Salvataggio
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
-saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png'])) 
-
+%saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Accelerazione e forza
@@ -854,12 +718,12 @@ xlim([10 20000])
 hold on
 
 for i=1:3
-subplot(2,1,1),hold on
-title('Impedenza meccanica')
-plot(f,10*log10(abs(PSD_Fav_misura(:,i)./PSD_Vav_misura(:,i))))
-subplot(2,1,2),hold on
-plot(f_fft,180/pi*unwrap(angle(FFT_F_misura(:,i)./FFT_V_misura(:,i))))
-
+    subplot(2,1,1),hold on
+    title('Impedenza meccanica')
+    plot(f,10*log10(abs(PSD_Fav_misura(:,i)./PSD_Vav_misura(:,i))))
+    subplot(2,1,2),hold on
+    plot(f_fft,180/pi*unwrap(angle(FFT_F_misura(:,i)./FFT_V_misura(:,i))))
+    
 end
 subplot(2,1,1),hold on, set(gca, 'XScale', 'log')
 
@@ -878,7 +742,7 @@ for i=1:3
     [PSD_Ftemp, f2,pxxc] = periodogram(F_filt(:,I==i), win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
     [PSD_Atemp, f2,pyyc] = periodogram(A(:,I==i), win_A, f_zoom, fs, 'ConfidenceLevel',0.60); %PSD Accelerazione [g^2]
     PSD_F_zoom(:,i) = mean(PSD_Ftemp, 2);
-    PSD_A_zoom(:,i) = mean(PSD_Atemp, 2);  
+    PSD_A_zoom(:,i) = mean(PSD_Atemp, 2);
 end
 
 
@@ -888,12 +752,12 @@ for i=1:3
     plot (f_zoom, 10*log10(abs(PSD_F_zoom(:,i)./PSD_A_zoom(:,i).*(1i*2*pi*f_zoom').^4)),'LineWidth', 3)
 end
 sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
-     ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+    ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
 
 hold off
 
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.fig']))
-saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png'])) 
+saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
 
 figure, hold on
 plot(f,10*log10(PSD_Aav_misura(:,1)./PSD_Fav_misura(:,1)))
@@ -916,7 +780,7 @@ saveas(gcf,'Accelerazione.fig');
 % accelerazione/forza
 figure (5), hold on
 for i=1:3
-plot(f,PSD_Aav_misura(:,i)./PSD_Fav_misura(:,i))
+    plot(f,PSD_Aav_misura(:,i)./PSD_Fav_misura(:,i))
 end
 grid on
 set(gca, 'XScale', 'log')
@@ -930,7 +794,7 @@ xlim([10 1000])
 % grid on
 % set(gca, 'XScale', 'log')
 % xlim([10 2000])
-% 
+%
 % % spostamento/forza
 % figure, hold on
 % plot(f,PSD_Dav_misura(:,1)./PSD_Fav_misura(:,1))
@@ -947,13 +811,13 @@ xlim([10 1000])
 m=piastre.massa(conf.piastra); %massa della piastra in uso
 h=campioni.h(conf.campione);
 s=pi*(campioni.d(conf.campione)/2)^2;
-lim_sup =  find(f > min(fmax_misura)*0.7);
+lim_sup =  find(f > min(vertcat([PSD.fmax]))*0.7);
 lim_inf =  find(f < 100);
 min_k = min(PSD_Kav_pgram(lim_inf(end):lim_sup(1)));
 
 % basato su minimo Dynamic Stiffness
-fr = f( lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k)); % calcolata con la fft meno 
-K0_av = (2*pi*fr)^2*m
+fd = f( lim_inf(end)+find(PSD_Kav_pgram(lim_inf(end):lim_sup(1)) == min_k)); % calcolata con la fft meno
+K0_av = (2*pi*fd)^2*m
 S_star_av = K0_av/s
 E_av = K0_av*h/s
 
@@ -985,9 +849,97 @@ save('frequenze.mat','f','f_fft')
 save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
 
 
+%%
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Analisi risultati singoli colpi
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+% accelerazione/forza
+f1 = f(lim_inf(end));
+f2 = f(lim_sup(1));
+f_zoom = f1:0.2:f2;
+
+
+for i = 1:N
+    [~,cc] = size(PSD(i).F);
+    [PSD(i).F_zoom, ~, pxxc] = periodogram(sng(i).F_filt, win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
+    [PSD(i).A_zoom, ~, pyyc] = periodogram(sng(i).A, win_A, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Accelerazione [g^2]
+    
+    figure(120+i), hold on
+    for j = 1:cc
+        % secondo minimo di K
+        PSD(i).K(:,j) = PSD(i).F(:,j) ./ PSD(i).A(:,j) .* (1i*2*pi*f).^4;
+        plot (f, 10*log10(PSD(i).K(:,j)), 'color', string(colore(i,:)));
+        
+        PSD(i).K_zoom(:,j) = PSD(i).F_zoom(:,j) ./ PSD(i).A_zoom(:,j) .* (1i*2*pi*f_zoom').^4;
+        plot (f_zoom, 10*log10(PSD(i).K_zoom(:,j)), 'color', string(colore(i+1,:)));
+        
+        min_k = min(PSD(i).K_zoom(lim_inf(end):lim_sup(1), j));
+        fd = f_zoom(lim_inf(end) + find(PSD(i).K_zoom(lim_inf(end):lim_sup(1), j) == min_k) );
+        result.indici_colpo.min_K(i).fd(j) = fd;
+        result.indici_colpo.min_K(i).K0(j) = (2*pi*fd)^2 * m;
+        result.indici_colpo.min_K(i).S_star(j) = (2*pi*fd)^2 * m/s;
+        result.indici_colpo.min_K(i).E(j)  = (2*pi*fd)^2 * m * h/s;
+    end
+    xl=xline(f(lim_inf(end)),'.',['Lim inf ',f(lim_inf(end)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+    xl=xline(f(lim_sup(1)),'.',['Lim sup ',f(lim_sup(1)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+    grid on
+    set(gca, 'XScale', 'log')
+    xlim([ascissamin ascissamax])
+
+    % secondo massimo di A
+    figure(130+i), hold on
+    for j = 1:cc
+        % seconfo massimo di A
+        temp = PSD(i).A(:,j) ./ PSD(i).F(:,j);
+        plot (f, temp, 'color', string(colore(i,:)));
+        
+        temp_zoom = PSD(i).A_zoom(:,j) ./ PSD(i).F_zoom(:,j);
+        plot (f_zoom, temp_zoom, 'color', string(colore(i+1,:)));
+
+        max_A = max(temp_zoom);
+        fd = f_zoom(temp_zoom == max_A );
+        result.indici_colpo.max_A(i).fd(j) = fd;
+        result.indici_colpo.max_A(i).K0(j) = (2*pi*fd)^2 * m;
+        result.indici_colpo.max_A(i).S_star(j) = (2*pi*fd)^2 * m/s;
+        result.indici_colpo.max_A(i).E(j)  = (2*pi*fd)^2 * m * h/s;
+    end
+    xl=xline(f(lim_inf(end)),'.',['Lim inf ',f(lim_inf(end)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+    xl=xline(f(lim_sup(1)),'.',['Lim sup ',f(lim_sup(1)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
+    grid on
+    set(gca, 'XScale', 'log')
+    xlim([ascissamin ascissamax]), ylim([0 2*max_A])
+
+end
 
 %%
+figure (120), hold on,
+for i = 1:N
+    [~,cc] = size(PSD(i).F);
+    for j = 1:cc
+        %plot (max(sng(i).F_filt(:,j)), result.indici_colpo.min_K(i).S_star(j)/10^6, '*', 'color', string(colore(i,:)))
+        plot (max(sng(i).F_filt(:,j)), result.indici_colpo.max_A(i).S_star(j)/10^6, 'o', 'color', string(colore(i+1,:)), 'lineWidth', 3)
+    end
+end
+grid on, ylim([140 200])
+X = max(vertcat([ sng([1:N]).F_filt]));
+Y = vertcat([result.indici_colpo.max_A([1:N]).S_star]) / 10^6;
 
+modelfun= @(b,x)b(1)*exp(-x/b(2))+b(3)
+mdl = fitnlm(X, Y, modelfun, [200 150 150]);
+[fit,R] = nlinfit(X, Y, modelfun, [200 150 150])
+
+X1 = 1:max(X*1.5);
+plot (X1, feval(mdl,X1))
+
+figure
+plot (X, mdl.WeightedResiduals.Studentized,'*')
+
+
+
+
+
+%%
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo deviazione standard
@@ -1006,7 +958,7 @@ K = PSD_Kav_misura(:,mis);
 
 dK= ( ((b./A).*dF).^2 + ((-b.*F./A.^2).*dA).^2 + C.*(b./A).*(-b.*F./A.^2).*dF.*dA  ).^(1/2);
 
-% k= abs (F b /A) 
+% k= abs (F b /A)
 figure, hold on
 plot (f, 10*log10(F))
 plot (f, 10*log10(dF))
