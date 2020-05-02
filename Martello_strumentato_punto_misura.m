@@ -15,11 +15,11 @@ conf=[]
 %utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
 %la punta del martello
 
-campione={'c1'};
+campione={'c2'};
 piastra={'pesante1'};
 appoggio={'cemento'};
 adesivo={'gesso'};
-punta={'plastica'};
+punta={'metallo'};
 martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
@@ -30,17 +30,17 @@ close all
 clear variables
 
 dati = load ('dati1');
-dati(2) = load ('dati2');
-dati(3) = load ('dati3');
-dati(4) = load ('dati1a');
-dati(5) = load ('dati2a');
-dati(6) = load ('dati3a');
-dati(7) = load ('dati1b');
-dati(8) = load ('dati2b');
-dati(9) = load ('dati3b');
-dati(10) = load ('dati1c');
-dati(11) = load ('dati2c');
-dati(12) = load ('dati3c');
+% dati(2) = load ('dati2');
+% dati(3) = load ('dati3');
+% dati(4) = load ('dati1a');
+% dati(5) = load ('dati2a');
+% dati(6) = load ('dati3a');
+% dati(7) = load ('dati1b');
+% dati(8) = load ('dati2b');
+% dati(9) = load ('dati3b');
+% dati(10) = load ('dati1c');
+% dati(11) = load ('dati2c');
+% dati(12) = load ('dati3c');
 conf = dati(1).conf;
 fs=dati(1).fs;
 
@@ -318,7 +318,7 @@ for i = 1:N
     tagli=[];
     [~,C] = size(PSD(i).F);
     for jj = 1:C
-        if (PSD(i).F(f0,jj) < 0.2 * max(PSD(i).F(f0,:)))
+        if (PSD(i).F(f0,jj) < 0 * max(PSD(i).F(f0,:)))
             tagli = [tagli, jj]; %#ok<AGROW>
         end
     end
@@ -385,7 +385,6 @@ pnt_misura.FFT.D = pnt_misura.FFT.V./(1i*2*pi*f_fft).^2; % displacement
 pnt_misura.FFT.K = pnt_misura.FFT.F./pnt_misura.FFT.D; % Dynamic stiffness FFT
 pnt_misura.FFT.MI = pnt_misura.FFT.F./pnt_misura.FFT.V; % Mechanical Impedence PSD
 
-%%
 
 % figure(111), hold on
 %
@@ -563,8 +562,8 @@ for mis = 1:N
         %<<<<<<<<<<<<<<<<<<<<<<<<<
         % sono arrivato qui
         
-        lim_sup =  find(f > min(vertcat([PSD.fmax]))*0.65);
-        lim_inf =  find(f < 100);
+        lim_sup =  find(f > min(vertcat([PSD.fmax]))*0.35);
+        lim_inf =  find(f < 20);
         
         % secondo minimo di K
         min_k = min(PSD(mis).Kav(lim_inf(end):lim_sup(1)));
@@ -858,7 +857,8 @@ save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'P
 f1 = f(lim_inf(end));
 f2 = f(lim_sup(1));
 f_zoom = f1:0.2:f2;
-
+prominanza=1;
+distanza=10;
 
 for i = 1:N
     [~,cc] = size(PSD(i).F);
@@ -896,6 +896,9 @@ for i = 1:N
         
         temp_zoom = PSD(i).A_zoom(:,j) ./ PSD(i).F_zoom(:,j);
         plot (f_zoom, temp_zoom, 'color', string(colore(i+1,:)));
+%                 
+%         [pks,locs,wi,pi] = findpeaks(temp_zoom, f_zoom,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+%         plot(locs, pks,'*')
 
         max_A = max(temp_zoom);
         fd = f_zoom(temp_zoom == max_A );
@@ -921,23 +924,30 @@ for i = 1:N
         plot (max(sng(i).F_filt(:,j)), result.indici_colpo.max_A(i).S_star(j)/10^6, 'o', 'color', string(colore(i+1,:)), 'lineWidth', 3)
     end
 end
-grid on, ylim([140 200])
+grid on, %ylim([140 200])
 X = max(vertcat([ sng([1:N]).F_filt]));
 Y = vertcat([result.indici_colpo.max_A([1:N]).S_star]) / 10^6;
 
-modelfun= @(b,x)b(1)*exp(-x/b(2))+b(3)
-mdl = fitnlm(X, Y, modelfun, [200 150 150]);
-[fit,R] = nlinfit(X, Y, modelfun, [200 150 150])
+modelfun = @(b,x)b(1)*exp(-x/b(2))+b(3)
+mdl = fitnlm(X, Y, modelfun, [100 50 10]);
+[fit,R] = nlinfit(X(X>100 & X<400), Y(X>100 & X<400), modelfun, [200 150 150]);
 
 X1 = 1:max(X*1.5);
 plot (X1, feval(mdl,X1))
-
+title(['Rigidezza dinamica per unità di superficie vs picco della forza'])
+xlabel(['Force [N]'])
+ylabel(['Apparent Stiffness S [N/m^3]'])
 figure
 plot (X, mdl.WeightedResiduals.Studentized,'*')
+%%
+prominanza=1;
+distanza=10;
 
-
-
-
+[pks,locs,wi,pi] = findpeaks(temp_zoom, f_zoom,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
+    
+figure, hold on
+plot(f_zoom, temp_zoom)
+plot(locs, pks,'*')
 
 %%
 
