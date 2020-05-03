@@ -953,9 +953,8 @@ k=1;
 for i = 1:N
     [~,cc] = size(PSD(i).F);
     for j = 1 : cc
-        if length(result.indici_colpo.max_A(i).locs{j}) > 1
-            Y2(k) = (2*pi*result.indici_colpo.max_A(i).locs{j}(2))^2*m/s/10^6; %#ok<SAGROW>
-            result.indici_colpo.max_A(i).locs{j}(2)
+        if length( result.indici_colpo.max_A(i).locs{j}) > 1
+            Y2(k) = (2*pi*result.indici_colpo.max_A(i).locs{j}(2))^2*m/10e; %#ok<SAGROW>
             X2(k) = max(sng(i).F_filt(:,j)); % forza
             k = k+1;
         end
@@ -963,18 +962,18 @@ for i = 1:N
 end
 figure (120)
 hold on
-plot (X2, Y2, '*', 'color', string(colore(i,:)))
+plot (X2, Y2)
 mdl2 = fitnlm(X2, Y2, modelfun, [100 50 10 0]); % Modello dei secondi picchi
 [fit2,R2] = nlinfit(X2, Y2, modelfun, [200 150 150 0]);
 
 
 X2_exp = 1:max(X2*1.5);
-plot (X2_exp, feval(mdl2,X2_exp))
+plot (X2_exp, feval(mdl,X2_exp))
 title(['Rigidezza dinamica per unità di superficie vs picco della forza'])
 xlabel(['Force [N]'])
 ylabel(['Apparent Stiffness S [N/m^3]'])
 figure
-plot (X2, mdl2.WeightedResiduals.Studentized,'*')
+plot (X2, mdl.WeightedResiduals.Studentized,'*')
 %%
 prominanza=1;
 distanza=10;
