@@ -1,0 +1,30 @@
+component nonlinearspring < foundation.mechanical.translational.branch
+% Translational Spring
+% The block represents an ideal mechanical linear spring.
+%
+% Connections R and C are mechanical translational conserving ports. 
+% The block positive direction is from port R to port C. This means that
+% the force is positive if it acts in the direction from R to C.
+
+% Copyright 2005-2016 The MathWorks, Inc.
+
+parameters
+    spr_rate = { 1000, 'N/m' };  % Spring rate
+    coeff = {1, 'm^2'} % Serv a far tornare l'unità di misura di x^3
+    f0 = {10, 'N'} 
+end
+
+variables
+    x = { value = { 0, 'm'}, priority = priority.high };    % Deformation
+    x3 = { value = { 0, 'm^3'}, priority = priority.low };    % Deformation
+   
+end
+
+equations
+    assert(spr_rate>0)
+    v == x.der;
+    x3 == x^3;
+    f == spr_rate * (x + x3 /(6*coeff)) *(1+ exp(-abs(f)/f0));
+end
+
+end
