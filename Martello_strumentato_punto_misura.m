@@ -15,9 +15,9 @@ conf = [];
 %utilizzato, la piastra di carico, la superficie d'appoggio l'adesivo e
     %la punta del martello
 
-campione={'c2b'};
+campione={'slab2'};
 piastra={'pesante1'};
-appoggio={'cemento'};
+appoggio={'nessuno'};
 adesivo={'gesso'};
 punta={'metallo'};
 martellatore=2;
@@ -30,8 +30,8 @@ close all
 %clear variables
 
 dati = load ('dati1');
-% dati(2) = load ('dati2');
-% dati(3) = load ('dati3');
+ dati(2) = load ('dati2');
+ dati(3) = load ('dati3');
 % dati(4) = load ('dati1a');
 % dati(5) = load ('dati2a');
 % dati(6) = load ('dati3a');
@@ -924,7 +924,7 @@ for i = 1:N
     [PSD(i).F_zoom, ~, pxxc] = periodogram(sng(i).F_filt, win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
     [PSD(i).A_zoom, ~, pyyc] = periodogram(sng(i).A, win_A, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Accelerazione [g^2]
     
-    figure(120+i), hold on
+    figure(120), hold on
     for j = 1:cc
         % secondo minimo di K
         PSD(i).K(:,j) = PSD(i).F(:,j) ./ PSD(i).A(:,j) .* (2*pi*f).^4;
@@ -939,6 +939,18 @@ for i = 1:N
         result.indici_colpo.min_K(i).K0(j) = (2*pi*fd)^2 * m;
         result.indici_colpo.min_K(i).S_star(j) = (2*pi*fd)^2 * m/s;
         result.indici_colpo.min_K(i).E(j)  = (2*pi*fd)^2 * m * h/s;
+%         plot (f, 10*log10(1.487*1.05*(2*pi*f).^4),'b--', 'LineWidth', 2)
+%         plot (f, 10*log10(1.487*(2*pi*f).^4),'b--', 'LineWidth', 2)
+%         plot (f, 10*log10(1.487*0.95*(2*pi*f).^4),'b--', 'LineWidth', 2)
+        plot (f, 10*log10((2*piastre.massa(conf.piastra)+0.0573)^2*1.05^2*(2*pi*f).^4),'b--', 'LineWidth', 2)
+        plot (f, 10*log10((2*piastre.massa(conf.piastra)+0.0573)^2*(2*pi*f).^4),'b--', 'LineWidth', 2)
+        plot (f, 10*log10((2*piastre.massa(conf.piastra)+0.0573)^2*0.95^2*(2*pi*f).^4),'b--', 'LineWidth', 2)
+        plot (f, 10*log10((piastre.massa(conf.piastra)+0.0573)^2*1.05^2*(2*pi*f).^4),'b--', 'LineWidth', 2)
+        plot (f, 10*log10((piastre.massa(conf.piastra)+0.0573)^2*(2*pi*f).^4),'b--', 'LineWidth', 2)
+        plot (f, 10*log10((piastre.massa(conf.piastra)+0.0573)^2*0.95^2*(2*pi*f).^4),'b--', 'LineWidth', 2)
+
+
+
     end
     xl=xline(f(lim_inf(end)),'.',['Lim inf ',f(lim_inf(end)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
     xl=xline(f(lim_sup(1)),'.',['Lim sup ',f(lim_sup(1)),' Hz']); xl.LabelVerticalAlignment = 'bottom';
@@ -984,6 +996,58 @@ for i = 1:N
 
 end
 
+%<<<<<<<<<<<<<<<<<<<<<
+% Plot Massa dinamica
+%<<<<<<<<<<<<<<<<<<<<<
+
+figure, hold on
+for i=1:N
+    plot (f ,(PSD(i).F./PSD(i).A).^(1/2),'color', string(colore(i,:)))
+end
+ylim([0 5])
+set(gca, 'XScale', 'log')
+xlim([0 2000])
+hold on, plot (f ,ones(size(f))*piastre.massa('pesante1') ,'b--', 'LineWidth', 2)
+hold on, plot (f ,ones(size(f))*piastre.massa('pesante1')*1.05 ,'b', 'LineWidth', 1)
+hold on, plot (f ,ones(size(f))*piastre.massa('pesante1')*0.95 ,'b', 'LineWidth', 1)
+
+hold on, plot (f ,ones(size(f))*piastre.massa('pesante2'),'b--', 'LineWidth', 2)
+hold on, plot (f ,ones(size(f))*piastre.massa('pesante2')*1.05 ,'b', 'LineWidth', 1)
+hold on, plot (f ,ones(size(f))*piastre.massa('pesante2')*0.95 ,'b', 'LineWidth', 1)
+
+savefig('Calibrazione.fig');
+%%
+%<<<<<<<<<<<<<<
+% Calibrazione
+%<<<<<<<<<<<<<<
+m_cal = 1.487;
+m_cal2 = piastre.massa('pesante2') + 0.0573;
+
+norm_mass = (PSD(1).F./PSD(1).A).^(1/2)/m_cal;
+norm_mass(:,4) = [];
+
+figure, hold on
+plot (f, norm_mass)
+set(gca, 'XScale', 'log'), grid on
+xlim ([30 1000]), ylim([0.5 1.2])
+norm_mass_av = mean (norm_mass, 2);
+
+plot (f, norm_mass_av, 'k', 'LineWidth', 2)
+
+plot (f, ones(size(f))*1.05, 'k-.', 'LineWidth', 1)
+plot (f, ones(size(f)), 'k', 'LineWidth', 2)
+plot (f, ones(size(f))*0.95, 'k-.', 'LineWidth', 1)
+
+%legend('1','2','3','4','5','6','7','8')
+
+norm_A1 = PSD(1).A.*norm_mass_av.^2;
+norm_A2 = PSD(2).A.*norm_mass_av.^2;
+norm_mass2 = (PSD(2).F./norm_A2).^(1/2)/m_cal2;
+
+plot (f, norm_mass2, 'b', 'LineWidth', 1)
+plot (f, (PSD(1).F./norm_A1).^(1/2)/m_cal, 'r', 'LineWidth', 1)
+
+%%
 
 figure (120), hold on,
 for i = 1:N
@@ -1044,14 +1108,14 @@ distanza=10;
 % figure, hold on
 % plot(f_zoom, temp_zoom)
 % plot(locs, pks,'*')
-
+%%
 %figure (201)
-
-X3 = max(vertcat([sng.F_filt]));
+i=1
+X3 = max(vertcat([sng(i).F_filt]));
 [X3, Fsort] = sort(X3);
 Y3 = (2*pi*f_zoom).^2*m/s;
 % Y3 = f_zoom;
-Z3 = vertcat([ result.indici_colpo.max_A.A_norm_zoom]);
+Z3 = vertcat([ result.indici_colpo.max_A(i).A_norm_zoom]);
 Z3 = Z3(:,Fsort);
 % mesh(X3, Y3, Z3)
 % %ylim([0 6*10^8])
@@ -1066,7 +1130,7 @@ Z3 = Z3(:,Fsort);
 %  zlim([0 10]);
 
 fig1 = create_mash(X3, Y3, Z3);
-ylim([0 5e8])
+ylim([0 1.5e8])
 zlim([0 20])
 xlim([0 300])
 set(fig1.CurrentAxes ,'CLim',[7.14683052857818e-10 2.5],'Colormap',...
