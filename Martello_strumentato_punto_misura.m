@@ -17,14 +17,17 @@ conf = [];
 
 campione={'c0'};
 piastra={'pesante1'};
-appoggio={'nessuno'};
+appoggio={'calibratore_molle'};
 adesivo={'nessuno'};
-punta={'metallo'};
+punta={'gomma'};
 martellatore=2;
 accelerometro=0;
 conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelerometro)
 
 %%
+set (0,'DefaultFigureWindowStyle','docked')
+clear variables
+
 clc
 close all
 %clear variables
@@ -141,7 +144,7 @@ end
 %<<<<<<<<<<<<<<<<<<<<
 prominanza=10;%25;
 distanza=0.5;
-larghezza=10;
+larghezza=15;
 fpass=35
 x_Hpass = cell(1,N);
 for i=1:N
@@ -617,6 +620,43 @@ grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
 % Salvataggio
 figure (101),saveas (gcf, ['Segnali e spettri.fig'])
 
+
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Plot Dstiff totale e settaggio parametri grafico
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+figure (107)
+% sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
+%     ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+for i=1:N
+    F_max_av(i) = max(max(sng(i).F));
+end
+subplot(4,1,1), hold on
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+grid on, xlim([ascissamin ascissamax]),ylim([0 1])
+xlabel('Frequenza [Hz]'), ylabel('Coerenza'),
+% legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
+%     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
+%     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
+
+% Plot della massa della piastra
+subplot(4,1,[2,3]), hold on
+plot(f,10*log10(m*(2*pi*f).^4),'--k');
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
+xlabel('Frequenza [Hz]'), ylabel('PSD Rigidezza Dinamica [dB @ 1 N/m]'),
+
+subplot(4,1,4), hold on
+set(gca, 'XScale', 'log'), yticks([-180 -90 0 90 180])
+grid on, xlim([ascissamin ascissamax]),ylim([-180 180])
+xlabel('Frequenza [Hz]'), ylabel('Fase [ang]'),
+% legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
+%     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
+%     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
+
+% Salvataggio
+saveas(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
+%saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
+
 %%
 clear variables
 load('Outputs.mat');
@@ -673,39 +713,6 @@ pnt_misura.PSD.devst_A = std (vertcat([PSD([1:N]).A]),0,2);
 % % Salvataggio delle k0 misurate bin per bin
 % save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
 
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Plot Dstiff totale e settaggio parametri grafico
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-figure (107)
-% sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
-%     ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
-
-subplot(4,1,1), hold on
-set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
-grid on, xlim([ascissamin ascissamax]),ylim([0 1])
-xlabel('Frequenza [Hz]'), ylabel('Coerenza'),
-legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
-    ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
-    ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
-
-% Plot della massa della piastra
-subplot(4,1,[2,3]), hold on
-plot(f,10*log10(m*(2*pi*f).^4),'--k');
-set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
-grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
-xlabel('Frequenza [Hz]'), ylabel('PSD Rigidezza Dinamica [dB @ 1 N/m]'),
-
-subplot(4,1,4), hold on
-set(gca, 'XScale', 'log'), yticks([-180 -90 0 90 180])
-grid on, xlim([ascissamin ascissamax]),ylim([-180 180])
-xlabel('Frequenza [Hz]'), ylabel('Fase [ang]'),
-% legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
-%     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
-%     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
-
-% Salvataggio
-saveas(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
-%saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Accelerazione e forza
@@ -1034,13 +1041,14 @@ savefig('Calibrazione.fig');
 % Calibrazione
 %<<<<<<<<<<<<<<
 m_cal = 1.487;
-m_cal2 = piastre.massa('pesante2') + 0.0573;
+%m_cal2 = piastre.massa('pesante2') + 0.0573;
+m_cal = 2.951;
 
 norm_mass = (PSD(1).F./PSD(1).A).^(1/2)/m_cal;
-norm_mass(:,4) = [];
+%norm_mass(:,4) = [];
 
 figure, hold on
-title (cell2mat(['Calibrazione - piastra ', conf.conf.piastra, ' - punta ', conf.conf.punta]), 'FontSize', 18)
+title (cell2mat(['Calibrazione - piastra ', conf(1).conf.piastra, ' - punta ', conf(1).conf.punta]), 'FontSize', 18)
 xlabel ('Frequenza [Hz]', 'FontSize', 18);
 ylabel ('Massa dinamica / massa sospesa', 'FontSize', 18);
 plot (f, norm_mass,'Color', [0.5 0.5 0.5])
@@ -1048,20 +1056,28 @@ set(gca, 'XScale', 'log'), grid on
 xlim ([10 1000]), ylim([0.5 1.2])
 norm_mass_av = mean (norm_mass, 2);
 
+mediumval = mean (norm_mass_av(33:313))
+%calib_m1 = 1./norm_mass_av
+
 plot (f, norm_mass_av, 'k', 'LineWidth', 2)
 
 plot (f, ones(size(f))*1.05, 'k-.', 'LineWidth', 1)
 plot (f, ones(size(f)), 'k', 'LineWidth', 2)
 plot (f, ones(size(f))*0.95, 'k-.', 'LineWidth', 1)
 
+
+
 %legend('1','2','3','4','5','6','7','8')
 
 norm_A1 = PSD(1).A.*norm_mass_av.^2;
-%norm_A2 = PSD(2).A.*norm_mass_av.^2;
-%norm_mass2 = (PSD(2).F./norm_A2).^(1/2)/m_cal2;
+% norm_A2 = PSD(2).A.*norm_mass_av.^2;
+% norm_mass2 = (PSD(2).F./norm_A2).^(1/2)/m_cal2;
 
 %plot (f, norm_mass2, 'b', 'LineWidth', 1)
 plot (f, (PSD(1).F./norm_A1).^(1/2)/m_cal, 'r', 'LineWidth', 1)
+plot (f, norm_mass/mediumval,'b')
+ylim ([0 1.2])
+xlim ([80 1200])
 
 %%
 
