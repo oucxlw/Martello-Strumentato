@@ -254,7 +254,6 @@ end
 f_fft = 0:(r-1);
 f_fft = f_fft'/(r-1)*fs;
 
-
 % Calcolo della PSD tramite FFT
 PSD = struct('F',cell(1,N),'A',[],'F_fft',[],'A_fft',[]);
 
@@ -481,7 +480,7 @@ for mis = 1:N
         dA = PSD(mis).devst_A;
         b  = abs((1i*2*pi*f).^4);
         FF = abs(PSD(mis).Fav);
-        AA = abs(PSD(mis).Fav);
+        AA = abs(PSD(mis).Aav);
         C  = abs(sng(mis).Cxy(1:1+end/2));
         KK = PSD(mis).Kav;
         

@@ -1,0 +1,1921 @@
+#LyX file created by tex2lyx 2.3
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin /Users/matteo/Documents/GitHub/Martello-Strumentato/Latex/
+\textclass article
+\begin_preamble
+\usepackage[italian]{babel}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{color}
+\usepackage{subfigure}
+\usepackage{multirow}
+\newenvironment{sistema}{\left\lbrace\begin{array}{@{}l@{}}}{\end{array}\right.}
+ 
+ 
+ 
+ 
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding iso8859-1
+\fontencoding default
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry true
+\use_package amsmath 2
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style french
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\lang italian
+Modello matematico con tre masse e tre molle smorzate
+\end_layout
+
+\begin_layout Author
+
+\lang italian
+Matteo Bolognese
+\end_layout
+
+\begin_layout Date
+
+\lang italian
+23/11/2019
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+ 
+\end_layout
+
+\begin_layout Section
+
+\lang italian
+Introduzione
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+La misura sperimentale della costante elastica dinamica di un materiale 
+\begin_inset Formula $K(\omega)$
+\end_inset
+
+ per mezzo di un martello strumentato é stata effettuata con diverse configurazioni di misura. Una delle piú semplici, rappresentata in 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+figurename
+\end_layout
+
+\end_inset
+
+
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Phisical-configuration"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+, prevede il posizionamento di una piastra di carico sul campione a sua volta poggiato al suolo. La piastra di carico vuiene colpita con il martello strumentato e uno o piú accelerometri misurano l'accelerazione della piastra e/o del suolo a seconda degli intenti della misura. Al duplice scopo di validare le misure sperimentali e di estrapolare correttamente i valori di costate elastica dinamica del campione dai grafici sperimentali é utile sviluppare un modello matematico che riproduca il comportamento del sistema.
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename Phisical-system.jpg
+	width 8cm
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Configurazione sperimentale.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Phisical-configuration"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\lang italian
+Tre masse e tre molle smorzate
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+La piú semplice rappresentazione matematica che conservi un sufficiente livello di dettaglio per rappresentare correttamente quanto misurato sperimentalmente é riportata in 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+figurename
+\end_layout
+
+\end_inset
+
+
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:model"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ e consiste in un sistema di tre masse e tre oscillatori smorzati. Gli indici 1, 2 e 3 sono riferiti rispettivamente alla piastra, al campione e al solaio. Facciamo notare come la coordinata x é orientata dal basso verso l'alto quindi concorde con la direzione di misura degli accelerometri, ma discorde al verso del martello strumentato, che misura positiva una forza diretta dall'alto verso il basso. In fase di elaborazione delle misure sará quindi necessario introdurre un cambio di segno nella forza o nelle accelerazioni. Le coordinate generalizzate x
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+ped
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+i
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ rappresentano le distanze delle tre masse dalle posizioni di equilibrio x
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+ped
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+i,0
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+. 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename model.pdf
+	width 10cm
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Modello teorico.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:model"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+
+\lang italian
+
+\begin_inset Argument 1
+status collapsed
+
+
+\begin_layout Standard
+
+\lang italian
+Lagrangiana
+\end_layout
+
+\end_inset
+
+Trattazione lagrangiana
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+Un metodo efficace di ricavare le equazioni del moto di un sistema dinamico é quello lagrangiano (introdurre citazione) che si basa sulla determinazione di due quantitá fondamentali, l'energia meccanica totale 
+\begin_inset Formula $T$
+\end_inset
+
+ e dell'energia potenziale 
+\begin_inset Formula $V$
+\end_inset
+
+ del sistema. Nel nostro caso l'energia meccanica totale non é altro che la somma delle energie cinetiche delle tre masse: 
+\begin_inset Formula \begin{equation}
+ 			T= \frac{1}{2} m_1 \dot x_1^2 +\frac{1}{2} m_2 \dot x_2^2+ \frac{1}{2}m_3 \dot x_3^2 
+ 			\label{eq:mechanical-energy}
+ 		\end{equation}
+\end_inset
+
+dove 
+\begin_inset Formula $\dot x_i$
+\end_inset
+
+ é la velocitá della massa 
+\begin_inset Formula $i$
+\end_inset
+
+-esima. L'energia potenziale é invece la somma delle energie potenziali delle molle: 
+\begin_inset Formula \begin{equation}
+ 			V= \frac{1}{2} k_1(x_1-x_2)^2+\frac{1}{2} k_2(x_3-x_2)^2 + \frac{1}{2} k_3 x_3^2
+ 			\label{eq:potential-energy}
+ 		\end{equation}
+\end_inset
+
+I contributi dovuti all'azione degli smorzatori verranno invece introdotti successivamente con la veste di forze esterne in quanto estranee all'azione delle molle. A questo punto le equazioni differenziali si ottengono attraverso la seguente eguaglianza: 
+\begin_inset Formula \begin{equation}
+ 			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i} - \frac{\partial T}{\partial x_i} + \frac{\partial V}{\partial x_i}=F_i
+ 			\label{eq:lagrangian}
+ 		\end{equation}
+\end_inset
+
+dove 
+\begin_inset Formula $F\ped{i}$
+\end_inset
+
+ é la risultante della forze esterne e delle forze dissipative agenti sull'
+\begin_inset Formula $i$
+\end_inset
+
+-esima massa. Siccome l'energia meccaneca del sistema non dipende dalle 
+\begin_inset Formula $x\ped{i}$
+\end_inset
+
+ il secondo termine dell'equazione (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:lagrangian"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) é automaticamente nullo. Deriviamo dunque l'energia meccanica rispetto alle velocitÃ  
+\begin_inset Formula $\dot x\ped{i}$
+\end_inset
+
+ e quindi rispetto al tempo: 
+\begin_inset Formula \begin{equation}
+ 			\frac{d}{dt} \frac{\partial T}{\partial \dot x_i}= \frac{d}{dt} m_i \dot{x}_i =m_i \ddot{x}_i
+ 			\label{eq:energie}
+ 		\end{equation}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+La derivata parziale di V rispetto alle coordinate generalizzate produce invece:
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula \begin{gather}
+ 		\begin{cases}
+ 		\frac{\partial V}{\partial x_1}= k_1(x_1 - x_2)
+ 		\\
+ 		\frac{\partial V}{\partial x_2} = - k_1(x_1 - x_2) - k_2(x_3 - x_2)
+ 		\\
+ 		\frac{\partial V}{\partial x_3} = (k_3 +k_2)x_3-k_2 x_2
+ 		\label{eq:potenziali}
+		\end{cases}
+		\end{gather}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+Combinando le equazioni 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:energie"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ e 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:potenziali"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ otteniamo il sistema:
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula \begin{gather}
+ 		\begin{sistema}
+ 			m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2 = F_1
+ 			\\
+ 			m_2 \ddot{x}_2 - k_1 x_1 + (k_1 +k_2 )x_2 - k_2 x_3  = F_2
+ 			\\
+ 			m_3 \ddot{x}_3 + (k_3+k_2) x_3 -k_2 x_2= F_3
+ 			\label{eq:sistema-1}
+ 		\end{sistema}
+		\end{gather}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+Resta da identificare le forze dissipative 
+\begin_inset Formula $F_{ d,i}$
+\end_inset
+
+ agenti sulle tre masse, definite come segue:
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula \begin{equation}
+ 			F_{ d,i} = - \sum_{\substack{k}} c_{ik} \dot{x}_k
+ 		\end{equation}
+\end_inset
+
+dove c
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+ped
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+ik
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ é la forza agente sulla 
+\begin_inset Formula $i$
+\end_inset
+
+-esima massa quando la massa 
+\begin_inset Formula $k$
+\end_inset
+
+-esima si muove con velocitá unitaria, per cui otteniamo: 
+\begin_inset Formula \begin{gather}
+ 		\begin{cases}
+		c_{11} = c_{1}
+		\\
+		c_{22} = c_{1} + c_{2}
+		\\
+		c_{33} = c_{2} + c_{3}
+		\\
+		c_{12} = c_{21} = - c_{1}
+		\\
+		c_{23} = c_{32} = - c_{2}
+		\\
+		c_{13} = c_{31} = 0
+		\end{cases}
+		\end{gather}
+\end_inset
+
+A questo punto esplicitiamo le forze dissipative: 
+\begin_inset Formula \begin{gather}
+		\begin{sistema}
+		F_{d1} = - c_{11}\dot x_1 - c_{12}\dot x_2 = -c_1 \dot x_1 + c_1 \dot x_2
+		\\
+		F_{d2} = - c_{21}\dot x_1 - c_{22}\dot x_2 - c_{23}\dot x_3 = c_1  \dot x_1  - (c_1 + c_2) \dot x_2 + c_2\dot x_3
+		\\
+		F_{d3} = - c_{32}\dot x_2 - c_{33}\dot x_3 = c_2 \dot x_2 - (c_2 + c_3) \dot x_3		
+		\end{sistema}
+		\end{gather}
+\end_inset
+
+ed otteniamo le equazioni complete aggiungendo la forza esterna F
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+ped
+\end_layout
+
+\end_inset
+
+ 1: 
+\begin_inset Formula \begin{gather}
+		\begin{sistema}
+		m_1 \ddot{x}_1 + k_1x_1 - k_1 x_2  =  -c_1 \dot x_1 + c_1 \dot x_2 +F_1
+		\\
+		m_2 \ddot{x}_2 - k_1 x_1 + (k_1 +k_2 )x_2 - k_2 x_3 = c_1  \dot x_1  - (c_1 + c_2) \dot x_2 + c_2\dot x_3
+		\\
+		m_3 \ddot{x}_3 + (k_3 +k_2 )x_3 -k_2 x_2= c_2 \dot x_2 - (c_2 + c_3) \dot x_3
+		\end{sistema}
+				\label{eq:completa}
+		\end{gather}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		Risulta utile riscrivere il sistema nella rappresentazione matriciale che permette una lettura pi
+\backslash
+'u comoda e mette in evidenza le propriet
+\backslash
+'a di simmetria del sistema.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+begin {gather}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+begin{vmatrix}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		m_1 
+\backslash
+ddot{x}_1 + k_1x_1	+ c_1 
+\backslash
+dot x_1	&  		- k_1 x_2	- c_1 
+\backslash
+dot x_2 		&	0 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		- k_1 x_1 - c_1  
+\backslash
+dot x_1 				&  	m_2 
+\backslash
+ddot{x}_2	+ (k_1 +k_2 )x_2 +(c_1 + c_2) 
+\backslash
+dot x_2	&	- k_2 x_3 - c_2
+\backslash
+dot x_3 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		0	&  	-k_2 x_2 - c_2 
+\backslash
+dot x_2		&m_3 
+\backslash
+ddot{x}_3 + (k_3 +k_2 )x_3 +(c_2 + c_3) 
+\backslash
+dot x_3	 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+end{vmatrix}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+begin{vmatrix}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		F_1
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+label{eq:matrix}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+end{vmatrix}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%		
+\backslash
+end{gather}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+A ragione del fatto che la misura sperimentale dell'accelerazione viene effettuata sulla massa m
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+ped
+\end_layout
+
+\end_inset
+
+1 ci interessa risolvere il sistema in funzione della coordinata 
+\begin_inset Formula $x\ped{1}$
+\end_inset
+
+. A tal proposito ipotizziamo che il sistema venga sottoposto a una forza esterna 
+\begin_inset Formula $F(t)$
+\end_inset
+
+. In generale se la forza 
+\begin_inset Formula $F(t)$
+\end_inset
+
+ appartiene a 
+\begin_inset Formula $L^2$
+\end_inset
+
+ puó essere espressa in funzione di una base dello spazio 
+\begin_inset Formula $L^2(R)$
+\end_inset
+
+, ad esempio 
+\begin_inset Formula $e^{i\omega t}$
+\end_inset
+
+ (con 
+\begin_inset Formula $\omega$
+\end_inset
+
+ positivo e reale) e quindi usare la sua trasformata di Fourier 
+\begin_inset Formula $F(\omega)$
+\end_inset
+
+. Se l'azione di 
+\begin_inset Formula $F(\omega)$
+\end_inset
+
+ é abbastanza duratura nel tempo in modo da superare la fase transiente il sistema, anche le coordinate generalizzate 
+\begin_inset Formula $x\ped{i} $
+\end_inset
+
+ seguiranno un andamento del tipo 
+\begin_inset Formula $x\ped{i}(\omega, t)=A\ped{i}(\omega)e^{i\omega t}$
+\end_inset
+
+. Calcoliamo quindi le derivate prima e seconda di una 
+\begin_inset Formula $x\ped{1}$
+\end_inset
+
+: 
+\begin_inset Formula \begin{gather}
+		\begin{sistema}
+		\frac{\partial x_i}{\partial t }= i \omega A\ped{i}(\omega)e^{i\omega t}=i \omega x_i
+		\\
+		\\
+		\frac{\partial \dot x_i}{\partial t }= - \omega ^2 A\ped{i}(\omega)e^{i\omega t}=-\omega^2 x_i
+		\end{sistema}
+		\end{gather}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+e sostituiamo nella (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:completa"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) tenendo implicite le coordinate:
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula \begin{gather}
+		\begin{cases}
+		(-m_1 \omega^2  + k_1 + c_1 i\omega)x_1 - (k_1 + c_1 i\omega)x_2& =  F_1 \\
+		-(k_1  + c_1  i\omega)x_1 +(-m_2 \omega^2 + (k_1 +k_2 ) + (c_1 + c_2) i\omega)x_2 - (k_2  + c_2 i\omega)x_3& = 0\\
+		-(k_2  + c_2 i\omega)x_2+ (-m_3 \omega^2 + (k_3 +k_2) +(c_2 + c_3) i\omega)x_3& = 0\\
+		\end{cases}
+		\end{gather}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+Passando alla rappresentazione matriciale possiamo scrivere:
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula \begin{gather}
+		\begin{vmatrix}
+			-m_1 \omega^2  + k_1 	+ c_1 i\omega 	&  	- k_1 	- c_1 i\omega  						&	0\\
+			- k_1  - c_1  i\omega  	&  -m_2 \omega^2 	+ (k_1 +k_2 ) +(c_1 + c_2) i\omega 	&	- k_2  - c_2 i\omega \\
+			0													&  	-k_2  - c_2 i\omega 	&-m_3 \omega^2 + (k_3 +k_2) +(c_2 + c_3) i\omega
+		\end{vmatrix}
+		\begin{vmatrix}
+		x_1 \\ x_2 \\ x_3
+		\end{vmatrix}
+		=
+		\begin{vmatrix}
+			F_1
+			\\
+			0
+			\\
+			0
+			\label{eq:matrix2}
+		\end{vmatrix}
+		\end{gather}
+\end_inset
+
+Dalla terza riga della (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:matrix2"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) ricaviamo 
+\begin_inset Formula $x_3$
+\end_inset
+
+ in funzione di 
+\begin_inset Formula $x_2$
+\end_inset
+
+: 
+\begin_inset Formula \begin{equation}
+		x_3=x_2 \frac{	+k_2  + c_2 i\omega}{-m_3 \omega^2 + (k_3 +k_2) +(c_2 + c_3) i\omega}  = x_2 A
+		\end{equation}
+\end_inset
+
+e riscriviamo la seconda riga: 
+\begin_inset Formula \begin{equation*}
+		(- k_1  - c_1  i\omega )x_1 	+  \left [- m_2 \omega^2 + (k_1 + k_2) + (c_1 + c_2) i\omega - ( k_2  + c_2 i\omega)A \right] x_2 =0
+		\end{equation*}
+\end_inset
+
+
+\begin_inset Formula \begin{equation}
+		x_2=x_1 \frac{+ k_1  + c_1  i\omega}{- m_2 \omega^2 + (k_1 + k_2) + (c_1 + c_2) i\omega + (- k_2  - c_2 i\omega)A} =x_1 B
+		\end{equation}
+\end_inset
+
+e quindi dalla prima riga: 
+\begin_inset Formula \begin{equation*}
+		\left[ -m_1 \omega^2  + k_1 	+ c_1 i\omega -( k_1+ c_1 i\omega)B \right]x_1=F_1
+ 		\end{equation*}
+\end_inset
+
+
+\begin_inset Formula \begin{equation*}
+ 		K_1 (\omega)=\frac{F_1}{x_1 (\omega)}=-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B
+		\end{equation*}
+\end_inset
+
+dove 
+\begin_inset Formula $K_1 (\omega)$
+\end_inset
+
+ é la costante elastica dinamica misurata sulla massa 
+\begin_inset Formula $m_1$
+\end_inset
+
+. Ricordando che derivare 
+\begin_inset Formula $x$
+\end_inset
+
+ nel tempo equivale a moltiplicare per 
+\begin_inset Formula $i \omega$
+\end_inset
+
+ otteniamo la tra 
+\begin_inset Formula $F_1$
+\end_inset
+
+ e 
+\begin_inset Formula $\ddot x_1$
+\end_inset
+
+ otteniamo l'espressione algebrica della Massa Dinamica 
+\begin_inset Formula $M(\omega)$
+\end_inset
+
+ del sistema la quale verrÃ  utilizzata per generare segnali di test per lo script di elaborazione: 
+\begin_inset Formula \begin{equation}
+ 		M=\frac{F_1}{\ddot x_1}=\frac{-m_1 \omega^2  + k_1 + c_1 i\omega -( k_1 + c_1 i\omega)B}{-\omega^2}
+ 		\end{equation}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\lang italian
+Dati disponibili
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+Riportiamo in Tabella
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:material"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ i dati disponibili sui materiali utilizzati e le 
+\begin_inset Formula $k$
+\end_inset
+
+ statiche attese.
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Proprietá meccaniche dei materiali utilizzati
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:material"
+
+\end_inset
+
+ 
+\begin_inset Tabular 
+<lyxtabular version="3" rows="6" columns="6">
+<features rotate="0" tabularvalignment="middle" tabularwidth="0pt">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell multirow="3" alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Materiale
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Spessore
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Superficie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Modulo E 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+K
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Peso
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+[m]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+[
+\begin_inset Formula $m^2$
+\end_inset
+
+]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+[GPa]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+[GN/m]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+[Kg]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Piastra pesante 1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $0.024$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $\pi* 0.05^2=0.0079$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+180 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+59.3 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+1.4293 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Piastra pesante 2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $0.0475$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $\pi* 0.05^2=0.0079$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+180 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+30.0 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+2.8871 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Blocco cemento 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $0.13 $
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $0.25^2=0.0625$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+45 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+21.6 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $\sim$
+\end_inset
+
+ 15 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+Polipropilene 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $0.005$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Formula $0.096*0.098=0.0094$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+1.5 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+2.8 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang italian
+0.0383 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\lang italian
+Analisi dei segnali
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+I segnali acquisiti sperimentalmente necessitano di essere opportunamente processati per ottenere la risposta in frequenza del sistema. 
+\end_layout
+
+\begin_layout Subsection
+
+\lang italian
+Ricerca picchi e costruzione matrici dei dati
+\end_layout
+
+\begin_layout Subsection
+
+\lang italian
+Filtraggio
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+L'operazione di filtraggio viene effettuata sulla matrice 
+\begin_inset Formula $F$
+\end_inset
+
+ allo scopo di abbattere il segnale prodotto dal martello dopo il suo distacco dalla superficie del campione e quindi non correlato con l'accelerazione misura sul campione. In 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+figurename
+\end_layout
+
+\end_inset
+
+
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Effettofiltraggio"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ Ã¨ possibile osservare come l'effetto del filtraggio (operato tramite media mobile) sulla Power Spectral Density si concentri al di sopra della regione in cui lo spettro della Forza risulta piatto e della frequenza di coerenza. Considerando che la stima delle grandezze oggetto della misura avviene al di sotto della frequenza di coerenza, l'operazione di filtraggio appare in ultima analisi ininfluente. 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename Effettofiltraggio.png
+	width 14cm
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Effetto del filtraggio sulla PSD sel segnale della forza. Differenze evidenti si riscontrano esclusivamente ad alta frequenza.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Effettofiltraggio"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+
+\lang italian
+Finestratura
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang italian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename effettofinestra.pdf
+	width 16cm
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Effetto della finestratura su coerenza dei segnali e modulo e fase della Dynamic Stiffness K. In alto la coerenza tra i segnali, al centro il modulo della costante elastica dinamica K e in basso la sua fase.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:effettofinestra"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang italian
+La finestratura del segnale ha lo scopo di scongiurare l'incorrere di artefatti nella trasformata del segnale dovuti alla durata finita del segnale nel tempo. A tal fine sono state prese in esame diverse tipologie di finestre tra cui Hamming, Hann, rettangolare e se ne sono studiate le prestazioni in funzione della lunghezza delle stesse. In 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+figurename
+\end_layout
+
+\end_inset
+
+
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:effettofinestra"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ possiamo osservare l'effetto prodotto da finestre Hann progressivamente piú larghe (la 1/64 della lunghezza del campione alla lunghezza del compione). Come possiamo osservare, nessun effetto é riscontrabile sulla coerenz, che resta invariata al cambiare della larghezza della finestra ma lo stesso non lo si puó dire per fase e modulo della Costante elastica dinamica. Allargando la finestra sopraggiungono una serie di risonanze iniziamlente non riscontrate dunque ci chiediamo se queste siano presenti nel segnale originale o piuttosto figlie della finestratura. 
+\end_layout
+
+\begin_layout Subsection
+
+\lang italian
+Calcolo delle PSD
+\end_layout
+
+\end_body
+\end_document
