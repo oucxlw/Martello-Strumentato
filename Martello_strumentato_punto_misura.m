@@ -33,8 +33,8 @@ close all
 %clear variables
 
 dati = load ('dati1');
-% dati(2) = load ('dati2');
-% dati(3) = load ('dati3');
+dati(2) = load ('dati2');
+dati(3) = load ('dati3');
 % dati(4) = load ('dati1a');
 % dati(5) = load ('dati2a');
 % dati(6) = load ('dati3a');
@@ -624,8 +624,8 @@ figure (101),saveas (gcf, ['Segnali e spettri.fig'])
 % Plot Dstiff totale e settaggio parametri grafico
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure (107)
-% sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione: ',cell2mat([conf.campione,...
-%     ' + ',conf.piastra,'. Adesivo: ',conf.adesivo,'.'])])
+sgtitle(['PSD della rigidezza dinamica [N/mHz] media su tutte le misure.'])
+ 
 for i=1:N
     F_max_av(i) = max(max(sng(i).F));
 end
@@ -656,66 +656,9 @@ xlabel('Frequenza [Hz]'), ylabel('Fase [ang]'),
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
 %saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
 
-%%
-clear variables
-load('Outputs.mat');
-N = length(result.indici_colpo.max_A); 
-figure(110)
-saveas(gcf,'Forza_vs_Accelerazione.fig');
-
-% Salvataggio coerenza
-% save (cell2mat(['Collezione_Coerenza_',conf.campione,'_',conf.piastra]), 'Cxy');
-
-% % Salvataggio rigidezza dinamica PSD
-% save (cell2mat(['Collezione_Dstiffness_PSD_',conf.campione,'_',conf.piastra]), 'PSD_Kav_misura');
-% 
-% % Salvataggio rigidezza dinamica FFT
-% save (cell2mat(['Collezione_Dstiffness_FFT_',conf.campione,'_',conf.piastra]), 'FFT_K_misura');
-% 
-% % Salvataggio deviazione standard rigidezza dinamica PSD
-% save (cell2mat(['Collezione_DevSt_',conf.campione,'_',conf.piastra]), 'devst_K_misura');
-
-
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Calcolo delle grandezze sintetiche della misura
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-% 
-% F_filtall = reshape(F_filt, [],1);
-% A_filtall = reshape(A_filt, [],1);
-% [r,c]=size(F_filt);
-% 
-% % Calcolo coerenza
-% [Cxy_sintetico,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs);
-
-% deviazione standard
-pnt_misura.PSD.devst_K = mean(vertcat([PSD([1:N]).devst_K]).^2, 2);
-pnt_misura.PSD.devst_F = std (vertcat([PSD([1:N]).F]),0,2);
-pnt_misura.PSD.devst_A = std (vertcat([PSD([1:N]).A]),0,2);
-
-% dF = pnt_misura.PSD.devst_F;
-% dA  = pnt_misura.PSD.devst_A;
-% b = abs((1i*2*pi*f).^4);
-% FF = abs(mean(PSD_F,2));
-% AA = abs(mean(PSD_A,2));
-% C = abs(Cxy_sintetico(1:1+end/2));
-% KK = PSD_Kav_misura(:,mis);
-% % K = F*(1i*2*pi).^4 /A
-% 
-% dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
-% devst_K_sintetico = dK;
-% % Salvataggio deviazione standard sintetica rigidezza dinamica PSD
-% save (cell2mat(['DevSt_sintetica_',conf.campione,'_',conf.piastra]), 'devst_K_sintetico');
-
-
-% % Salvataggio delle k0 misurate bin per bin
-% save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
-
-
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-% Plot Accelerazione e forza
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Figura Accelerazione e Forza
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 figure(110), hold on
 
 subplot(2,1,1),hold on
@@ -729,10 +672,49 @@ grid on, xlim([ascissamin ascissamax]),%ylim([120 220])
 xlabel('Frequenza [Hz]'), ylabel('PSD Accelerazione [dB @ 1 m/s^2]'),
 saveas(gcf, cell2mat(['Forza_vs_Accelerazione_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
 
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Calcolo delle grandezze sintetiche della misura
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-% Salvataggio delle dstiffness medie FFT e PSD
-% save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Psd.mat']),'PSD_Kav_pgram');
-% save (cell2mat(['Dstiffness_',conf.campione,'_',conf.piastra,'_Fft.mat']),'FFT_Kav_fft');
+%F_filtall = reshape(F_filt, [],1); % Qui non si capisce bene che senso abbia
+%A_filtall = reshape(A_filt, [],1);
+%[r,c]=size(F_filt);
+
+% Calcolo coerenza
+%[Cxy_sintetico,f_coer] = mscohere(F_filtall, A_filtall, round(length(F_filtall)./c),[],f_fft,fs); % questa coerenza non sembra servire a qualcosa
+% forse vale la pena di usare la coerenza media
+
+Cxy_sintetico = mean (vertcat([sng([1:N]).Cxy]), 2);
+
+
+
+% deviazione standard
+pnt_misura.PSD.devst_K = mean(vertcat([PSD([1:N]).devst_K]).^2, 2);
+pnt_misura.PSD.devst_F = std (vertcat([PSD([1:N]).F]),0,2);
+pnt_misura.PSD.devst_A = std (vertcat([PSD([1:N]).A]),0,2);
+
+dF = pnt_misura.PSD.devst_F;
+dA = pnt_misura.PSD.devst_A;
+b  = abs((1i*2*pi*f).^4);
+FF = pnt_misura.PSD.F;
+AA = pnt_misura.PSD.A;
+C  = abs(Cxy_sintetico(1:1+end/2));
+KK = pnt_misura.PSD.K;
+% K = F*(1i*2*pi).^4 /A
+
+dK = ( ((b./AA).*dF).^2 + ((-b.*FF./AA.^2).*dA).^2 + C.*(b./AA).*(-b.*FF./AA.^2).*dF.*dA  ).^(1/2);
+
+pnt_misura.PSD.devst_K_sintetico = dK;
+% Salvataggio deviazione standard sintetica rigidezza dinamica PSD
+save ('DevSt_sintetica', 'dK');
+
+
+% % Salvataggio delle k0 misurate bin per bin
+% save (cell2mat(['Dstiffness_bin_',conf.campione,'_',conf.piastra,'_Fft.mat']),'PSD_K_bin');
+
+
+%%
+
 
 figure (106)
 grid on %xlim([0 10])
