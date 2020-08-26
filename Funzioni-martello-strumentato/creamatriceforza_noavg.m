@@ -33,7 +33,7 @@ for j = 1: n_picchi
 
     %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     % Filtraggio per doppio colpo
-    %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    
+    %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     if filt_doppi==1
         n_colpi = findpeaks(x_temp,fs,'MinPeakDistance',0.002,'Threshold',0,'MinPeakHeight',5);
     else
