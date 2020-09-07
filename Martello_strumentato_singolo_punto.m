@@ -146,16 +146,20 @@ picchi_sel1=length(pos)
 % [A_filt] = finestra_accelerazione (A, window_A, L_win, fs);
 % [F_filt] = finestra_accelerazione (F, window_A, L_win, fs);
 
-M_win=L_pre; %M_win è l'ordine della finestratura, ossia la sua lunghezza
+% Generazione finestra Accelerazione
+M_win = L_pre; % M_win è l'ordine della finestratura, la lunghezza del fronte di salita + discesa
+L_plateau = 0.0625; % L_plateau indica la lunghezza del plateau rispetto alla massima possibile
 switch wintype
     case 'hann'
-        curve=hann(M_win);
-        win_A=[curve(1:end/2);ones((r-M_win-1),1);curve(end/2:end)];
+        curve = hann(M_win);
+        plateau_1 = ones(round((r-M_win-1)*L_plateau), 1);
+        plateau_0 = zeros((r-M_win-1) - round((r-M_win-1)*L_plateau), 1);
+        win_A = [curve(1:end/2); plateau_1; curve(end/2:end); plateau_0];
     case 'rect' %finestratura rettangolare
-        curve=ones(M_win);
-        win_A=[curve(1:end/2);ones((r-2*M_win-1),1);curve(end/2:end)];
+        curve = ones(M_win);
+        win_A = [curve(1:end/2);ones((r-2*M_win-1),1);curve(end/2:end)];
     case 'none'
-        win_A=ones(r,1);
+        win_A = ones(r,1);
 end
 E_win=sum(win_A.^2)/length(win_A);
 dt=1/fs; time1=1000*(0:dt:r/fs-dt);

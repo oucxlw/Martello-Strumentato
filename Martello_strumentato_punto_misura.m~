@@ -1111,8 +1111,8 @@ for i = 1:N
     end
 end
 grid on, %ylim([140 200])
-X = max(vertcat([ sng((1:N)).F_filt]));
-Y = vertcat([result.indici_colpo.max_A((1:N)).S_star]) / 10^6;
+X = max(vertcat([ sng([1:N]).F_filt]));
+Y = vertcat([result.indici_colpo.max_A([1:N]).S_star]) / 10^6;
 
 modelfun = @(b,x)b(1)*exp(-(x-b(4))/b(2))+b(3)
 mdl = fitnlm(X, Y, modelfun, [100 50 10 0]); % Modello dei primi picchi
@@ -1120,9 +1120,9 @@ mdl = fitnlm(X, Y, modelfun, [100 50 10 0]); % Modello dei primi picchi
 
 X_exp = 1:max(X*1.5);
 plot (X_exp, feval(mdl,X_exp))
-title(('Rigidezza dinamica per unità di superficie vs picco della forza'))
-xlabel(('Force [N]'))
-ylabel(('Apparent Stiffness S [N/m^3]'))
+title(['Rigidezza dinamica per unità di superficie vs picco della forza'])
+xlabel(['Force [N]'])
+ylabel(['Apparent Stiffness S [N/m^3]'])
 figure
 plot (X, mdl.WeightedResiduals.Studentized,'*')
 
@@ -1147,9 +1147,9 @@ mdl2 = fitnlm(X2, Y2, modelfun, [100 50 10 0]); % Modello dei secondi picchi
 
 X2_exp = 1:max(X2*1.5);
 plot (X2_exp, feval(mdl2,X2_exp))
-title(('Rigidezza dinamica per unità di superficie vs picco della forza'))
-xlabel(('Force [N]'))
-ylabel(('Apparent Stiffness S [N/m^3]'))
+title(['Rigidezza dinamica per unità di superficie vs picco della forza'])
+xlabel(['Force [N]'])
+ylabel(['Apparent Stiffness S [N/m^3]'])
 figure
 plot (X2, mdl2.WeightedResiduals.Studentized,'*')
 
@@ -1321,9 +1321,9 @@ grid on, set(gca, 'XScale', 'log'), xlim([ascissamin ascissamax])
 % TEST CALCOLO PSD
 
 win_1=ones(size(win_F));
-[PSD_F, ~]= periodogram(F, win_F, r, fs); %PSD Forza [N^2]
-[PSD_F1, ~]= periodogram(F, win_1, r, fs); %PSD Forza [N^2]
-[PSD_F2, ~]= periodogram(F_filt, win_F, r, fs); %PSD Forza [N^2]
+[PSD_F, f]= periodogram(F, win_F, r, fs); %PSD Forza [N^2]
+[PSD_F1, f]= periodogram(F, win_1, r, fs); %PSD Forza [N^2]
+[PSD_F2, f]= periodogram(F_filt, win_F, r, fs); %PSD Forza [N^2]
 [PSD_F3, f]= periodogram(F_filt, win_1, r, fs); %PSD Forza [N^2]
 
 figure (56),hold on
