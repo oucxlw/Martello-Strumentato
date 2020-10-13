@@ -1,0 +1,26 @@
+\chapter*{Introduzione}
+\addcontentsline{toc}{chapter}{Introduzione}
+\label{chap:intro}
+I buchi neri di massa intermedia (\textit{Intermediate-Mass Black Holes}, IMBHs) sono buchi neri la cui massa è compresa tra $10^{2}$ e $10^{6}M_{\odot}$. Si pensa che essi possano essere l'anello mancante necessario per collegare le informazioni note riguardanti i buchi neri di origine stellare ($\sim 10 M_{\odot}$) a quelle riguardanti i buchi neri super-massicci ($10^{6}-10^{10}M_{\odot}$). Infatti, i modelli teorici prevedono l'esistenza degli IMBHs al centro di ammassi globulari (\textit{Globular Cluster}, GC), mentre le osservazioni condotte finora non ne hanno ancora rilevato la presenza \MP{a parte il recentissimo evento di detection di onde gravitazionali GW190521, che viene intepretato come la formazione di un buco nero di $\approx 150$ masse solari \cite{Abbott2020:paper}, quindi in ogni caso di massa abbastanza vicina all'estremo stellare del range di massa degli IMBH}. 
+
+La motivazione per cui questi oggetti peculiari risultano sfuggenti rispetto ai buchi neri appartenenti alle altre categorie è legata principalmente al fatto che la strumentazione attuale presenti dei limiti in tal senso.  
+Tuttavia, esistono dei metodi indiretti per poter identificare gli IMBHs negli ammassi. Uno fra essi è quello che si basa sulla dinamica delle MSPs nei GCs. In particolare, attraverso misure delle derivate dei periodi delle MSPs sarebbe possibile ottenere i loro valori di accelerazione e delle sue derivate: il \textit{jerk} (derivata prima dell'accelerazione) e lo \textit{snap} (derivata seconda dell'accelerazione). Dallo studio di tali caratteristiche, poi, si potrebbe risalire all'identificazione degli IMBHs \cite{abbate1:paper}. 
+
+A partire da questa proposta, questo lavoro si sviluppa verso tale scopo, ma utilizzando metodi diversi. Infatti, vengono utilizzate tecniche di \textit{Machine Learning} interpretabile per prevedere la presenza di IMBHs al centro di GCs. 
+
+Poiché i dati osservativi in questo campo non sono sufficienti, per lo studio si sono utilizzati dati ottenuti da un set di simulazioni a N-corpi. Il modello di \textit{Machine Learning} utilizzato è quello degli alberi decisionali, caratterizzati dalla possibilità di essere interpretati. Questa è un' importante caratteristica per un modello previsionale che riguarda soprattutto la fase di analisi dei risultati. 
+
+Gli ammassi simulati sono stati classificati dal modello secondo la presenza di un IMBH o meno sulla base delle caratteristiche dinamiche delle MSPs scelte nelle regioni centrali dei GCs. Nello specifico, le caratteristiche fornite al modello sono: la distanza delle MSPs dal centro di massa del GC proiettata sul piano del cielo e le componenti di velocità, accelerazione, \textit{jerk} e \textit{snap}, considerate lungo la linea di vista. 
+
+La ricerca di IMBHs attraverso questo metodo potrebbe essere una nuova strada alternativa da percorrere per ottenere dei risultati soddisfacienti, specie se tali metodi in futuro potranno essere applicati a dati reali.
+
+Il lavoro di tesi può essere suddiviso principalmente in tre parti. La prima e la seconda parte  si sviluppano rispettivamente nei capitoli \ref{chap:cap1} e \ref{chap:cap2}. La terza parte, invece, contiene i restanti tre capitoli.\\
+Nel primo capitolo viene presentato e contestualizzato il problema astrofisico su cui si basa l'intera tesi: la ricerca degli IMBHs in ammassi globulari. Viene, dunque, fornita un'introduzione sugli IMBHs e su quali sono i metodi utilizzati finora per identificarli, per poi concentrarsi, in particolare, sul metodo delle MSPs.\\
+Nel secondo capitolo, invece, viene descritto lo strumento utilizzato per lo sviluppo del progetto, ovvero gli alberi decisionali. Dopo una breve introduzione al \textit{Machine Learning}, viene descritto l'algoritmo CART \cite{brei:book} che è quello utilizzato per la costruzione degli alberi decisionali in questo lavoro. Vengono, infatti, descritte le fasi in cui l'algoritmo si sviluppa e le metodologie che esso adopera, come, ad esempio, la tecnica del \textit{pruning} utilizzata in questo caso per risolvere un problema comune a tutti gli algoritmi di \textit{Machine Learning}: il problema dell'\textit{overfitting}. Inoltre, in questo capitolo, vengono forniti gli strumenti per valutare le prestazioni di un algoritmo di classificazione.\\
+Infine, nell'ultima parte si entra nel merito del lavoro di tesi descrivendo nello specifico i \textit{dataset} utilizzati, il codice sviluppato per la classificazione degli ammassi (Cap. \ref{chap:cap3}) e, in ultimo, vengono presentati i risultati ottenuti con la relativa interpretazione (Cap. \ref{chap:cap4}). Nel quinto ed ultimo capitolo, invece, vengono discusse le conclusioni e presentate le possibili prospettive future per l'identificazione di IMBHs in GCs attraverso tecniche di \textit{Machine Learning}.
+
+
+
+
+
+

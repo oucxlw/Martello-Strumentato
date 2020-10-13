@@ -1,0 +1,76 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {italian}{}
+\babel@toc {italian}{}
+\babel@toc {italian}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Introduzione}{1}{figure.caption.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{A caccia di buchi neri di massa intermedia}{4}{figure.caption.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{I buchi neri di massa intermedia}{4}{section*.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Metodi di identificazione di IMBHs al centro di ammassi globulari}{8}{section*.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Metodo delle MSPs}{11}{section*.7}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Profili radiali di Jerk e Snap in ammasso}{12}{section*.8}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Metodo osservativo}{14}{section*.9}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Simulazioni e sviluppi con modelli di\\ Machine Learning}{15}{section*.10}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Tecniche di Machine Learning interpretabile: alberi decisionali}{18}{figure.caption.11}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Introduzione al Machine Learning}{18}{section*.12}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Concetti preliminari: notazione e struttura del dataset}{21}{section*.13}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Alberi decisionali: concetti generali}{22}{section*.15}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Algoritmo CART}{23}{section*.18}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Criteri per la costruzione di alberi decisionali}{25}{section*.19}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Regole di Splitting}{25}{section*.20}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{La funzione di impurità}{27}{section*.22}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Dichiarazione dei nodi terminali}{28}{section*.23}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Criteri di arresto}{28}{section*.24}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Assegnazione della classe al nodo terminale}{29}{section*.25}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Problema dell'overfitting}{30}{section*.26}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Cost-Complexity Pruning}{31}{section*.27}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Notazione e metodo}{32}{section*.28}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Training, validation e test sets}{34}{section*.30}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Qualità delle previsioni}{35}{section*.32}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Accuratezza degli alberi decisionali}{36}{section*.33}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{Matrice di confusione: precisione, richiamo e F-score}{37}{section*.34}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Alberi decisionali per l'identificazione di IMBHs}{40}{figure.caption.36}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Motivazioni}{40}{section*.37}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{HiGPUs}{41}{section*.38}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Simulazioni e condizioni iniziali}{43}{section*.39}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Dataset}{48}{section*.44}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Codice}{49}{section*.45}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Risultati}{52}{figure.caption.46}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Valutazione delle performance}{52}{section*.47}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Interprtazione dei risultati}{56}{section*.51}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Conclusioni e sviluppi futuri}{62}{figure.caption.54}%

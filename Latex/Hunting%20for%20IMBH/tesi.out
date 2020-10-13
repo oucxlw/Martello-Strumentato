@@ -1,0 +1,36 @@
+\BOOKMARK [0][]{figure.caption.1}{Introduzione}{}% 1
+\BOOKMARK [0][]{figure.caption.1}{A caccia di buchi neri di massa intermedia}{}% 2
+\BOOKMARK [1][]{section*.2}{I buchi neri di massa intermedia}{figure.caption.1}% 3
+\BOOKMARK [1][]{section*.5}{Metodi di identificazione di IMBHs al centro di ammassi globulari}{figure.caption.1}% 4
+\BOOKMARK [1][]{section*.7}{Metodo delle MSPs}{figure.caption.1}% 5
+\BOOKMARK [2][]{section*.8}{Profili radiali di Jerk e Snap in ammasso}{section*.7}% 6
+\BOOKMARK [2][]{section*.9}{Metodo osservativo}{section*.7}% 7
+\BOOKMARK [2][]{section*.10}{Simulazioni e sviluppi con modelli di Machine Learning}{section*.7}% 8
+\BOOKMARK [0][]{figure.caption.11}{Tecniche di Machine Learning interpretabile: alberi decisionali}{}% 9
+\BOOKMARK [1][]{section*.12}{Introduzione al Machine Learning}{figure.caption.11}% 10
+\BOOKMARK [1][]{section*.13}{Concetti preliminari: notazione e struttura del dataset}{figure.caption.11}% 11
+\BOOKMARK [1][]{section*.15}{Alberi decisionali: concetti generali}{figure.caption.11}% 12
+\BOOKMARK [1][]{section*.18}{Algoritmo CART}{figure.caption.11}% 13
+\BOOKMARK [1][]{section*.19}{Criteri per la costruzione di alberi decisionali}{figure.caption.11}% 14
+\BOOKMARK [1][]{section*.20}{Regole di Splitting}{figure.caption.11}% 15
+\BOOKMARK [2][]{section*.22}{La funzione di impurit\340}{section*.20}% 16
+\BOOKMARK [1][]{section*.23}{Dichiarazione dei nodi terminali}{figure.caption.11}% 17
+\BOOKMARK [2][]{section*.24}{Criteri di arresto}{section*.23}% 18
+\BOOKMARK [2][]{section*.25}{Assegnazione della classe al nodo terminale}{section*.23}% 19
+\BOOKMARK [1][]{section*.26}{Problema dell'overfitting}{figure.caption.11}% 20
+\BOOKMARK [1][]{section*.27}{Cost-Complexity Pruning}{figure.caption.11}% 21
+\BOOKMARK [2][]{section*.28}{Notazione e metodo}{section*.27}% 22
+\BOOKMARK [1][]{section*.30}{Training, validation e test sets}{figure.caption.11}% 23
+\BOOKMARK [1][]{section*.32}{Qualit\340 delle previsioni}{figure.caption.11}% 24
+\BOOKMARK [2][]{section*.33}{Accuratezza degli alberi decisionali}{section*.32}% 25
+\BOOKMARK [2][]{section*.34}{Matrice di confusione: precisione, richiamo e F-score}{section*.32}% 26
+\BOOKMARK [0][]{figure.caption.36}{Alberi decisionali per l'identificazione di IMBHs}{}% 27
+\BOOKMARK [1][]{section*.37}{Motivazioni}{figure.caption.36}% 28
+\BOOKMARK [1][]{section*.38}{HiGPUs}{figure.caption.36}% 29
+\BOOKMARK [1][]{section*.39}{Simulazioni e condizioni iniziali}{figure.caption.36}% 30
+\BOOKMARK [1][]{section*.44}{Dataset}{figure.caption.36}% 31
+\BOOKMARK [1][]{section*.45}{Codice}{figure.caption.36}% 32
+\BOOKMARK [0][]{figure.caption.46}{Risultati}{}% 33
+\BOOKMARK [1][]{section*.47}{Valutazione delle performance}{figure.caption.46}% 34
+\BOOKMARK [1][]{section*.51}{Interprtazione dei risultati}{figure.caption.46}% 35
+\BOOKMARK [0][]{figure.caption.54}{Conclusioni e sviluppi futuri}{}% 36
