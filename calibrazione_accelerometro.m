@@ -15,7 +15,7 @@ title  ('Calibrazione', 'FontSize', 18);
 savefig('Calibrazione.fig') 
 % b= timeseries(SNGcal, time);
 
-RMS_SNGcal = rms(SNGcal(round(end/3):round(2*end/3))); % calcolo del valore RMS
+RMS_SNGcal = rms(SNGcal(round(0.9*end):round(end))); % calcolo del valore RMS
 
 Ref_value = 10; % valore di riferimento per l'RMS dell'accelerazione
 
