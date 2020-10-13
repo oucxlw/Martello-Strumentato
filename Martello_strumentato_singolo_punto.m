@@ -671,3 +671,19 @@ title('Punta: plastica, campione 3, piastra grande, biadesivo'),
 grid on
 xlim([100 8000]), ylim([120 220])
 hold off
+
+%%
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% test della crossrasformata per la media delle risposte
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+[pxy, ~] = cpsd (sng(1).F_filt, sng(1).A_filt, [], [], f, fs);
+
+% pxx = cpsd (sng(1).F_filt, sng(1).F_filt, [], [], f, fs);
+pxx = PSD(1).F;
+
+figure (300)
+hold on
+plot (f, 20*log10(pxy(:,1)./pxx(:,1)))
+plot (f, 10*log10(pxx(:,1)./PSD.))
+set(gca, 'XScale', 'log')
