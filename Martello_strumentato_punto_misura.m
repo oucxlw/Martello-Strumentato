@@ -296,8 +296,13 @@ win_1 = ones(size(win_F)); % finestra unitaria per non far calcolare la normaliz
 % Periodogram non gestisce più di 40 colonne contemporaneamente quindi
 % eseguo le operazioni ciclicamente
 for i=1:N
+    
+    
     [PSD(i).F, ~] = periodogram(sng(i).F_filt, win_1, r, fs); %PSD Forza [N^2]
-    [PSD(i).A, f] = periodogram(sng(i).A_filt, win_1, r, fs); %PSD Accelerazione [g^2]
+    
+    [pxy, f] = cpsd(sng(1).F_filt, sng(i).A_filt, win_1, [], r, fs);
+    PSD(i).A = pxy.^2;
+    %[PSD(i).A, f] = periodogram(sng(i).A_filt, win_1, r, fs); %PSD Accelerazione [g^2]
 end
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -373,10 +378,18 @@ picchi_sel2 = picchi_sel2 - scarti %#ok<NOPTS>
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Calcolo delle grandezze fisiche delle singole misure
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 for i = 1:N
     % psd
-    PSD(i).Fav = mean(PSD(i).F, 2);
-    PSD(i).Aav = mean(PSD(i).A, 2);
+    pxx = cpsd (sng(1).F_filt, sng(1).F_filt, win_1, [], r, fs);
+    pxx_av = mean (pxx,2);
+    PSD(i).Fav = pxx_av;
+    %PSD(i).Fav = mean(PSD(i).F, 2);
+    
+    [pxy, ~] = cpsd(sng(1).F_filt, sng(i).A_filt, win_1, [], r, fs);
+    pxy_av = mean(pxy,2);
+    PSD(i).Aav = pxy_av.^2;
+    %PSD(i).Aav = mean(PSD(i).A, 2);
     
     PSD(i).Vav = PSD(i).Aav./(1i*2*pi*f).^2; % velocita'
     PSD(i).Dav = PSD(i).Vav./(1i*2*pi*f).^2; % displacement
@@ -596,8 +609,8 @@ for mis = 1:N
         semilogx (f, 10 * log10(PSD(mis).Kav),'color',string(colore(mis,:)), 'LineWidth', 2),
         
         % Plot deviazione standard sulla misura
-        semilogx (f, 10 * log10( PSD(mis).Kav ) + 10/log(10) * dK./PSD(mis).Kav, '-.','color',string(colore(mis,:)), 'LineWidth', 1),
-        semilogx (f, 10 * log10( PSD(mis).Kav ) - 10/log(10) * dK./PSD(mis).Kav, '-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        %semilogx (f, 10 * log10( PSD(mis).Kav ) + 10/log(10) * dK./PSD(mis).Kav, '-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        %semilogx (f, 10 * log10( PSD(mis).Kav ) - 10/log(10) * dK./PSD(mis).Kav, '-.','color',string(colore(mis,:)), 'LineWidth', 1),
         
         semilogx (f, 10 * log10( PSD(mis).Kav ) + 10*log10(1+dK./PSD(mis).Kav), '+','color',string(colore(mis,:)), 'LineWidth', 1),
         semilogx (f, 10 * log10( PSD(mis).Kav ) - 10*log10(1-dK./PSD(mis).Kav), '+','color',string(colore(mis,:)), 'LineWidth', 1),
@@ -643,8 +656,8 @@ for mis = 1:N
         
         % secondo massimo di A
         temp = PSD(mis).Aav;%./PSD(mis).Fav;
-        max_k = max(abs(temp(lim_inf(end):lim_sup(1))));
-        fd = f(lim_inf(end)+find(temp(lim_inf(end):lim_sup(1)) == max_k) );
+        max_a = max(abs(temp(lim_inf(end):lim_sup(1))));
+        fd = f(lim_inf(end)+find (abs (temp(lim_inf(end):lim_sup(1))) == max_a));
         result.indici.max_A(mis).fd = fd;
         result.indici.max_A(mis).K0 = (2*pi*fd)^2 * m(mis);
         result.indici.max_A(mis).S_star = (2*pi*fd)^2 * m(mis)/s(mis);
@@ -658,7 +671,6 @@ clear x_Hpass;
 %<<<<<<<<<<<<<<<<<<<<<<<<<
 frequenze.f = f;
 frequenze.f_fft = f_fft;
-
 
 % Figura Segnali e Spettri
 % Settaggio parametri grafico
@@ -678,75 +690,76 @@ grid on, set(gca, 'XScale', 'log'), xlim([10 20000])
 % Salvataggio
 figure (101),saveas (gcf, 'Segnali e spettri.fig')
 
-
-
-% accelerazione/forza
+% Trazformata calcolata in un intervallo di frequenze ridotto
 f1=100 %#ok<NOPTS>
 f2=1000 %#ok<NOPTS>
 f_zoom = f1:0.5:f2;
-% PSD_F_zoom = [];  % includere in PSD
-% PSD_A_zoom = [];
 
 for i=1:N
     [PSD_Ftemp, ~, pxxc] = periodogram( sng(i).F_filt, win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
-    [PSD_Atemp, f_2, pyyc] = periodogram(sng(i).A, win_A, f_zoom, fs, 'ConfidenceLevel',0.60); %PSD Accelerazione [g^2]
-    PSD(i).F_zoom = mean(PSD_Ftemp, 2);
-    PSD(i).A_zoom = mean(PSD_Atemp, 2);
+    [PSD_Atemp, f_2, pyyc] = periodogram(sng(i).A, win_1, f_zoom, fs, 'ConfidenceLevel',0.60); %PSD Accelerazione [g^2]
+    
+    [pxx, ~] = cpsd(sng(1).F_filt, sng(i).F_filt, win_1, [], f_zoom, fs);
+    [pxy, ~] = cpsd(sng(1).F_filt, sng(i).A_filt, win_1, [], f_zoom, fs);
+    
+    PSD(i).F_zoom = mean (pxx, 2);
+    PSD(i).A_zoom = mean (pxy, 2).^2;
+
+    % PSD(i).F_zoom = mean(PSD_Ftemp, 2);
+    % PSD(i).A_zoom = mean(PSD_Atemp, 2);
 end
 
+% Stampa a schermo di uno zoom della trasformata ma sembra inutile 
 
-
-figure (107),
-subplot(4,1,[2,3]), hold on
-for i=1:N
-    plot (f_zoom,10*log10(abs(PSD(i).F_zoom./PSD(i).A_zoom.*(1i*2*pi*f_zoom').^4)),'LineWidth', 3 ,'color',string(colore(i,:)) )
-end
-% sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione:',cell2mat([conf(i).conf.campione,...
-%     ' + ',conf(i).conf.piastra,'. Adesivo: ',conf(i).conf.adesivo,'.'])])
-grid on hold off
-
-saveas(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
-saveas(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.png']))
-
+% figure (107),
+% subplot(4,1,[2,3]), hold on
+% for i=1:N
+%     plot (f_zoom,10*log10(abs(PSD(i).F_zoom./PSD(i).A_zoom.*(1i*2*pi*f_zoom').^4)),'LineWidth', 1 ,'color',string(colore(i,:)) )
+% end
+% % sgtitle(['PSD della rigidezza dinamica [N/mHz]. Campione:',cell2mat([conf(i).conf.campione,...
+% %     ' + ',conf(i).conf.piastra,'. Adesivo: ',conf(i).conf.adesivo,'.'])])
+% grid on, hold off
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot accelerazione normalizzata e Zoom
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-figure (400), hold on
-for i=1:N
-    plot(f,10*log10(PSD(i).Aav./PSD(i).Fav), 'color',string(colore(i,:)))
-    
-    % psd zoom
-    plot(f_zoom, 10*log10(PSD(i).A_zoom./PSD(i).F_zoom), '+', 'color',string(colore(i,:)))
-end
-
-%plot(f_zoom, 10*log10(pyyc./PSD(i).F_zoom), '-*')
-grid on
-set(gca, 'XScale', 'log'),
-xlim([10 2000])
-title('Accelerazione normalizzata','FontSize',18)
-xlabel('Frequency [Hz]','FontSize',12),
-ylabel('Acceleration/Force [Kg^{-1}]','FontSize',12),
-saveas(gcf,'Accelerazione.fig');
+%Accelerazione normalizzata
+% figure (400), hold on
+% for i=1:N
+%     plot(f,10*log10(PSD(i).Aav./PSD(i).Fav), 'color',string(colore(i,:)))
+%     
+%     % psd zoom
+%     plot(f_zoom, 10*log10(PSD(i).A_zoom./PSD(i).F_zoom), '+', 'color',string(colore(i,:)))
+% end
+% 
+% %plot(f_zoom, 10*log10(pyyc./PSD(i).F_zoom), '-*')
+% grid on
+% set(gca, 'XScale', 'log'),
+% xlim([10 2000])
+% title('Accelerazione normalizzata','FontSize',18)
+% xlabel('Frequency [Hz]','FontSize',12),
+% ylabel('Acceleration/Force [Kg^{-1}]','FontSize',12),
+% saveas(gcf,'Accelerazione.fig');
 
 % accelerazione/forza
-figure (401), hold on
-for i=1:3
-    plot(f,PSD(i).Aav ./ PSD(i).Fav)
-end
-grid on
-set(gca, 'XScale', 'log')
-xlim([10 1000])
+% figure (401), hold on
+% for i=1:3
+%     plot(f,PSD(i).Aav ./ PSD(i).Fav)
+% end
+% grid on
+% set(gca, 'XScale', 'log')
+% xlim([10 1000])
 
-
-figure (402)
-hold on
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+% Figura confronto Accelerazione-Coerenza secondo Vasquez
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+figure (402) hold on
 title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
+
 yyaxis left
 hold on
 for i = 1:N
-    
     plot(f,100*(PSD(i).Aav)/max(PSD(i).Aav(f<500))) %, 'color', string(colore(i,:)))
 end
 ylim ([0 150])
@@ -754,22 +767,16 @@ ylabel('Accelerazione [%]','FontSize',12),
 
 yyaxis  right
 hold on
-for i = 1:N
-    
+for i = 1:N    
     plot(f_fft,sng(i).Cxy)%, 'color', string(colore(i,:)))
 end
 ylabel('Coerenza','FontSize',12),
 
-grid on
-set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 xlim ([10 500])
 xlabel('Frequenza [Hz]','FontSize',12),
-
-ax = gca;
-ax.XAxis.Exponent = 0;
-xtickformat (ax, 'usd')
+set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 % Requires R2020a or later
-exportgraphics(ax,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
+exportgraphics(ax,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'white', 'Resolution', 300) 
 saveas(gcf, cell2mat(['Acc-Coher-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -784,6 +791,7 @@ F_max_av = zeros(N,1);
 for i=1:N
     F_max_av(i) = max(max(sng(i).F));
 end
+
 subplot(4,1,1), hold on
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 grid on, xlim([ascissamin ascissamax]),ylim([0 1])
