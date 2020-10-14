@@ -297,7 +297,7 @@ win_1 = ones(size(win_F)); % finestra unitaria per non far calcolare la normaliz
 % eseguo le operazioni ciclicamente
 for i=1:N
     [PSD(i).F, ~] = periodogram(sng(i).F_filt, win_1, r, fs); %PSD Forza [N^2]
-    [PSD(i).A, f] = periodogram(sng(i).A, win_A, r, fs); %PSD Accelerazione [g^2]
+    [PSD(i).A, f] = periodogram(sng(i).A_filt, win_1, r, fs); %PSD Accelerazione [g^2]
 end
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -739,10 +739,10 @@ grid on
 set(gca, 'XScale', 'log')
 xlim([10 1000])
 
-%%
+
 figure (402)
 hold on
-title ('Vazquez, S.E. Paje')
+title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
 yyaxis left
 hold on
 for i = 1:N
@@ -765,7 +765,12 @@ set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 xlim ([10 500])
 xlabel('Frequenza [Hz]','FontSize',12),
 
-%%
+ax = gca;
+ax.XAxis.Exponent = 0;
+xtickformat (ax, 'usd')
+% Requires R2020a or later
+exportgraphics(ax,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
+saveas(gcf, cell2mat(['Acc-Coher-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dstiff totale e settaggio parametri grafico
@@ -982,8 +987,13 @@ for i=1:N
 end
 
 figure (703), hold on
-b = bar (1, 10*log10(MI_av'));
-
+b = bar (1, 10*log10(MI_av'));%,'DisplayName', ['Sequenza n°', num2str(i)]);
+xticks ([])
+ylabel('Impedenza meccanica MI'' [dB @ 1Ns/m]', 'FontSize', 18)
+grid on
+grid minor
+legend( 'FontSize', 12)
+saveas(gcf, ['Impedenza_meccanica-M_Li_2016 ',,'.fig'])
 save('Outputs.mat', 'sng', 'PSD', 'FFT', 'result','frequenze', 'win_1', 'win_A', 'conf')
 
 %%

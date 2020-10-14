@@ -297,7 +297,7 @@ win_1 = ones(size(win_F)); % finestra unitaria per non far calcolare la normaliz
 % eseguo le operazioni ciclicamente
 for i=1:N
     [PSD(i).F, ~] = periodogram(sng(i).F_filt, win_1, r, fs); %PSD Forza [N^2]
-    [PSD(i).A, f] = periodogram(sng(i).A, win_A, r, fs); %PSD Accelerazione [g^2]
+    [PSD(i).A, f] = periodogram(sng(i).A_filt, win_1, r, fs); %PSD Accelerazione [g^2]
 end
 
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -740,7 +740,7 @@ set(gca, 'XScale', 'log')
 xlim([10 1000])
 
 
-figure %(402)
+figure (402)
 hold on
 title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
 yyaxis left
@@ -766,10 +766,11 @@ xlim ([10 500])
 xlabel('Frequenza [Hz]','FontSize',12),
 
 ax = gca;
+ax.XAxis.Exponent = 0;
+xtickformat (ax, 'usd')
 % Requires R2020a or later
 exportgraphics(ax,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
 saveas(gcf, cell2mat(['Acc-Coher-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
-%%
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dstiff totale e settaggio parametri grafico
@@ -961,7 +962,6 @@ ylim([-200 200])
 % save (cell2mat(['Dstiffness_bin_',conf(i).conf.campione,'_',conf(i).conf.piastra,'_Fft.mat']),'PSD_K_bin');
 
 
-
 %<<<<<<<<<<<<<<<<<<<<<<
 % Mechanical impedence
 %<<<<<<<<<<<<<<<<<<<<<<
@@ -982,11 +982,8 @@ clear tempstruct
 
 MI_av = zeros(1,N);
 for i=1:N
-    MI_av(i)=mean(result.indici_colpo.max_V(i).MI);
+    result.indici_colpo.max_V(i).MI_av = mean(result.indici_colpo.max_V(i).MI);
 end
-
-figure (703), hold on
-b = bar (1, 10*log10(MI_av'));
 
 save('Outputs.mat', 'sng', 'PSD', 'FFT', 'result','frequenze', 'win_1', 'win_A', 'conf')
 

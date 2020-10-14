@@ -82,6 +82,6 @@ grid on
 grid minor
 legend( 'FontSize', 12)
 saveas(gcf, ['Impedenza_meccanica-M_Li_2016.fig'])
-exportgraphics(gcf,'Impedenza_meccanica-M_Li_2016.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
+exportgraphics(gfx,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
 
 end
