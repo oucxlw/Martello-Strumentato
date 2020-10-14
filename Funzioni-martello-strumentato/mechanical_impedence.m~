@@ -37,7 +37,6 @@ for i=1:N
     yyaxis right
     %plot(v_t(:,1))
     plot (time1, v_t_corr(:,colpo))
-    xlim ([15 40])
     
     figure (701), hold on, %stampo F vs F
     yyaxis left
@@ -48,6 +47,7 @@ for i=1:N
     
     tempstruct(i).MI = max(sng(i).F) ./ max(v_t_corr); %calcolo di MI
     % Plot degli indicatori MI dei singoli impatti
+    
     figure (702), hold on %plot di MI
     plot (10*log10(tempstruct(i).MI),'*', 'DisplayName', ['Sequenza n°', num2str(i)])
     
@@ -59,6 +59,18 @@ for i=1:N
     end
     
 end
+figure (700)
+yyaxis left
+ylabel ('Accelerazione','FontSize', 18)
+Iyyaxis right
+ylabel ('Velocità','FontSize', 18)
+
+figure (701)
+yyaxis left
+ylabel ('Accelerazione','FontSize', 18)
+Iyyaxis right
+ylabel ('Velocità','FontSize', 18)
+
 figure (702), hold on %plot di MI
 grid on
 grid minor
@@ -82,6 +94,6 @@ grid on
 grid minor
 legend( 'FontSize', 12)
 saveas(gcf, ['Impedenza_meccanica-M_Li_2016.fig'])
-exportgraphics(gfx,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
+exportgraphics(gcf,'Impedenza_meccanica-M_Li_2016.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
 
 end
