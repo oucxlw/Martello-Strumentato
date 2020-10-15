@@ -28,7 +28,6 @@ conf = table(campione, piastra, appoggio, adesivo, punta, martellatore, accelero
 set (0,'DefaultFigureWindowStyle','docked')
 clear variables
 
-
 clc
 close all
 %clear variables
@@ -74,7 +73,7 @@ end
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Parametri fisici
 [g,div_F,div_A,fs] = parametri_fisici();
-
+[cal_f, cal_a] = parametri_calibrazione();
 % Parametri di ricerca
 fine = cell(1,N);
 for i = 1:N%length(sng)
@@ -127,8 +126,8 @@ colore = [
 % Calibrazione di forza e accelerazione
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 for i = 1:N
-    sng(i).x = div_F * sng(i).x;
-    sng(i).y = g * div_A * sng(i).y;
+    sng(i).x = cal_f * div_F * sng(i).x;
+    sng(i).y = cal_a * g * div_A * sng(i).y;
 end
 
 % Plot dei segnali
@@ -244,13 +243,17 @@ L_win_F = L_pre+round(2.25*fs/1000)+M_win/2;
 win_F = [ones(L_win_F-(M_win/2),1); curve(end/2:end-1); zeros(Lsample-L_win_F,1)];
 win_F(1,1) = 0;
 
-% Plot delle finestre
-figure (101),hold on
-subplot(2,2,2)
-plot(time1, win_A * 20*log10(max(max(sng(1).A))));
-subplot(2,2,1);
-plot(time1, win_F * max(max(sng(1).F)));
-hold off
+% % Plot delle finestre
+% figure (101),hold on
+% 
+% subplot(2,2,2)
+% yyaxis right
+% plot(time1, win_A )%* 20*log10(max(max(sng(1).A))));
+% 
+% subplot(2,2,1);
+% yyaxis right
+% plot(time1, win_F )%* max(max(sng(1).F)));
+% hold off
 
 % Finestratura
 for i = 1:N
@@ -296,11 +299,9 @@ win_1 = ones(size(win_F)); % finestra unitaria per non far calcolare la normaliz
 % Periodogram non gestisce pi˘ di 40 colonne contemporaneamente quindi
 % eseguo le operazioni ciclicamente
 for i=1:N
-    
-    
-    [PSD(i).F, ~] = periodogram(sng(i).F_filt, win_1, r, fs); %PSD Forza [N^2]
-    
-    [pxy, f] = cpsd(sng(1).F_filt, sng(i).A_filt, win_1, [], r, fs);
+      
+    [PSD(i).F, ~] = periodogram(sng(i).F_filt, win_1, r, fs); %PSD Forza [N^2]  
+    [pxy, f] = cpsd(sng(i).F_filt, sng(i).A_filt, win_1, [], r, fs);
     PSD(i).A = pxy.^2;
     %[PSD(i).A, f] = periodogram(sng(i).A_filt, win_1, r, fs); %PSD Accelerazione [g^2]
 end
@@ -381,12 +382,12 @@ picchi_sel2 = picchi_sel2 - scarti %#ok<NOPTS>
 
 for i = 1:N
     % psd
-    pxx = cpsd (sng(1).F_filt, sng(1).F_filt, win_1, [], r, fs);
+    pxx = cpsd (sng(i).F_filt, sng(i).F_filt, win_1, [], r, fs);
     pxx_av = mean (pxx,2);
     PSD(i).Fav = pxx_av;
     %PSD(i).Fav = mean(PSD(i).F, 2);
     
-    [pxy, ~] = cpsd(sng(1).F_filt, sng(i).A_filt, win_1, [], r, fs);
+    [pxy, ~] = cpsd(sng(i).F_filt, sng(i).A_filt, win_1, [], r, fs);
     pxy_av = mean(pxy,2);
     PSD(i).Aav = pxy_av.^2;
     %PSD(i).Aav = mean(PSD(i).A, 2);
@@ -413,9 +414,15 @@ end
 
 % Calcolo tramite periodogram
 pnt_misura.PSD = struct('F',[],'A',[]);
+temp_F =[];
+temp_A =[];
+for i = 1:N
+    temp_F = [temp_F, PSD(i).Fav];
+    temp_A = [temp_A, PSD(i).Aav];
+end
 
-pnt_misura.PSD.F = mean(vertcat([PSD(1:N).F]),2);
-pnt_misura.PSD.A = mean(vertcat([PSD(1:N).A]),2);
+pnt_misura.PSD.F = mean(temp_F,2);
+pnt_misura.PSD.A = mean(temp_A,2);
 
 pnt_misura.PSD.V = pnt_misura.PSD.A./(1i*2*pi*f).^2; % velocit√†
 pnt_misura.PSD.D = pnt_misura.PSD.V./(1i*2*pi*f).^2; % displacement
@@ -524,8 +531,8 @@ for mis = 1:N
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Calcolo deviazione standard
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        PSD(mis).devst_F = std ((PSD(mis).F), 0, 2);
-        PSD(mis).devst_A = std ((PSD(mis).A), 0, 2);
+        PSD(mis).devst_F = std (PSD(mis).F, 0, 2);
+        PSD(mis).devst_A = std (PSD(mis).A, 0, 2);
         %         PSD(mis).devst_F = std ((PSD(mis).F).^(1/2), 0, 2);
         %         PSD(mis).devst_A = std ((PSD(mis).A).^(1/2), 0, 2);
         
@@ -603,26 +610,32 @@ for mis = 1:N
         figure (107),hold on,
         
         subplot(4,1,1), hold on % plot coerenza della misura
-        semilogx (f, C,'color',string(colore(mis,:)), 'LineWidth', 2),
+        plot (f, C,'color',string(colore(mis,:)), 'LineWidth', 2,...
+            'DisplayName',['Misura N∞',num2str(mis)]),
         
         subplot(4,1,[2,3]), hold on % Plot rigidezza dinamica della misura
-        semilogx (f, 10 * log10(PSD(mis).Kav),'color',string(colore(mis,:)), 'LineWidth', 2),
+        plot (f, 10*log10(PSD(mis).Kav),'color',string(colore(mis,:)),...
+            'LineWidth', 2, 'DisplayName',['Misura N∞',num2str(mis)]),
         
         % Plot deviazione standard sulla misura
-        %semilogx (f, 10 * log10( PSD(mis).Kav ) + 10/log(10) * dK./PSD(mis).Kav, '-.','color',string(colore(mis,:)), 'LineWidth', 1),
-        %semilogx (f, 10 * log10( PSD(mis).Kav ) - 10/log(10) * dK./PSD(mis).Kav, '-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        %semilogx (f, 10 * log10( PSD(mis).Kav ) + 10/log(10) * dK./PSD(mis).Kav, '-','color',string(colore(mis,:)), 'LineWidth', 1),
+        %semilogx (f, 10 * log10( PSD(mis).Kav ) - 10/log(10) * dK./PSD(mis).Kav, '-','color',string(colore(mis,:)), 'LineWidth', 1),
         
-        semilogx (f, 10 * log10( PSD(mis).Kav ) + 10*log10(1+dK./PSD(mis).Kav), '+','color',string(colore(mis,:)), 'LineWidth', 1),
-        semilogx (f, 10 * log10( PSD(mis).Kav ) - 10*log10(1-dK./PSD(mis).Kav), '+','color',string(colore(mis,:)), 'LineWidth', 1),
+        plot (f, 10*log10(PSD(mis).Kav)+10*log10(1+dK./PSD(mis).Kav),...
+            '-.','color',string(colore(mis,:)),'LineWidth',1,'HandleVisibility','off'),
+        plot (f, 10*log10(PSD(mis).Kav)-10*log10(1+dK./PSD(mis).Kav),...
+            '-.','color',string(colore(mis,:)),'LineWidth',1,'HandleVisibility','off'),
         
-        %         semilogx (f, 10 * log10( PSD(mis).Kav + dK ), '-.','color',string(colore(mis,:)), 'LineWidth', 1),
-        %         semilogx (f, 10 * real( log10( PSD(mis).Kav - dK ) ), '-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        % semilogx (f, 10 * log10( PSD(mis).Kav + dK ), '-.','color',string(colore(mis,:)), 'LineWidth', 1),
+        % semilogx (f, 10 * real( log10( PSD(mis).Kav - dK ) ), '-.','color',string(colore(mis,:)), 'LineWidth', 1),
         
         % Plot limite in frequenza
-        xline(PSD(mis).fmax, '.', ['Limite in frequenza: ',num2str(round(PSD(mis).fmax)),' Hz'],'color',string(colore(mis,:)));
-        
+        xline(PSD(mis).fmax, '.', ['Limite in frequenza: ', ...
+            num2str(round(PSD(mis).fmax)),' Hz'],'color',string(colore(mis,:)),'HandleVisibility','off');
+        %Plot fase
         subplot(4,1,4), hold on % Plot fase
-        semilogx (f_fft, 180/pi * angle(FFT(mis).Kav), 'color',string(colore(mis,:)),'LineWidth', 2)
+        semilogx (f_fft, 180/pi * angle(FFT(mis).Kav), 'color',...
+            string(colore(mis,:)),'LineWidth', 2, 'DisplayName',['Misura N∞',num2str(mis)])
         
         %<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         % Plot Accelerazione e forza
@@ -673,12 +686,31 @@ frequenze.f = f;
 frequenze.f_fft = f_fft;
 
 % Figura Segnali e Spettri
+
+% Plot delle finestre
+figure (101),hold on
+
+subplot(2,2,2)
+yyaxis right
+plot(time1, win_A,'LineWidth',2)%* 20*log10(max(max(sng(1).A))));
+ylabel('Finestra')
+ylim([-0.1, 1.1]), yticks (0:0.1:1)
+
+subplot(2,2,1);
+yyaxis right
+plot(time1, win_F,'LineWidth',2)%* max(max(sng(1).F)));
+ylabel('Finestra')
+hold off
+ylim([-0.1, 1.1]), yticks (0:0.1:1)
+
 % Settaggio parametri grafico
 figure (101), hold on
 subplot(2,2,1), hold on
+yyaxis left
 xlabel('Time [ms]'), ylabel('Amplitude [N]'), title('Forza')
 grid on, %xlim([0 10])
 subplot(2,2,2), hold on,
+yyaxis left
 xlabel('Time [ms]'), ylabel('Amplitude 20 log10 ([m/s^2])'), title('Accelerazione'),
 grid on, %xlim([0 10])
 subplot(2,2,3), hold on
@@ -754,7 +786,7 @@ end
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Figura confronto Accelerazione-Coerenza secondo Vasquez
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-figure (402) hold on
+figure (402), hold on
 title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
 
 yyaxis left
@@ -776,7 +808,7 @@ xlim ([10 500])
 xlabel('Frequenza [Hz]','FontSize',12),
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 % Requires R2020a or later
-exportgraphics(ax,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'white', 'Resolution', 300) 
+exportgraphics(gcf,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none') 
 saveas(gcf, cell2mat(['Acc-Coher-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -799,27 +831,31 @@ xlabel('Frequenza [Hz]'), ylabel('Coerenza'),
 % legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
 %     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
 %     ['misura 3 (',num2str(round(F_max_av (3))),' N)'])
+legend ('FontSize', 12)
 
 % Plot della massa della piastra
 subplot(4,1,[2,3]), hold on
 % Plotto anche le masse delle altre misure se hanno valori diversi da m(1)
 for mis=1:N
     if mis == 1
-        plot(f,10*log10(m(mis)*(2*pi*f).^4),'--k');
+        plot(f,10*log10(m(mis)*(2*pi*f).^4),'--k','DisplayName','Massa del campione');
     else
         if m(mis)~=m(1)
-            plot(f,10*log10(m(mis)*(2*pi*f).^4),'--k');
+            plot(f,10*log10(m(mis)*(2*pi*f).^4),'--k','DisplayName',...
+                'Massa del N∞',num2str(i),' campione');
         end
     end
 end
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
 grid on, xlim([ascissamin ascissamax]),ylim([80 200])
 xlabel('Frequenza [Hz]'), ylabel('PSD Rigidezza Dinamica [dB @ 1 N/m]'),
+legend ('FontSize', 12)
 
 subplot(4,1,4), hold on
 set(gca, 'XScale', 'log'), yticks([-180 -90 0 90 180])
 grid on, xlim([ascissamin ascissamax]),ylim([-180 180])
 xlabel('Frequenza [Hz]'), ylabel('Fase [ang]'),
+legend ('FontSize', 12)
 
 % legend(['misura 1 (',num2str(round(F_max_av (1))),' N)'],...
 %     ['misura 2 (',num2str(round(F_max_av (2))),' N)'],...
@@ -827,6 +863,9 @@ xlabel('Frequenza [Hz]'), ylabel('Fase [ang]'),
 
 % Salvataggio
 saveas(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',conf(i).conf.piastra,'bw',num2str(bandwidth),'.fig']))
+exportgraphics(gcf, cell2mat(['Collezione Dstiff_',conf(i).conf.campione,'_',...
+    conf(i).conf.piastra,'bw',num2str(bandwidth),'.pdf']), 'BackgroundColor', 'none')
+
 %saveas(gcf, cell2mat(['Collezione Dstiff_',conf.campione,'_',conf.piastra,'.png']))
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1280,9 +1319,14 @@ end
 %<<<<<<<<<<<<<<
 % Calibrazione
 %<<<<<<<<<<<<<<
+%massa di calibrazione
 m_cal = 1.487; %#ok<NASGU>
 %m_cal2 = piastre.massa('pesante2') + 0.0573;
 m_cal = 2.951;
+m_cal = piastre.massa( conf.conf.piastra ) ;
+
+%Calcolo della massa dinamica normalizzata radice di PSD(F)/PSD(A) /
+%massa di calibrazione
 
 norm_mass = (PSD(1).F./PSD(1).A).^(1/2)/m_cal;
 %norm_mass(:,4) = [];
@@ -1291,11 +1335,15 @@ figure, hold on
 title (cell2mat(['Calibrazione - piastra ', conf(1).conf.piastra, ' - punta ', conf(1).conf.punta]), 'FontSize', 18)
 xlabel ('Frequenza [Hz]', 'FontSize', 18);
 ylabel ('Massa dinamica / massa sospesa', 'FontSize', 18);
+%plot della massa dinamica normalizzata
 plot (f, norm_mass,'Color', [0.5 0.5 0.5])
 set(gca, 'XScale', 'log'), grid on
 xlim ([10 1000]), ylim([0.5 1.2])
+
+% Calcolo della massa dinamica media sulle ripetizioni
 norm_mass_av = mean (norm_mass, 2);
 
+% valore medio in frequenza della massa dinamica media
 mediumval = mean (norm_mass_av(33:313));
 %calib_m1 = 1./norm_mass_av
 
@@ -1304,10 +1352,6 @@ plot (f, norm_mass_av, 'k', 'LineWidth', 2)
 plot (f, ones(size(f))*1.05, 'k-.', 'LineWidth', 1)
 plot (f, ones(size(f)), 'k', 'LineWidth', 2)
 plot (f, ones(size(f))*0.95, 'k-.', 'LineWidth', 1)
-
-
-
-%legend('1','2','3','4','5','6','7','8')
 
 norm_A1 = PSD(1).A.*norm_mass_av.^2;
 % norm_A2 = PSD(2).A.*norm_mass_av.^2;
@@ -1319,6 +1363,8 @@ plot (f, norm_mass/mediumval,'b')
 ylim ([0 1.2])
 xlim ([80 1200])
 
+calib = 1/mediumval;
+save('calibrazione','calib')
 %%
 %<<<<<<<<<<<<<<<<<<<<<<<<
 % Confronto in frequenza
