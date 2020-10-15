@@ -657,7 +657,7 @@ for mis = 1:N
         % sono arrivato qui
         
         lim_sup =  find(f > 500); %min(vertcat([PSD.fmax]))*1);%0.35);
-        lim_inf =  find(f < 100);
+        lim_inf =  find(f < 10);
         
         % secondo minimo di K
         min_k = min(PSD(mis).Kav(lim_inf(end):lim_sup(1)));
@@ -728,8 +728,8 @@ f2=1000 %#ok<NOPTS>
 f_zoom = f1:0.5:f2;
 
 for i=1:N
-    [PSD_Ftemp, ~, pxxc] = periodogram( sng(i).F_filt, win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
-    [PSD_Atemp, f_2, pyyc] = periodogram(sng(i).A, win_1, f_zoom, fs, 'ConfidenceLevel',0.60); %PSD Accelerazione [g^2]
+    %[PSD_Ftemp, ~, pxxc] = periodogram( sng(i).F_filt, win_1, f_zoom, fs, 'ConfidenceLevel',0.95); %PSD Forza [N^2]
+    %[PSD_Atemp, f_2, pyyc] = periodogram(sng(i).A, win_1, f_zoom, fs, 'ConfidenceLevel',0.60); %PSD Accelerazione [g^2]
     
     [pxx, ~] = cpsd(sng(1).F_filt, sng(i).F_filt, win_1, [], f_zoom, fs);
     [pxy, ~] = cpsd(sng(1).F_filt, sng(i).A_filt, win_1, [], f_zoom, fs);
@@ -791,25 +791,43 @@ title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
 
 yyaxis left
 hold on
+fr_misura = zeros(1,N);
 for i = 1:N
-    plot(f,100*(PSD(i).Aav)/max(PSD(i).Aav(f<500))) %, 'color', string(colore(i,:)))
+    temp = abs(PSD(i).Aav);
+    fr_misura(i) = f(temp==max(temp(f<500)));%cerco la frequanza di risonanza
+    pnt_misura.indici.max_A(i).fd=fr_misura(i); %scrivo il risultato
+    plot(f,100*(temp/max(temp(f<500))),'DisplayName',['Sequenza n°',...
+        num2str(i),' f_r=',num2str(fr_misura(i)),' Hz'],'LineWidth',2)
 end
 ylim ([0 150])
-ylabel('Accelerazione [%]','FontSize',12),
+ylabel('Accelerazione [%]','FontSize',18),
 
 yyaxis  right
 hold on
 for i = 1:N    
-    plot(f_fft,sng(i).Cxy)%, 'color', string(colore(i,:)))
+    plot(f_fft,abs(sng(i).Cxy),'DisplayName',['Sequenza n°',num2str(i)],...
+        'LineWidth',2)
 end
-ylabel('Coerenza','FontSize',12),
+ylabel('Coerenza','FontSize',18),
 
 xlim ([10 500])
-xlabel('Frequenza [Hz]','FontSize',12),
+xlabel('Frequenza [Hz]','FontSize',18),
 set(gca, 'XScale', 'log'), %set(gca, 'YScale', 'log'),
+legend('FontSize',12)
 % Requires R2020a or later
 exportgraphics(gcf,'Acc-Coher-Vasquez.pdf', 'BackgroundColor', 'none') 
 saveas(gcf, cell2mat(['Acc-Coher-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
+
+for i=1:N
+    pnt_misura.indici.max_A(i).K0 = fr_misura(i);
+   
+    pnt_misura.indici.max_A(i).K0 = (2*pi*fr_misura(i))^2 * m(i);
+    pnt_misura.indici.max_A(i).S_star = (2*pi*fr_misura(i))^2 * m(i)/s(i);
+    pnt_misura.indici.max_A(i).E  = (2*pi*fr_misura(i))^2 * m(i) * h(i)/s(i);
+    
+end
+s_pnt_misura = mean(vertcat(pnt_misura.indici.max_A.S_star));
+save('S_primo','s_pnt_misura');
 
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Plot Dstiff totale e settaggio parametri grafico

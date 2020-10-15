@@ -56,7 +56,12 @@ for i=1:N
     
     % Plot degli indicatori MI dei singoli impatti
     figure (702), hold on %plot di MI
-    plot (10*log10 (tempstruct(i).MI),'*', 'DisplayName', ['Sequenza n°', num2str(i)])
+    plot (10*log10(tempstruct(i).MI),'*','DisplayName',['Sequenza n°',num2str(i)])
+    
+    % Plot degli MI in funzione del picco di forza
+    figure (703), hold on %plot di MI
+    plot (max(sng(i).F),10*log10(tempstruct(i).MI),'+','LineWidth',2,...
+        'DisplayName', ['Sequenza n°', num2str(i)])
     
 end
 
@@ -84,12 +89,25 @@ xlabel ('Colpo progressivo', 'FontSize', 18)
 ylabel ('Impedenza meccanica MI [dB @ 1Ns/m]', 'FontSize', 18)
 legend ('FontSize', 12)
 
+figure (703), hold on %plot di MI vs F
+grid on
+grid minor
+%xlim ([0 x_max+1])
+%xticks ( 1:x_max);
+ylim ([0 1.2*10*log10(y_max)])
+xlabel ('Forza [N]', 'FontSize', 18)
+ylabel ('Impedenza meccanica MI [dB @ 1Ns/m]', 'FontSize', 18)
+legend ('FontSize', 12)
+saveas (gcf, 'MI_vs_F_M_Li_2016.fig')
+exportgraphics (gcf,'MI_vs_F_M_Li_2016.pdf', 'BackgroundColor', 'none') 
+
+
 MI_av = zeros(1,N);
 for i=1:N
     MI_av(i) = mean (tempstruct(i).MI);
 end
 
-figure (703), hold on
+figure (704), hold on
 bar (1, 10*log10 (MI_av'));%,'DisplayName', ['Sequenza n°', num2str(i)]);
 xticks ([])
 ylabel ('Impedenza meccanica MI'' [dB @ 1Ns/m]', 'FontSize', 18)
@@ -97,6 +115,6 @@ grid on
 grid minor
 legend ('FontSize', 12)
 saveas (gcf, 'Impedenza_meccanica-M_Li_2016.fig')
-exportgraphics (gcf,'Impedenza_meccanica-M_Li_2016.pdf', 'BackgroundColor', 'none', 'Resolution', 300) 
+exportgraphics (gcf,'Impedenza_meccanica-M_Li_2016.pdf', 'BackgroundColor', 'none') 
 
 end
