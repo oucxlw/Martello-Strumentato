@@ -1138,6 +1138,7 @@ FFT = Inputs.FFT;
 win_A = Inputs.win_A;
 result = Inputs.result;
 conf = Inputs.conf;
+frequenze = Inputs.frequenze;
 
 [piastre] = tabella_piastre ();
 [campioni] = tabella_campioni (conf(1).conf,piastre);
