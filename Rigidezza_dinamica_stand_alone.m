@@ -1,4 +1,6 @@
 %%
+set (0,'DefaultFigureWindowStyle','docked')
+
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % RIGIDEZZA DINAMICA VASQUEZ stand alone
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -54,14 +56,13 @@ colore = [
     '.301, .705, .903';
     '.615, .018, .114'];
 
-
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 % Figura confronto Accelerazione-Coerenza secondo Vasquez
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 figure (405), hold on
 title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
-f_analisi=[20 1000];
+f_analisi=[100 1000];
 yyaxis left
 hold on
 massimi = cell(1,N);
@@ -71,16 +72,26 @@ out = find(f<f_analisi(2));
 out = out(end);
 
 for i = 1:N
-    temp = abs(PSD(i).A);
+    
+    temp = PSD(i).A;
+    temp2 = PSD(i).F;
+    F_RMS = (sum(temp2,1)/2).^(1/2);
+    %F_RMS = (abs((sum(PSD(i).F)), 1)).^(1/2);
     temp_massimi=zeros(1,size(temp,2));
     for j=1:size(temp,2)
+        %se la forza è compresa nell'intervalo di forza richiesto scrivo il
+        %valore della frequenza di picco, altrimenti lo lascio 0
+        %if F_RMS(j)<(3.2) && F_RMS(j)>(1.7) 
         temp_massimi(j) = f(temp(:,j)==max(temp(in:out,j)));%cerco la frequanza di risonanza
+        
+        plot(f,100*(temp(:,j)./max(temp(in:out,j))),'DisplayName',['Sequenza n°',...
+        num2str(i)],'LineWidth',2)
+        %end
     end
     %massimi(i) = f(temp==max(temp(in:out)));%cerco la frequanza di risonanza
     result.indici_colpo.max_V(i).fd = temp_massimi;
     %pnt_misura.indici.max_A(i).fd = massimi(i); %scrivo il risultato
-    plot(f,100*(temp./max(temp(in:out,:))),'DisplayName',['Sequenza n°',...
-        num2str(i)],'LineWidth',2)
+    
 end
 ylim ([0 150])
 ylabel('Accelerazione [%]','FontSize',18),
@@ -94,19 +105,27 @@ end
 ylabel('Coerenza','FontSize',18),
 xlim (f_analisi),ylim([0 1]);
 S_primo_0 = zeros(1,N);
-figure (406) %S' in funzone della forza
+
+
+figure (406) %S' in funzone della forza RMS
 for i=1:N
     result.indici_colpo.max_V(i).K0 = (2*pi* result.indici_colpo.max_V(i).fd ).^2 * m(i);
     result.indici_colpo.max_V(i).S_star = (2*pi* result.indici_colpo.max_V(i).fd ).^2 * m(i)/s(i);
     result.indici_colpo.max_V(i).E  = (2*pi* result.indici_colpo.max_V(i).fd ).^2 * m(i) * h(i)/s(i);   
-    plot(max(sng(i).F),  result.indici_colpo.max_V(i).S_star/10^6,'+','LineWidth',2,...
-        'color', string(colore(i,:)),'DisplayName', ['Sequenza n°', num2str(i)])
+    
+    temp2 = PSD(i).F;
+    F_RMS = (sum(temp2,1)/2).^(1/2);
+    %plot(max(sng(i).F),  result.indici_colpo.max_V(i).S_star/10^6,'+','LineWidth',2,...
+    plot(F_RMS(result.indici_colpo.max_V(i).fd>0),...
+        result.indici_colpo.max_V(i).S_star(result.indici_colpo.max_V(i).fd>0)/10^6,...
+        '+','LineWidth',2,'color', string(colore(i,:)),'DisplayName',...
+        ['Sequenza n°', num2str(i)])
 
-    X = max(sng(i).F);
-    Y = result.indici_colpo.max_V(i).S_star;
+    X = F_RMS(result.indici_colpo.max_V(i).fd>0);
+    Y = result.indici_colpo.max_V(i).S_star(result.indici_colpo.max_V(i).fd>0);
     P = polyfit(X,Y,1);
     
-    X_exp = 1:max(X*1.5);
+    X_exp = 0:max(X*1.5);
     Y_fit = P(1)*X_exp+P(2);
     S_primo_0(i) = Y_fit(1);
     hold on;
@@ -114,14 +133,15 @@ for i=1:N
         'DisplayName',['Fit lineare n°', num2str(i)]);
 end
 grid on;
-ylabel('Digidezza Dinamica apparente x10^6 [N/m]','FontSize',18),
+ylabel('Rigidezza Dinamica apparente x10^6 [N/m]','FontSize',18),
 xlabel ('Forza [N]', 'FontSize', 18)
 title ('Rigidezza dinamica in funzione della forza impressa','FontSize',20)
-
+xlim=([0 max(F_RMS)])
 save('S_primo_0','S_primo_0');
 exportgraphics(gcf,'Dstiff_vs_F-Vasquez.pdf', 'BackgroundColor', 'none') 
 saveas(gcf, cell2mat(['Dstiff_vs_F-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
-
+%%
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 figure (402), hold on
 title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
