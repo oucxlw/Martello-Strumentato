@@ -136,13 +136,15 @@ grid on;
 ylabel('Rigidezza Dinamica apparente x10^6 [N/m]','FontSize',18),
 xlabel ('Forza [N]', 'FontSize', 18)
 title ('Rigidezza dinamica in funzione della forza impressa','FontSize',20)
-xlim=([0 max(F_RMS)])
+ylim ([0 1000])
+xlim([0 max(F_RMS)])
 save('S_primo_0','S_primo_0');
-exportgraphics(gcf,'Dstiff_vs_F-Vasquez.pdf', 'BackgroundColor', 'none') 
-saveas(gcf, cell2mat(['Dstiff_vs_F-Vasquez_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
-%%
+exportgraphics(gcf,cell2mat(['Dstiff_vs_F-Vasquez_',conf(i).conf.campione,...
+    '_',conf(i).conf.piastra,'.pdf']),'ContentType','vector','BackgroundColor','none') 
+saveas(gcf, cell2mat(['Dstiff_vs_F-Vasquez_',conf(i).conf.campione,'_',...
+    conf(i).conf.piastra,'.fig']))
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+% figura facendo la media dei colpi come richiesto da UNI EN 7626-5
 figure (402), hold on
 title ('Frequenza di risonanza (V.F. Vazquez, S.E. Paje, 2012) ','FontSize',16)
 
@@ -186,7 +188,39 @@ for i=1:N
 end
 s_pnt_misura = vertcat(pnt_misura.indici.max_A.S_star);
 
+
+%Rigidità dinamica pulita su scala lineare
+figure (407)
+title ('Rigidità dinamica (Krzysztof Robert Czech 2020)','FontSize',16)
+hold on
+for i = 1:N
+plot (f,10*log10(PSD(i).Kav),'DisplayName',['Sequenza n°',num2str(i)],...
+        'LineWidth',2)
+end
+legend('FontSize',12)
+grid on, xlim([0 1000]), ylim([70 170])
+xlabel('Frequenza [Hz]','FontSize',18),
+ylabel('Dynamic stiffness dB re 1 N/m','FontSize',18),
+exportgraphics(gcf,'Dstiff_Krzysztof2020.pdf', 'BackgroundColor', 'none') 
+saveas(gcf, cell2mat(['Dstiff_Krzysztof2020_',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
+
+%Rigidità dinamica pulita su scala lineare - media tra misure
+figure (408)
+title ('Rigidità dinamica (Krzysztof Robert Czech 2020) Media','FontSize',16)
+hold on
+K_medio = mean(vertcat(PSD(i).Kav),2);
+plot (f,10*log10(K_medio),'DisplayName',cell2mat([conf(i).conf.campione,...
+    ' ',conf(i).conf.piastra,]),'LineWidth',2)
+legend('FontSize',12)
+grid on, xlim([0 1000]), ylim([70 170])
+xlabel('Frequenza [Hz]','FontSize',18),
+ylabel('Dynamic stiffness dB re 1 N/m','FontSize',18),
+exportgraphics(gcf,'Dstiff_Krzysztof2020_media.pdf', 'BackgroundColor', 'none') 
+saveas(gcf, cell2mat(['Dstiff_Krzysztof2020_media',conf(i).conf.campione,'_',conf(i).conf.piastra,'.fig']))
+
+% salvataggio finale
+save('K_medio','K_medio','conf')
+%%
 save('S_primo','s_pnt_misura');
 save('Outputs.mat', 'sng', 'PSD', 'FFT', 'result','frequenze', 'win_1', 'win_A', 'conf');
-
 
