@@ -42,6 +42,8 @@ MI_exp = zeros(1,N);
 MI_av_dev = zeros(1,N);
 MI_lin_R = zeros(1,N);
 MI_exp_R = zeros(1,N);
+filtro_intensita = 0; %Serve a togliere dal fit misure con Fmax troppo elevata
+lim_Fmax = 700; %Forza a cui si taglia per il fit
 %integrazione accelerazione in velocità e plot
 for i=1:N
     v_t = cumtrapz (sng(i).A)/fs; %Integriamo a(t)
@@ -56,6 +58,7 @@ for i=1:N
     v_drift = cumtrapz (v_drift);
     v_t_corr = v_t - v_drift; %correggo v_t sottraendo il drift
     
+    tempstruct(i).MI = max(sng(i).F) ./ max(abs(v_t_corr)); %calcolo di MI
     tempstruct(i).MI = max(sng(i).F) ./ max(v_t_corr); %calcolo di MI
 
     %Cerco i limiti del grafico 702
@@ -86,13 +89,21 @@ for i=1:N
     plot (20*log10(tempstruct(i).MI),'*', 'color', string(colore(i,:)),...
         'DisplayName',['Sequenza n°',num2str(i)])
     
+    %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     % Plot degli MI in funzione del picco di forza
+    %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     figure (703), hold on %plot di MI
     plot (max(sng(i).F),20*log10(tempstruct(i).MI),'+','LineWidth',2,...
         'color', string(colore(i,:)),'DisplayName', ['Sequenza n°', num2str(i)])
     
     X = max(sng(i).F);
     Y = 20*log10(tempstruct(i).MI);
+    
+    % filtro intensità
+    if filtro_intensita==1
+        Y(X>lim_Fmax) = [];
+        X(X>lim_Fmax) = [];
+    end
     
     % fit esponenziale
     modelfun = @(b,x)b(1)*exp(-(x-b(4))/b(2))+b(3);
@@ -114,18 +125,20 @@ for i=1:N
     Y_fit = feval(mdls(i).mdl_lin,X_exp);
     hold on;
     % plot della retta
-    plot(X_exp,Y_fit,'r-.', 'color', string(colore(i,:)),...
-        'LineWidth',2,'DisplayName',['Fit lineare n°', num2str(i),' R^2=',num2str(...
-        mdls(i).mdl_lin.Rsquared.Adjusted)]);
+%     plot(X_exp,Y_fit,'r-.', 'color', string(colore(i,:)),...
+%         'LineWidth',2,'DisplayName',['Fit lineare n°', num2str(i),' R^2=',num2str(...
+%        mdls(i).mdl_lin.Rsquared.Adjusted)]);
     % eguaglio l'impedenza meccanica all'intercetta
     MI_lin(i) = mdls(i).mdl_lin.Coefficients.Estimate(2);
     MI_lin_R(i) = mdls(i).mdl_lin.Rsquared.Adjusted;
 
-    % media 
+    % media
     MI_av(i) = mean(20*log10(tempstruct(i).MI));
     MI_av_dev(i) = std(20*log10(tempstruct(i).MI));
     
+    %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     % plot lineare non dB dell'impedenza meccanica
+    %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     figure (706), hold on
     plot (max(sng(i).F),(tempstruct(i).MI),'+','LineWidth',2,...
         'color', string(colore(i,:)),'DisplayName', ['Sequenza n°', num2str(i)])
@@ -133,19 +146,24 @@ for i=1:N
     X = max(sng(i).F);
     Y2 = tempstruct(i).MI;
     
+    % filtro intensità
+    if filtro_intensita==1
+        Y2(X>lim_Fmax) = [];
+        X(X>lim_Fmax) = [];
+    end
+    
     % fit esponenziale
-    modelfun = @(b,x)b(1)*exp(-(x-b(4))/b(2))+b(3);
-    mdls(i).mdl_exp_bis = fitnlm(X, Y2, modelfun, [-5 100 mean(Y(round (2/3*end):end)) 0]); % Modello dei primi picchi
-    %[fit,R] = nlinfit(X, Y, modelfun, [200 150 150 0]);
-    X_exp = 1:max(X*1.1);
-    Y_exp = feval(mdls(i).mdl_exp_bis,X_exp);
-    % plot della curva esponenziale
-    plot (X_exp, feval(mdls(i).mdl_exp_bis,X_exp), 'color', string(colore(i,:)),...
-        'LineWidth',2,'DisplayName',['Fit exp n°', num2str(i),' R^2=',num2str(...
-        mdls(i).mdl_exp_bis.Rsquared.Adjusted)])% plot del modello
+%     modelfun = @(b,x)b(1)*exp(-(x-b(4))/b(2))+b(3);
+%     mdls(i).mdl_exp_bis = fitnlm(X, Y2, modelfun, [-5 100 mean(Y(round (2/3*end):end)) 0]); % Modello dei primi picchi
+%     %[fit,R] = nlinfit(X, Y, modelfun, [200 150 150 0]);
+%     X_exp = 1:max(X*1.1);
+%     Y_exp = feval(mdls(i).mdl_exp_bis,X_exp);
+%     % plot della curva esponenziale
+%     plot (X_exp, feval(mdls(i).mdl_exp_bis,X_exp), 'color', string(colore(i,:)),...
+%         'LineWidth',2,'DisplayName',['Fit exp n°', num2str(i),' R^2=',num2str(...
+%         mdls(i).mdl_exp_bis.Rsquared.Adjusted)])% plot del modello
     % MI_exp(i) = Y_exp(1);
     % MI_exp_R(i) = mdls(i).mdl_exp_bis.Rsquared.Adjusted;
-    
     % fit lineare
     modelfun = @(b,x)b(1)*x+b(2);
     mdls(i).mdl_lin_bis = fitnlm(X, Y2, modelfun, [1 0]); % Modello dei primi picchi
@@ -159,10 +177,6 @@ for i=1:N
     % eguaglio l'impedenza meccanica all'intercetta
     %MI_lin(i) = mdls(i).mdl_lin.Coefficients.Estimate(2);
     %MI_lin_R(i) = mdls(i).mdl_lin.Rsquared.Adjusted;
-    
-    
-    
-    
 end
 
 figure (700)
@@ -187,7 +201,7 @@ xticks ( 1:x_max);
 ylim ([0 1.2*10*log10(y_max)])
 xlabel ('Colpo progressivo', 'FontSize', 18)
 ylabel ('Impedenza meccanica MI [dB @ 1Ns/m]', 'FontSize', 18)
-legend ('FontSize', 12)
+legend ('FontSize', 18,'Location','southeast')
 
 figure (703), hold on %plot di MI vs max F
 title('Impedenza Meccanica vs Massimo della forza','FontSize',20)
@@ -198,7 +212,7 @@ grid minor
 %ylim ([0 1.2*10*log10(y_max)])
 xlabel ('Forza [N]', 'FontSize', 18)
 ylabel ('Impedenza meccanica MI [dB @ 1Ns/m]', 'FontSize', 18)
-legend ('FontSize', 12)
+legend ('FontSize', 12,'Location','northwest')
 saveas (gcf, 'MI_vs_F_M_Li_2016.fig')
 exportgraphics (gcf,'MI_vs_F_M_Li_2016.pdf', 'BackgroundColor', 'none') 
 
@@ -235,7 +249,7 @@ grid minor
 %ylim ([0 1.2*10*log10(y_max)])
 xlabel ('Forza [N]', 'FontSize', 18)
 ylabel ('Impedenza meccanica MI [Ns/m]', 'FontSize', 18)
-legend ('FontSize', 12)
+legend ('FontSize', 12,'Location','southeast')
 saveas (gcf, 'MI_vs_F_M_Li_2016_linear.fig')
 exportgraphics (gcf,'MI_vs_F_M_Li_2016_linear.pdf', 'BackgroundColor', 'none') 
 end
