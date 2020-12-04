@@ -25,17 +25,17 @@ result = Inputs.result;
 conf = Inputs.conf;
 
 [piastre] = tabella_piastre ();
-[campioni] = tabella_campioni (conf,piastre);
+[campioni] = tabella_campioni (conf(1).conf,piastre);
 
-m = piastre.massa(conf.piastra); %massa della piastra in uso
-h = campioni.h(conf.campione);
-s = pi*(campioni.d(conf.campione)/2)^2;
+m = piastre.massa(conf(1).conf.piastra); %massa della piastra in uso
+h = campioni.h(conf(1).conf.campione);
+s = pi*(campioni.d(conf(1).conf.campione)/2)^2;
 
 clear Inputs;
 omega=2*pi.*f;
-m1= piastre.massa(conf.piastra); %massa della piastra di carico pesante 1 [kg];
+m1= piastre.massa(conf(1).conf.piastra); %massa della piastra di carico pesante 1 [kg];
 %m1= 2.8871; %massa della piastra di carico pesante 2 [kg];
-m2= campioni.massa(conf.campione);; %massa campione 1 [kg]; 
+m2= campioni.massa(conf(1).conf.campione); %massa campione 1 [kg]; 
 %m2=0.1461; %massa campione 2 [kg];
 m3=15; %massa base cemento [kg] 
 
