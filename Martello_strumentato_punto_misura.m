@@ -1504,8 +1504,8 @@ colore = [
 
 %figure (201)
 
-y_max = 250;
-y_min = 50;
+y_max = 500;
+y_min = 0;
 z_lim = 1;
 
 for i = 1:N
