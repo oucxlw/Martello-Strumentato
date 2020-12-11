@@ -12,12 +12,12 @@ win_A   = Inputs.win_A;
 result  = Inputs.result;
 conf    = Inputs.conf;
 
-[piastre]   = tabella_piastre ();
-[campioni]  = tabella_campioni (conf,piastre);
+[piastre] = tabella_piastre ();
+[campioni] = tabella_campioni (conf(1).conf,piastre);
 
-m = piastre.massa(conf.piastra); %massa della piastra in uso
-h = campioni.h(conf.campione);
-s = pi*(campioni.d(conf.campione)/2)^2;
+m = piastre.massa(conf(1).conf.piastra); %massa della piastra in uso
+h = campioni.h(conf(1).conf.campione);
+s = pi*(campioni.d(conf(1).conf.campione)/2)^2;
 
 clear Inputs;
 
@@ -44,7 +44,7 @@ colore = [
     '.301, .705, .903';
     '.615, .018, .114'];
 
-N   = length(result.indici_colpo.max_A); 
+N   = length(result.indici_colpo.max_A);
 fs  = 52100;
 
 % accelerazione/forza
@@ -52,60 +52,64 @@ lim_sup     = find(f > min(vertcat([PSD.fmax]))*1);
 lim_inf     = find(f < 10);
 f1          = f(lim_inf(end));
 
+i=1
+
 % definisco il vettore tempo
-tempo       = 1:length(sng.F_filt(:,1));
+tempo       = 1:length(sng(i).F_filt(:,1));
 tempo       = tempo/fs;
 StopTime    = tempo(end);
-simSng      = struct('V', zeros(size(sng.F)));
+simSng      = struct('V', zeros(size(sng(i).F)));
 simPSD = struct('A',cell(1,N), 'A_fft',[]);
-
-% massa
-m3 = 13;
-m2 = campioni.massa(conf.campione);
-m1 = piastre.massa(conf.piastra);
-
-% m3= m3 /3+2*m2 /3;
-% m2= m2 /3+2*m1 /3;
-% m1= m1/3;
-
-M = [ m1+m2/3 m2 m3];
-
-% rigidezza attesa
-S_star=80*10^6;
- 
-% k attesa
-k = S_star * s;
-
-k1 = 40e9; %cost.elast. piastra carico grande [N/m]
-k2 = k; % 2.8e+9; %10*k; %cost.elast.AC ref=4e6N/m
-k3 = 21.6e+9; %cost.elast. base cemento [N/m];
-
-% vettore delle K
-K = [k1  k2  k3];
-
-c1 = 0.00001*2*sqrt(K(1)*M(1)); 
-c2 = 0.05*2*sqrt(K(2)*M(1));
-c3 = 0.03*2*sqrt(K(3)*M(3)); 
-
-% Vettore delle C
-C = [c1 c2 c3];
-
-% Simulo le velocità
-[r, c]      = size(sng.F_filt);
-for i=1:c
-    %Definisco il timeseries Forza
-    forza       = timeseries(sng.F_filt(:,i), tempo);
-    
-    % simulazione con simulink
-    SimoutData = sim('Sim_sistema_fisico_ordine3.slx');
-    
-    % Acquisizione degli output di simulink
-    simSng.V(:,i) = SimoutData.velocita.velocita.Data(1:end-1,1);
-    simSng.A(:,i) = SimoutData.velocita.accelerazione.Data(1:end-1,1);
-end
-
 for i=1:N
-    [simPSD(i).A, f] = periodogram(simSng(i).A, win_A, r, fs); %PSD Accelerazione [g^2]
+    % massa
+    m3 = 13;
+    m2 = campioni.massa(conf(i).conf.campione);
+    m1 = piastre.massa(conf(i).conf.piastra);
+    
+    % m3= m3 /3+2*m2 /3;
+    % m2= m2 /3+2*m1 /3;
+    % m1= m1/3;
+    
+    M = [ m1+m2/3 m2 m3];
+    
+    % rigidezza attesa
+    S_star=200*10^6;
+    
+    % k attesa
+    k = S_star * s;
+    
+    E1=92.4*10^9; %Cast Iron Joung moduli at 21°C
+    k1= E1*s/(0.009*3); % Plate stiffness is equal to surface*Young/length
+    
+    %k1 = 40e9; %cost.elast. piastra carico grande [N/m]
+    k2 = k; % 2.8e+9; %10*k; %cost.elast.AC ref=4e6N/m
+    k3 = 21.6e+9; %cost.elast. base cemento [N/m];
+    
+    % vettore delle K
+    K = [k1  k2  k3];
+    
+    c1 = 0.00001*2*sqrt(K(1)*M(1));
+    c2 = 0.05*2*sqrt(K(2)*M(1));
+    c3 = 0.03*2*sqrt(K(3)*M(3));
+    
+    % Vettore delle C
+    C = [c1 c2 c3];
+    
+    % Simulo le velocità
+    [r, c]      = size(sng(i).F_filt);
+    for j=1:c
+        %Definisco il timeseries Forza
+        forza       = timeseries(sng(i).F_filt(:,j), tempo);
+        
+        % simulazione con simulink
+        SimoutData = sim('Sim_sistema_fisico_ordine3.slx');
+        
+        % Acquisizione degli output di simulink
+        simSng(i).V(:,j) = SimoutData.velocita.velocita.Data(1:end-1,1);
+        simSng(i).A(:,j) = SimoutData.velocita.accelerazione.Data(1:end-1,1);
+    end
+    
+    [simPSD(i).A, ~] = periodogram(simSng(i).A, win_A, r, fs); %PSD Accelerazione [g^2]
     [simPSD(i).V, f] = periodogram(simSng(i).V, win_A, r, fs); %PSD Accelerazione [g^2]
 end
 
@@ -113,22 +117,22 @@ end
 figure
 
 subplot(3,1,1)
-plot(tempo, sng.F)
+plot(tempo, sng(i).F)
 
 subplot(3,1,2)
-plot(tempo, 20*log10(abs (simSng.V)))
+plot(tempo, 20*log10(abs (simSng(i).V)))
 
 subplot(3,1,3)
-plot(tempo, 20*log10(abs (simSng.A)))
+plot(tempo, 20*log10(abs (simSng(i).A)))
 
 figure
 
 subplot(2,1,1)
-plot(f, 10*log10(abs (PSD.F)))
+plot(f, 10*log10(abs (PSD(i).F)))
 grid on, set(gca, 'XScale', 'log'), %xlim([ascissamin ascissamax])
 
 subplot(2,1,2)
-plot(f, 10*log10(abs (simPSD.A)))
+plot(f, 10*log10(abs (simPSD(i).A)))
 grid on, set(gca, 'XScale', 'log'), %xlim([ascissamin ascissamax])
 
 %%
@@ -166,7 +170,7 @@ for i = 1:N
     grid on
     set(gca, 'XScale', 'log')
     xlim([ascissamin ascissamax])
-
+    
     % secondo massimo di A
     figure(130+i), hold on
     for j = 1:cc
@@ -176,7 +180,7 @@ for i = 1:N
         
         temp_zoom = simPSD(i).A_zoom(:,j) ./ PSD(i).F_zoom(:,j);
         result.indici_colpo.max_A(i).A_norm_zoom(:,j) = temp_zoom;
-
+        
         plot (f_zoom, temp_zoom, 'color', string(colore(i+1,:)));
         
         [pks, locs, wi, pr] = findpeaks(temp_zoom, f_zoom,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
@@ -186,7 +190,7 @@ for i = 1:N
         max_A = max(temp_zoom);
         if ~isempty(result.indici_colpo.max_A(i).locs{j})
             fd = result.indici_colpo.max_A(i).locs{j}(1);
-        end        
+        end
         if length(result.indici_colpo.max_A(i).locs{j}) > 1
             f2=result.indici_colpo.max_A(i).locs{j}(2);
         end
@@ -202,7 +206,7 @@ for i = 1:N
     grid on
     set(gca, 'XScale', 'log')
     xlim([ascissamin f(lim_sup(1))]), %ylim([0 2*max_A])
-
+    
 end
 
 figure (120), hold on,
@@ -220,7 +224,7 @@ Y = vertcat([result.indici_colpo.max_A([1:N]).S_star]) / 10^6;
 modelfun = @(b,x)b(1)*exp(-(x-b(4))/b(2))+b(3)
 % mdl = fitnlm(X, Y, modelfun, [100 50 10 0]); % Modello dei primi picchi
 % [fit,R] = nlinfit(X, Y, modelfun, [200 150 150 0]);
-% 
+%
 % X_exp = 1:max(X*1.5);
 % plot (X_exp, feval(mdl,X_exp))
 % title(['Rigidezza dinamica per unità di superficie vs picco della forza'])
@@ -260,11 +264,11 @@ prominanza=1;
 distanza=10;
 
 [pks,locs,wi,p3] = findpeaks(temp_zoom, f_zoom,'MinPeakProminence',prominanza,'MinPeakDistance',distanza,'Annotate','extents');
-    
+
 % figure, hold on
 % plot(f_zoom, temp_zoom)
 % plot(locs, pks,'*')
-
+%%
 %figure (201)
 
 X3 = max(vertcat([sng.F_filt]));
@@ -277,10 +281,10 @@ Z3 = Z3(:,Fsort);
 % %ylim([0 6*10^8])
 % % Create zlabel
 % zlabel('Acc/Force','FontSize',18);
-% 
+%
 % % Create ylabel
 % ylabel('Corresponding Dynamic Stiffness [N/m^3]','FontSize',18);
-% 
+%
 % % Create xlabel
 % xlabel('Force [N]','FontSize',18);
 %  zlim([0 10]);
